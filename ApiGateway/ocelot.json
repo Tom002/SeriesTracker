@@ -1,0 +1,35 @@
+{
+  "ReRoutes": [
+    {
+      "DownstreamPathTemplate": "/api/series",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "browsingservice",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/series",
+      "UpstreamHttpMethod": [ "Get" ]
+    },
+
+    {
+      "DownstreamPathTemplate": "/api/profile/{userId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "profileservice",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/users/{userId}",
+      "UpstreamHttpMethod": [ "Get" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "IdentityServerAuthentication",
+        "AllowedScopes": []
+      }
+    },
+
+  ],
+  "GlobalConfiguration": {}
+}

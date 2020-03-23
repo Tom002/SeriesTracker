@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Authentification callback processing..</title>
+</head>
+
+<body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/oidc-client/1.8.2/oidc-client.js"></script>
+    <script>
+        var userManager = new Oidc.UserManager({userStore: new Oidc.WebStorageStateStore({ store: window.localStorage })});
+        userManager.signinRedirectCallback().then(res => {
+            console.log(res);
+            window.location.href="/";
+        }).catch(error => {
+            console.error(error);
+        })
+    </script>
+
+</body>
+
+</html>

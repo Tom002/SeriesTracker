@@ -1,0 +1,187 @@
+version: '3.4'
+
+services:
+
+  sqlserverIdentity:  
+    image: microsoft/mssql-server-linux:2017-latest
+    container_name: sqlserverIdentity
+    environment:  
+      ACCEPT_EULA: Y  
+      SA_PASSWORD: "BigPassw0rd"
+    volumes:
+      - sqlIdentity:/var/opt/mssql
+    ports:  
+      - '2000:1433'
+    networks:
+      - seriestracker-network
+
+  sqlserverCatalog:  
+    image: microsoft/mssql-server-linux:2017-latest
+    container_name: sqlserverCatalog
+    environment:  
+      ACCEPT_EULA: Y  
+      SA_PASSWORD: "BigPassw0rd"
+    volumes:
+      - sqlCatalog:/var/opt/mssql
+    ports:  
+      - '2001:1433'
+    networks:
+      - seriestracker-network
+
+  sqlserverUsers:  
+    image: microsoft/mssql-server-linux:2017-latest
+    container_name: sqlserverUsers
+    environment:  
+      ACCEPT_EULA: Y  
+      SA_PASSWORD: "BigPassw0rd"
+    volumes:
+      - sqlUsers:/var/opt/mssql
+    ports:  
+      - '2002:1433'
+    networks:
+      - seriestracker-network
+
+  sqlserverReview:  
+    image: microsoft/mssql-server-linux:2017-latest
+    container_name: sqlserverReview
+    environment:  
+      ACCEPT_EULA: Y  
+      SA_PASSWORD: "BigPassw0rd"
+    volumes:
+      - sqlReview:/var/opt/mssql
+    ports:  
+      - '2003:1433'
+    networks:
+      - seriestracker-network
+
+  sqlserverWatching:  
+    image: microsoft/mssql-server-linux:2017-latest
+    container_name: sqlserverWatching
+    environment:  
+      ACCEPT_EULA: Y  
+      SA_PASSWORD: "BigPassw0rd"
+    volumes:
+      - sqlWatching:/var/opt/mssql
+    ports:  
+      - '2004:1433'
+    networks:
+      - seriestracker-network
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    container_name: rabbitmq
+    hostname: rabbitmq
+    networks:
+      - seriestracker-network
+
+
+
+  apigateway:
+    image: ${DOCKER_REGISTRY-}apigateway
+    build:
+      context: .
+      dockerfile: ApiGateway/Dockerfile
+    networks:
+      - seriestracker-network
+    ports: 
+      - "5101:443"
+      - "5100:80"
+
+  identityservice:
+    image: ${DOCKER_REGISTRY-}identityservice
+    build:
+      context: .
+      dockerfile: IdentityService/Dockerfile
+    networks:
+      - seriestracker-network
+    ports: 
+      - "5001:443"
+      - "5000:80"
+    volumes:
+      - identitykeys:/root/.aspnet/DataProtection-Keys
+    depends_on:
+      - sqlserverIdentity
+      - rabbitmq
+
+
+  profileservice:
+    image: ${DOCKER_REGISTRY-}profileservice
+    build:
+      context: .
+      dockerfile: UserService/Dockerfile
+    networks:
+      - seriestracker-network
+    ports: 
+      - "5401:443"
+      - "5400:80"
+    depends_on:
+      - sqlserverUsers
+      - rabbitmq
+
+
+  reviewservice:
+    image: ${DOCKER_REGISTRY-}reviewservice
+    build:
+      context: .
+      dockerfile: ReviewService/Dockerfile
+    networks:
+      - seriestracker-network
+    ports: 
+      - "5501:443"
+      - "5500:80"
+    depends_on:
+      - sqlserverReview
+      - rabbitmq
+
+
+  watchingservice:
+    image: ${DOCKER_REGISTRY-}watchingservice
+    build:
+      context: .
+      dockerfile: WatchingService/Dockerfile
+    networks:
+      - seriestracker-network
+    ports: 
+      - "5601:443"
+      - "5600:80"
+    depends_on:
+      - sqlserverWatching
+      - rabbitmq
+
+
+  browsingservice:
+    image: ${DOCKER_REGISTRY-}browsingservice
+    build:
+      context: .
+      dockerfile: BrowsingService/Dockerfile
+    networks:
+      - seriestracker-network
+    ports: 
+      - "5301:443"
+      - "5300:80"
+    depends_on:
+      - sqlserverCatalog
+      - rabbitmq
+
+
+networks:
+  seriestracker-network:
+    driver: bridge
+
+volumes:
+  sqlIdentity:
+    external: false
+  sqlCatalog:
+    external: false
+  sqlUsers:
+    external: false
+  sqlReview:
+    external: false
+  sqlWatching:
+    external: false
+  identitykeys:
+    external: false
+
