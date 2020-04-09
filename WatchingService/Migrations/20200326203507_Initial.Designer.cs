@@ -10,8 +10,8 @@ using WatchingService.Data;
 namespace WatchingService.Migrations
 {
     [DbContext(typeof(WatchingDbContext))]
-    [Migration("20200322205547_InitialMigration")]
-    partial class InitialMigration
+    [Migration("20200326203507_Initial")]
+    partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -24,9 +24,7 @@ namespace WatchingService.Migrations
             modelBuilder.Entity("WatchingService.Models.Episode", b =>
                 {
                     b.Property<int>("EpisodeId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("int");
 
                     b.Property<int>("SeriesId")
                         .HasColumnType("int");
@@ -60,9 +58,7 @@ namespace WatchingService.Migrations
             modelBuilder.Entity("WatchingService.Models.Series", b =>
                 {
                     b.Property<int>("SeriesId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("int");
 
                     b.HasKey("SeriesId");
 

@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace WatchingService.Migrations
 {
-    public partial class InitialMigration : Migration
+    public partial class Initial : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -11,8 +11,7 @@ namespace WatchingService.Migrations
                 name: "Episode",
                 columns: table => new
                 {
-                    EpisodeId = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    EpisodeId = table.Column<int>(nullable: false),
                     SeriesId = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
@@ -25,7 +24,6 @@ namespace WatchingService.Migrations
                 columns: table => new
                 {
                     SeriesId = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1")
                 },
                 constraints: table =>
                 {

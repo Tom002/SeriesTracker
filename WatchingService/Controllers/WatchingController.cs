@@ -15,9 +15,12 @@ namespace WatchingService.Controllers
     {
         private readonly WatchingDbContext _context;
 
-        public WatchingController(WatchingDbContext context)
+        private readonly ICapPublisher _capBus;
+
+        public WatchingController(WatchingDbContext context, ICapPublisher capBus)
         {
             _context = context;
+            _capBus = capBus;
         }
 
         [CapSubscribe("identityservice.user.created")]
@@ -30,11 +33,31 @@ namespace WatchingService.Controllers
             }
         }
 
+        [CapSubscribe("series.created")]
+        public async Task ReceiveSeriesCreated(SeriesCreatedEvent seriesEvent)
+        {
+            if (!await _context.Series.AnyAsync(series => series.SeriesId == seriesEvent.SeriesId))
+            {
+                _context.Series.Add(new Series { SeriesId = seriesEvent.SeriesId });
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        [CapSubscribe("episode.created")]
+        public async Task ReceiveEpisodeCreated(EpisodeCreatedEvent episodeEvent)
+        {
+            if (!await _context.Episode.AnyAsync(episode => episode.EpisodeId == episodeEvent.EpisodeId))
+            {
+                _context.Episode.Add(new Episode { EpisodeId = episodeEvent.EpisodeId, SeriesId = episodeEvent.SeriesId });
+                await _context.SaveChangesAsync();
+            }
+        }
+
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
         [ProducesResponseType(401)]
         [ProducesResponseType(404)]
-        [HttpPost("watch/series")]
+        [HttpPost("series")]
         public async Task<ActionResult> WatchSeries(WatchSeriesDto watchSeriesDto)
         {
             var signedInUserId = User.FindFirst("sub").Value;
@@ -57,14 +80,28 @@ namespace WatchingService.Controllers
             }
 
             var seriesWatched = new SeriesWatched { SeriesId = watchSeriesDto.SeriesId, ViewerId = watchSeriesDto.ViewerId };
-            _context.SeriesWatched.Add(seriesWatched);
-            if (await _context.SaveChangesAsync() > 0)
+
+            using (var trans = _context.Database.BeginTransaction(_capBus, autoCommit: false))
             {
-                return NoContent();
-            }
-            else
-            {
-                return BadRequest("Error while saving watched series");
+                try
+                {
+                    _context.SeriesWatched.Add(seriesWatched);
+                    await _context.SaveChangesAsync();
+
+                    var seriesWatchedEvent = new SeriesWatchedEvent
+                    {
+                        SeriesId = seriesWatched.SeriesId,
+                        ViewerId = seriesWatched.ViewerId
+                    };
+                    await _capBus.PublishAsync("watchingService.seriesWatched.created", seriesWatchedEvent);
+                    await trans.CommitAsync();
+                    return NoContent();
+                }
+                catch (System.Exception)
+                {
+                    await trans.RollbackAsync();
+                    return BadRequest("Error while saving watched series");
+                }
             }
         }
 
@@ -72,7 +109,7 @@ namespace WatchingService.Controllers
         [ProducesResponseType(400)]
         [ProducesResponseType(401)]
         [ProducesResponseType(404)]
-        [HttpPost("watch/episode")]
+        [HttpPost("episode")]
         public async Task<ActionResult> WatchEpisode([FromBody] WatchEpisodeDto watchEpisodeDto)
         {
             var signedInUserId = User.FindFirst("sub").Value;
@@ -100,23 +137,44 @@ namespace WatchingService.Controllers
                 WatchingDate = watchEpisodeDto.WatchingDate,
                 IsInDiary = watchEpisodeDto.AddToDiary
             };
-            _context.EpisodeWatched.Add(episodeWatched);
 
-            if (!await _context.SeriesWatched.AnyAsync(sw => 
-                sw.SeriesId == episode.SeriesId &&
-                sw.ViewerId == watchEpisodeDto.ViewerId))
+            using (var trans = _context.Database.BeginTransaction(_capBus, autoCommit: false))
             {
-                var seriesWatched = new SeriesWatched { SeriesId = episode.SeriesId, ViewerId = watchEpisodeDto.ViewerId };
-                _context.SeriesWatched.Add(seriesWatched);
-            }
+                try
+                {
+                    _context.EpisodeWatched.Add(episodeWatched);
 
-            if (await _context.SaveChangesAsync() > 0)
-            {
-                return NoContent();
-            }
-            else
-            {
-                return BadRequest("Error while saving watched episode");
+                    if (!await _context.SeriesWatched.AnyAsync(sw =>
+                        sw.SeriesId == episode.SeriesId &&
+                        sw.ViewerId == watchEpisodeDto.ViewerId))
+                    {
+                        var seriesWatched = new SeriesWatched { SeriesId = episode.SeriesId, ViewerId = watchEpisodeDto.ViewerId };
+                        _context.SeriesWatched.Add(seriesWatched);
+                        var seriesWatchedEvent = new SeriesWatchedEvent
+                        {
+                            SeriesId = seriesWatched.SeriesId,
+                            ViewerId = seriesWatched.ViewerId
+                        };
+                        await _capBus.PublishAsync("watchingService.seriesWatched.created", seriesWatchedEvent);
+                    }
+
+                    var episodeWatchedEvent = new EpisodeWatchedEvent
+                    {
+                        ViewerId = episodeWatched.ViewerId,
+                        EpisodeId = episodeWatched.EpisodeId,
+                        WatchingDate = episodeWatched.WatchingDate,
+                        IsInDiary = episodeWatched.IsInDiary
+                    };
+
+                    await _capBus.PublishAsync("watchingService.episodeWatched", episodeWatchedEvent);
+                    await trans.CommitAsync();
+                    return NoContent();
+                }
+                catch (System.Exception)
+                {
+                    await trans.RollbackAsync();
+                    return BadRequest("Error while saving watched episode");
+                }
             }
         }
 

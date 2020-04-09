@@ -22,9 +22,7 @@ namespace WatchingService.Migrations
             modelBuilder.Entity("WatchingService.Models.Episode", b =>
                 {
                     b.Property<int>("EpisodeId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("int");
 
                     b.Property<int>("SeriesId")
                         .HasColumnType("int");
@@ -58,9 +56,7 @@ namespace WatchingService.Migrations
             modelBuilder.Entity("WatchingService.Models.Series", b =>
                 {
                     b.Property<int>("SeriesId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("int");
 
                     b.HasKey("SeriesId");
 

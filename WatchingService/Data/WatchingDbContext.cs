@@ -33,6 +33,18 @@ namespace WatchingService.Data
         {
             base.OnModelCreating(builder);
 
+            builder.Entity<Viewer>()
+                .Property(v => v.ViewerId)
+                .ValueGeneratedNever();
+
+            builder.Entity<Series>()
+                .Property(s => s.SeriesId)
+                .ValueGeneratedNever();
+
+            builder.Entity<Episode>()
+                .Property(e => e.EpisodeId)
+                .ValueGeneratedNever();
+
             builder.Entity<EpisodeWatched>()
                .HasKey(ew => new { ew.ViewerId, ew.EpisodeId });
             builder.Entity<EpisodeWatched>()
