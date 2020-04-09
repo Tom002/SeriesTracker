@@ -19,10 +19,10 @@ namespace BrowsingService.Models
         public Artist Artist { get; set; }
 
         [Required]
-        [MaxLength(50)]
+        [MaxLength(100)]
         public string RoleName { get; set; }
 
         [Required]
-        public bool IsMainRole { get; set; }
+        public int Order { get; set; }
     }
 }

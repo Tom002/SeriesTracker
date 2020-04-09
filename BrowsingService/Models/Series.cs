@@ -11,13 +11,17 @@ namespace BrowsingService.Models
         [Required]
         public int SeriesId { get; set; }
 
-        [MaxLength(50)]
+        [MaxLength(200)]
         public string Title { get; set; }
 
         public string CoverImageUrl { get; set; }
 
-        [MaxLength(300)]
+        [MaxLength(2000)]
         public string Description { get; set; }
+
+        public int? StartYear { get; set; }
+
+        public int? EndYear { get; set; }
 
         public ICollection<Episode> Episodes { get; set; } = new List<Episode>();
 

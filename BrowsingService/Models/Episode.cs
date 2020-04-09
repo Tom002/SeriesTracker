@@ -16,10 +16,10 @@ namespace BrowsingService.Models
         [Required]
         public int SeriesId { get; set; }
 
-        [MaxLength(50)]
+        [MaxLength(200)]
         public string EpisodeTitle { get; set; }
 
-        [MaxLength(300)]
+        [MaxLength(1500)]
         public string Description { get; set; }
 
         [Required]
@@ -30,9 +30,8 @@ namespace BrowsingService.Models
 
         public int LengthInMinutes { get; set; }
 
-        public DateTime Release { get; set; }
+        public DateTime? Release { get; set; }
 
-        [Required]
         public bool IsReleased { get; set; }
 
         public string CoverImageUrl { get; set; }

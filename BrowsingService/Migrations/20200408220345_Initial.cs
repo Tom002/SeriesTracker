@@ -11,12 +11,13 @@ namespace BrowsingService.Migrations
                 name: "Artists",
                 columns: table => new
                 {
-                    ArtistId = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(maxLength: 50, nullable: false),
-                    BirthDate = table.Column<DateTime>(nullable: false),
-                    City = table.Column<string>(maxLength: 50, nullable: true),
-                    About = table.Column<string>(maxLength: 300, nullable: true)
+                    ArtistId = table.Column<int>(nullable: false),
+                    Name = table.Column<string>(maxLength: 200, nullable: false),
+                    BirthDate = table.Column<DateTime>(nullable: true),
+                    DeathDate = table.Column<DateTime>(nullable: true),
+                    City = table.Column<string>(maxLength: 200, nullable: true),
+                    About = table.Column<string>(maxLength: 1000, nullable: true),
+                    ImageUrl = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -27,9 +28,8 @@ namespace BrowsingService.Migrations
                 name: "Categories",
                 columns: table => new
                 {
-                    CategoryId = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    CategoryName = table.Column<string>(maxLength: 50, nullable: false)
+                    CategoryId = table.Column<int>(nullable: false),
+                    CategoryName = table.Column<string>(maxLength: 200, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -40,11 +40,12 @@ namespace BrowsingService.Migrations
                 name: "Series",
                 columns: table => new
                 {
-                    SeriesId = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Title = table.Column<string>(maxLength: 50, nullable: true),
+                    SeriesId = table.Column<int>(nullable: false),
+                    Title = table.Column<string>(maxLength: 200, nullable: true),
                     CoverImageUrl = table.Column<string>(nullable: true),
-                    Description = table.Column<string>(maxLength: 300, nullable: true)
+                    Description = table.Column<string>(maxLength: 2000, nullable: true),
+                    StartYear = table.Column<int>(nullable: true),
+                    EndYear = table.Column<int>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -55,15 +56,14 @@ namespace BrowsingService.Migrations
                 name: "Episode",
                 columns: table => new
                 {
-                    EpisodeId = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    EpisodeId = table.Column<int>(nullable: false),
                     SeriesId = table.Column<int>(nullable: false),
-                    EpisodeTitle = table.Column<string>(maxLength: 50, nullable: true),
-                    Description = table.Column<string>(maxLength: 300, nullable: true),
+                    EpisodeTitle = table.Column<string>(maxLength: 200, nullable: true),
+                    Description = table.Column<string>(maxLength: 1500, nullable: true),
                     Season = table.Column<int>(nullable: false),
                     EpisodeNumber = table.Column<int>(nullable: false),
                     LengthInMinutes = table.Column<int>(nullable: false),
-                    Release = table.Column<DateTime>(nullable: false),
+                    Release = table.Column<DateTime>(nullable: true),
                     IsReleased = table.Column<bool>(nullable: false),
                     CoverImageUrl = table.Column<string>(nullable: true)
                 },
@@ -84,8 +84,8 @@ namespace BrowsingService.Migrations
                 {
                     SeriesId = table.Column<int>(nullable: false),
                     ArtistId = table.Column<int>(nullable: false),
-                    RoleName = table.Column<string>(maxLength: 50, nullable: false),
-                    IsMainRole = table.Column<bool>(nullable: false)
+                    RoleName = table.Column<string>(maxLength: 100, nullable: false),
+                    Order = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -115,16 +115,16 @@ namespace BrowsingService.Migrations
                 {
                     table.PrimaryKey("PK_SeriesCategory", x => new { x.CategoryId, x.SeriesId });
                     table.ForeignKey(
-                        name: "FK_SeriesCategory_Series_CategoryId",
+                        name: "FK_SeriesCategory_Categories_CategoryId",
                         column: x => x.CategoryId,
-                        principalTable: "Series",
-                        principalColumn: "SeriesId",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_SeriesCategory_Categories_SeriesId",
-                        column: x => x.SeriesId,
                         principalTable: "Categories",
                         principalColumn: "CategoryId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_SeriesCategory_Series_SeriesId",
+                        column: x => x.SeriesId,
+                        principalTable: "Series",
+                        principalColumn: "SeriesId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -134,7 +134,7 @@ namespace BrowsingService.Migrations
                 {
                     SeriesId = table.Column<int>(nullable: false),
                     ReviewerId = table.Column<string>(nullable: false),
-                    ReviewTitle = table.Column<string>(maxLength: 50, nullable: true),
+                    ReviewTitle = table.Column<string>(maxLength: 200, nullable: true),
                     ReviewDate = table.Column<DateTime>(nullable: false),
                     ReviewText = table.Column<string>(maxLength: 400, nullable: true),
                     Rating = table.Column<int>(nullable: false)

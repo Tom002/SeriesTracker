@@ -13,6 +13,7 @@ namespace BrowsingService.Data
         public DbSet<Series> Series { get; set; }
         public DbSet<SeriesReview> SeriesReview { get; set; }
         public DbSet<EpisodeReview> EpisodeReview { get; set; }
+        public DbSet<SeriesWriter> SeriesWriter { get; set; }
         public DbSet<Category> Categories { get; set; }
 
         public BrowsingDbContext(DbContextOptions<BrowsingDbContext> options)
@@ -22,6 +23,12 @@ namespace BrowsingService.Data
 
         public BrowsingDbContext()
         { }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.EnableSensitiveDataLogging();
+            base.OnConfiguring(optionsBuilder);
+        }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -52,17 +59,35 @@ namespace BrowsingService.Data
             builder.Entity<SeriesCategory>()
                 .HasOne(sc => sc.Category)
                 .WithMany(c => c.Series)
-                .HasForeignKey(sc => sc.SeriesId);
+                .HasForeignKey(sc => sc.CategoryId);
             builder.Entity<SeriesCategory>()
                 .HasOne(sc => sc.Series)
                 .WithMany(s => s.Categories)
-                .HasForeignKey(sc => sc.CategoryId);
+                .HasForeignKey(sc => sc.SeriesId);
 
             builder.Entity<SeriesReview>()
                 .HasKey(review => new { review.ReviewerId, review.SeriesId });
 
             builder.Entity<EpisodeReview>()
                 .HasKey(review => new { review.ReviewerId, review.EpisodeId });
+
+            builder.Entity<Series>()
+                .Property(s => s.SeriesId)
+                .ValueGeneratedNever();
+
+            builder.Entity<Episode>()
+                .Property(e => e.EpisodeId)
+                .ValueGeneratedNever();
+
+            builder.Entity<Artist>()
+                .Property(a => a.ArtistId)
+                .ValueGeneratedNever();
+
+            builder.Entity<Category>()
+                .Property(c => c.CategoryId)
+                .ValueGeneratedNever();
+
+            
 
             base.OnModelCreating(builder);
         }

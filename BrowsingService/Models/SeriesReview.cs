@@ -14,7 +14,7 @@ namespace BrowsingService.Models
         [Required]
         public string ReviewerId { get; set; }
 
-        [MaxLength(50)]
+        [MaxLength(200)]
         public string ReviewTitle { get; set; }
         public DateTime ReviewDate { get; set; }
         [MaxLength(400)]

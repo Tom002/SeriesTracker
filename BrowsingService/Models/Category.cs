@@ -12,7 +12,7 @@ namespace BrowsingService.Models
         public int CategoryId { get; set; }
 
         [Required]
-        [MaxLength(50)]
+        [MaxLength(200)]
         public string CategoryName { get; set; }
 
         public ICollection<SeriesCategory> Series { get; set; } = new List<SeriesCategory>();

@@ -22,25 +22,29 @@ namespace BrowsingService.Migrations
             modelBuilder.Entity("BrowsingService.Models.Artist", b =>
                 {
                     b.Property<int>("ArtistId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("int");
 
                     b.Property<string>("About")
-                        .HasColumnType("nvarchar(300)")
-                        .HasMaxLength(300);
+                        .HasColumnType("nvarchar(1000)")
+                        .HasMaxLength(1000);
 
-                    b.Property<DateTime>("BirthDate")
+                    b.Property<DateTime?>("BirthDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("City")
-                        .HasColumnType("nvarchar(50)")
-                        .HasMaxLength(50);
+                        .HasColumnType("nvarchar(200)")
+                        .HasMaxLength(200);
+
+                    b.Property<DateTime?>("DeathDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(50)")
-                        .HasMaxLength(50);
+                        .HasColumnType("nvarchar(200)")
+                        .HasMaxLength(200);
 
                     b.HasKey("ArtistId");
 
@@ -50,14 +54,12 @@ namespace BrowsingService.Migrations
             modelBuilder.Entity("BrowsingService.Models.Category", b =>
                 {
                     b.Property<int>("CategoryId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("int");
 
                     b.Property<string>("CategoryName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(50)")
-                        .HasMaxLength(50);
+                        .HasColumnType("nvarchar(200)")
+                        .HasMaxLength(200);
 
                     b.HasKey("CategoryId");
 
@@ -67,23 +69,21 @@ namespace BrowsingService.Migrations
             modelBuilder.Entity("BrowsingService.Models.Episode", b =>
                 {
                     b.Property<int>("EpisodeId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("int");
 
                     b.Property<string>("CoverImageUrl")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Description")
-                        .HasColumnType("nvarchar(300)")
-                        .HasMaxLength(300);
+                        .HasColumnType("nvarchar(1500)")
+                        .HasMaxLength(1500);
 
                     b.Property<int>("EpisodeNumber")
                         .HasColumnType("int");
 
                     b.Property<string>("EpisodeTitle")
-                        .HasColumnType("nvarchar(50)")
-                        .HasMaxLength(50);
+                        .HasColumnType("nvarchar(200)")
+                        .HasMaxLength(200);
 
                     b.Property<bool>("IsReleased")
                         .HasColumnType("bit");
@@ -91,7 +91,7 @@ namespace BrowsingService.Migrations
                     b.Property<int>("LengthInMinutes")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("Release")
+                    b.Property<DateTime?>("Release")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("Season")
@@ -128,20 +128,24 @@ namespace BrowsingService.Migrations
             modelBuilder.Entity("BrowsingService.Models.Series", b =>
                 {
                     b.Property<int>("SeriesId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("int");
 
                     b.Property<string>("CoverImageUrl")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Description")
-                        .HasColumnType("nvarchar(300)")
-                        .HasMaxLength(300);
+                        .HasColumnType("nvarchar(2000)")
+                        .HasMaxLength(2000);
+
+                    b.Property<int?>("EndYear")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("StartYear")
+                        .HasColumnType("int");
 
                     b.Property<string>("Title")
-                        .HasColumnType("nvarchar(50)")
-                        .HasMaxLength(50);
+                        .HasColumnType("nvarchar(200)")
+                        .HasMaxLength(200);
 
                     b.HasKey("SeriesId");
 
@@ -156,13 +160,13 @@ namespace BrowsingService.Migrations
                     b.Property<int>("SeriesId")
                         .HasColumnType("int");
 
-                    b.Property<bool>("IsMainRole")
-                        .HasColumnType("bit");
+                    b.Property<int>("Order")
+                        .HasColumnType("int");
 
                     b.Property<string>("RoleName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(50)")
-                        .HasMaxLength(50);
+                        .HasColumnType("nvarchar(100)")
+                        .HasMaxLength(100);
 
                     b.HasKey("ArtistId", "SeriesId");
 
@@ -205,8 +209,8 @@ namespace BrowsingService.Migrations
                         .HasMaxLength(400);
 
                     b.Property<string>("ReviewTitle")
-                        .HasColumnType("nvarchar(50)")
-                        .HasMaxLength(50);
+                        .HasColumnType("nvarchar(200)")
+                        .HasMaxLength(200);
 
                     b.HasKey("ReviewerId", "SeriesId");
 
@@ -265,14 +269,14 @@ namespace BrowsingService.Migrations
 
             modelBuilder.Entity("BrowsingService.Models.SeriesCategory", b =>
                 {
-                    b.HasOne("BrowsingService.Models.Series", "Series")
-                        .WithMany("Categories")
+                    b.HasOne("BrowsingService.Models.Category", "Category")
+                        .WithMany("Series")
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("BrowsingService.Models.Category", "Category")
-                        .WithMany("Series")
+                    b.HasOne("BrowsingService.Models.Series", "Series")
+                        .WithMany("Categories")
                         .HasForeignKey("SeriesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();

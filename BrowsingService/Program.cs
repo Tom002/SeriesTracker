@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using BrowsingService.Data;
+using DotNetCore.CAP;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -14,7 +16,7 @@ namespace BrowsingService
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var host = CreateHostBuilder(args).Build();
             using (var scope = host.Services.CreateScope())
@@ -23,11 +25,14 @@ namespace BrowsingService
                 try
                 {
                     var context = services.GetRequiredService<BrowsingDbContext>();
+                    var capBus = services.GetRequiredService<ICapPublisher>();
+                    var mapper = services.GetRequiredService<IMapper>();
                     context.Database.Migrate();
-                    Seed.SeedData(context);
+                    await Seed.SeedData(context, capBus, mapper);
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
+                    Console.WriteLine(e.Message);
                 }
             }
             host.Run();
