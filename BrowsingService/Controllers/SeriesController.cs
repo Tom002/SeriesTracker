@@ -4,7 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using BrowsingService.Data;
+using BrowsingService.Dto;
 using BrowsingService.Helpers;
+using BrowsingService.Helpers.Pagination;
 using BrowsingService.Models;
 using Common.Events;
 using DotNetCore.CAP;
@@ -56,12 +58,24 @@ namespace BrowsingService.Controllers
             }
         }
 
+        [HttpGet("categories")]
+        public async Task<ActionResult<List<CategoryDto>>> GetCategories()
+        {
+            var categories = await _context.Categories.ToListAsync();
+            var categoriesToReturn = _mapper.Map<List<CategoryDto>>(categories);
+            return Ok(categoriesToReturn);
+        }
+
         [HttpGet]
         [ProducesResponseType(200)]
-        public async Task<ActionResult<List<Series>>> GetSeries([FromQuery] SeriesFilter filter)
+        public async Task<ActionResult<List<Series>>> GetSeries([FromQuery] SeriesParams filter)
         {
-            IQueryable<Series> seriesQuery = _context.Series;
-            if (filter.TitleFilter != null)
+            var seriesQuery = _context.Series
+                .Include(series => series.Categories).ThenInclude(sc => sc.Category)
+                .Include(series => series.Reviews)
+                .AsQueryable();
+
+            if (!String.IsNullOrEmpty(filter.TitleFilter))
             {
                 seriesQuery = seriesQuery.Where(series => series.Title.Contains(filter.TitleFilter));
             }
@@ -69,7 +83,40 @@ namespace BrowsingService.Controllers
             {
                 seriesQuery = seriesQuery.Where(series => series.Categories.Any(category => category.CategoryId == filter.CategoryId));
             }
-            var series = await seriesQuery.ToListAsync();
+            switch (filter.Sort)
+            {
+                case SeriesParams.SortBy.HighestRating:
+                    seriesQuery = seriesQuery.OrderByDescending(series => series.Reviews.Average(r => r.Rating));
+                    break;
+                case SeriesParams.SortBy.LowestRating:
+                    seriesQuery = seriesQuery.OrderBy(series => series.Reviews.Average(r => r.Rating));
+                    break;
+                case SeriesParams.SortBy.MostReviewed:
+                    seriesQuery = seriesQuery.OrderByDescending(series => series.Reviews.Count());
+                    break;
+                case SeriesParams.SortBy.Alphabetical:
+                    seriesQuery = seriesQuery.OrderBy(series => series.Title);
+                    break;
+                case SeriesParams.SortBy.AlphabeticalDescending:
+                    seriesQuery = seriesQuery.OrderByDescending(series => series.Title);
+                    break;
+                default:
+                    break;
+            }
+
+            var seriesToList = seriesQuery.Select(series => new SeriesForListDto
+            {
+                SeriesId = series.SeriesId,
+                Categories = _mapper.Map<List<CategoryDto>>(series.Categories.Select(sc => sc.Category).ToList()),
+                CoverImageUrl = series.CoverImageUrl,
+                Title = series.Title,
+                StartYear = series.StartYear,
+                EndYear = series.EndYear,
+                AverageRating = series.Reviews.Average(r => r.Rating)
+            });
+
+            var series = await PagedList<SeriesForListDto>.CreateAsync(seriesToList, filter.PageNumber, filter.PageSize);
+            Response.AddPagination(series.CurrentPage, series.PageSize, series.TotalCount, series.TotalPages);
             return Ok(series);
         }
 
