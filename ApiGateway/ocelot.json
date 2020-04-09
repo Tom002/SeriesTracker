@@ -14,6 +14,32 @@
     },
 
     {
+      "DownstreamPathTemplate": "/api/series/categories",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "browsingservice",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/categories",
+      "UpstreamHttpMethod": [ "Get" ]
+    },
+
+    {
+      "DownstreamPathTemplate": "/api/artist",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "browsingservice",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/artists",
+      "UpstreamHttpMethod": [ "Get" ]
+    },
+
+    {
       "DownstreamPathTemplate": "/api/profile/{userId}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
@@ -28,7 +54,7 @@
         "AuthenticationProviderKey": "IdentityServerAuthentication",
         "AllowedScopes": []
       }
-    },
+    }
 
   ],
   "GlobalConfiguration": {}
