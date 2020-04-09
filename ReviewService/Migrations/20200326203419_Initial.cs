@@ -11,8 +11,7 @@ namespace ReviewService.Migrations
                 name: "Episode",
                 columns: table => new
                 {
-                    EpisodeId = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    EpisodeId = table.Column<int>(nullable: false),
                     SeriesId = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
@@ -37,7 +36,6 @@ namespace ReviewService.Migrations
                 columns: table => new
                 {
                     SeriesId = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1")
                 },
                 constraints: table =>
                 {

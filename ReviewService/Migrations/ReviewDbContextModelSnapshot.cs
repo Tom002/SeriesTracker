@@ -22,9 +22,7 @@ namespace ReviewService.Migrations
             modelBuilder.Entity("ReviewService.Models.Episode", b =>
                 {
                     b.Property<int>("EpisodeId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("int");
 
                     b.Property<int>("SeriesId")
                         .HasColumnType("int");
@@ -68,9 +66,7 @@ namespace ReviewService.Migrations
             modelBuilder.Entity("ReviewService.Models.Series", b =>
                 {
                     b.Property<int>("SeriesId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("int");
 
                     b.HasKey("SeriesId");
 

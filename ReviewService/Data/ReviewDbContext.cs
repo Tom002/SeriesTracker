@@ -31,6 +31,18 @@ namespace ReviewService.Data
         {
             base.OnModelCreating(builder);
 
+            builder.Entity<Reviewer>()
+                .Property(r => r.ReviewerId)
+                .ValueGeneratedNever();
+
+            builder.Entity<Series>()
+                .Property(s => s.SeriesId)
+                .ValueGeneratedNever();
+
+            builder.Entity<Episode>()
+                .Property(e => e.EpisodeId)
+                .ValueGeneratedNever();
+
             builder.Entity<EpisodeReview>()
                .HasKey(review => new { review.EpisodeId, review.ReviewerId });
             builder.Entity<EpisodeReview>()

@@ -29,6 +29,26 @@ namespace ReviewService.Controllers
             _capBus = capBus;
         }
 
+        [CapSubscribe("series.created")]
+        public async Task ReceiveSeriesCreated(SeriesCreatedEvent seriesEvent)
+        {
+            if(!await _context.Series.AnyAsync(series => series.SeriesId == seriesEvent.SeriesId))
+            {
+                _context.Series.Add(new Series { SeriesId = seriesEvent.SeriesId });
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        [CapSubscribe("episode.created")]
+        public async Task ReceiveEpisodeCreated(EpisodeCreatedEvent episodeEvent)
+        {
+            if (!await _context.Episode.AnyAsync(episode => episode.EpisodeId == episodeEvent.EpisodeId))
+            {
+                _context.Episode.Add(new Episode { EpisodeId = episodeEvent.EpisodeId, SeriesId = episodeEvent.SeriesId });
+                await _context.SaveChangesAsync();
+            }
+        }
+
         [CapSubscribe("identityservice.user.created")]
         public async Task ReceiveUserCreated(UserCreatedEvent userEvent)
         {
