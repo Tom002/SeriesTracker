@@ -1,6 +1,9 @@
 import axios, { AxiosResponse } from 'axios';
 import { AuthService } from './auth';
 import { User } from 'oidc-client';
+import { ISeries, ICategory } from '../models/series';
+import { IProfile } from '../models/profile';
+import { IArtist } from '../models/artist';
 
 axios.defaults.baseURL = "https://localhost:5101";
 
@@ -46,6 +49,26 @@ const requests = {
     del: (url: string) => axios.delete(url).then(responseBody) 
 };
 
+const series = {
+    list: (params: URLSearchParams): Promise<AxiosResponse<ISeries[]>> => axios.get("/series", {params: params}),
+}
+
+const categories = {
+    list: (): Promise<ICategory[]> => requests.get("/categories")
+}
+
+const artists = {
+    list: (params: URLSearchParams): Promise<AxiosResponse<IArtist[]>> => axios.get("/artists", {params: params}), 
+}
+
+const profile = {
+    get: (userId: string): Promise<IProfile> => requests.get(`/users/${userId}`)
+}
+
 export default {
-    requests
+    requests,
+    series,
+    categories,
+    profile,
+    artists
 }

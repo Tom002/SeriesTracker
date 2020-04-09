@@ -10,8 +10,7 @@
     <script>
         var userManager = new Oidc.UserManager({userStore: new Oidc.WebStorageStateStore({ store: window.localStorage })});
         userManager.signinRedirectCallback().then(res => {
-            console.log(res);
-            window.location.href="/";
+            window.location.href="/series";
         }).catch(error => {
             console.error(error);
         })

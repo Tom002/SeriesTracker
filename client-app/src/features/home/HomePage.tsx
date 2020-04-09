@@ -1,12 +1,14 @@
-import React, { Fragment, useState } from 'react';
+import React, { Fragment, useState, useContext } from 'react';
 import { Header, Button, Label } from 'semantic-ui-react';
 import { AuthService } from "../../app/api/auth";
 import { toast, ToastContainer } from "react-toastify";
-import Agent from '../../app/api/agents';
+import Agent from '../../app/api/agent';
 import { useHistory } from 'react-router-dom';
+import SeriesStore from '../../app/stores/seriesStore';
 
 const Homepage = () => {
 
+  const seriesStore = useContext(SeriesStore)
   var authService: AuthService = new AuthService();
 
   let history = useHistory();
@@ -49,13 +51,6 @@ const Homepage = () => {
     })
   }
 
-  const seriesApiCall = () => {
-      Agent.requests.get("/series").then(res => {
-        setResponse(res);
-    }, error => {
-      console.log("You are not logged in, or your token has expired");
-      setResponse(error)
-    })}
 
 
     const register = () => {
@@ -77,9 +72,6 @@ const Homepage = () => {
         </Button>
         <Button onClick={userApiCall}>
             GET User Data (Only accesible after login)
-        </Button>
-        <Button onClick={seriesApiCall}>
-            Series GET
         </Button>
         <Button onClick={register}>
             Register
