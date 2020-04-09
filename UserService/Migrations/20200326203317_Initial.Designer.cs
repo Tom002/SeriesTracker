@@ -10,7 +10,7 @@ using ProfileService.Data;
 namespace ProfileService.Migrations
 {
     [DbContext(typeof(UserDbContext))]
-    [Migration("20200322213140_Initial")]
+    [Migration("20200326203317_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,9 +24,7 @@ namespace ProfileService.Migrations
             modelBuilder.Entity("ProfileService.Models.Episode", b =>
                 {
                     b.Property<int>("EpisodeId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("int");
 
                     b.Property<int>("EpisodeNumber")
                         .HasColumnType("int");
@@ -85,9 +83,7 @@ namespace ProfileService.Migrations
             modelBuilder.Entity("ProfileService.Models.Series", b =>
                 {
                     b.Property<int>("SeriesId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("int");
 
                     b.Property<string>("CoverImageUrl")
                         .HasColumnType("nvarchar(max)");
@@ -149,7 +145,6 @@ namespace ProfileService.Migrations
             modelBuilder.Entity("ProfileService.Models.User", b =>
                 {
                     b.Property<string>("UserId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("About")

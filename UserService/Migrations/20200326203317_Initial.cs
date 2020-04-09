@@ -11,8 +11,7 @@ namespace ProfileService.Migrations
                 name: "Episodes",
                 columns: table => new
                 {
-                    EpisodeId = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    EpisodeId = table.Column<int>(nullable: false),
                     SeriesId = table.Column<int>(nullable: false),
                     EpisodeTitle = table.Column<string>(maxLength: 50, nullable: true),
                     Season = table.Column<int>(nullable: false),
@@ -28,8 +27,7 @@ namespace ProfileService.Migrations
                 name: "Series",
                 columns: table => new
                 {
-                    SeriesId = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    SeriesId = table.Column<int>(nullable: false),
                     Title = table.Column<string>(maxLength: 50, nullable: true),
                     CoverImageUrl = table.Column<string>(nullable: true)
                 },

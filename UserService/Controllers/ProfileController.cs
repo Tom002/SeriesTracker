@@ -29,10 +29,46 @@ namespace ProfileService.Controllers
             _mapper = mapper;
         }
 
+        
+        [CapSubscribe("watchingService.episodeWatched")]
+        public async Task ReceiveEpisodeWatched(EpisodeWatchedEvent watchedEvent)
+        {
+            if(! await _context.DiaryEpisodes.AnyAsync(e => e.EpisodeId == watchedEvent.EpisodeId && e.UserId == watchedEvent.ViewerId))
+            {
+                if(watchedEvent.IsInDiary)
+                {
+                    var diaryEpisode = new EpisodeDiary
+                    {
+                        EpisodeId = watchedEvent.EpisodeId,
+                        UserId = watchedEvent.ViewerId,
+                        WatchingDate = watchedEvent.WatchingDate
+                    };
+                    _context.DiaryEpisodes.Add(diaryEpisode);
+                    await _context.SaveChangesAsync();
+                }
+            }
+        }
+
+
+        [CapSubscribe("watchingService.seriesWatched.created")]
+        public async Task ReceiveSeriesWatched(SeriesWatchedEvent watchedEvent)
+        {
+            if (!await _context.SeriesWatched.AnyAsync(sw => sw.UserId == watchedEvent.ViewerId && sw.SeriesId == watchedEvent.SeriesId))
+            {
+                var seriesWatched = new SeriesWatched
+                {
+                    SeriesId = watchedEvent.SeriesId,
+                    UserId = watchedEvent.ViewerId
+                };
+                _context.SeriesWatched.Add(seriesWatched);
+                await _context.SaveChangesAsync();
+            }
+        }
+
+
         [CapSubscribe("identityservice.user.created")]
         public async Task ReceiveUserCreated(UserCreatedEvent userEvent)
         {
-            // Megvizsgálom hogy létrejött-e korábban ez a user 
             if(!await _context.Users.AnyAsync(user => user.UserId == userEvent.UserId))
             {
                 var user = _mapper.Map<User>(userEvent);
@@ -40,6 +76,27 @@ namespace ProfileService.Controllers
                 await _context.SaveChangesAsync();
             }
         }
+
+        [CapSubscribe("series.created")]
+        public async Task ReceiveSeriesCreated(SeriesCreatedEvent seriesEvent)
+        {
+            if (!await _context.Series.AnyAsync(series => series.SeriesId == seriesEvent.SeriesId))
+            {
+                _context.Series.Add(new Series { SeriesId = seriesEvent.SeriesId });
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        [CapSubscribe("episode.created")]
+        public async Task ReceiveEpisodeCreated(EpisodeCreatedEvent episodeEvent)
+        {
+            if (!await _context.Episodes.AnyAsync(episode => episode.EpisodeId == episodeEvent.EpisodeId))
+            {
+                _context.Episodes.Add(new Episode { EpisodeId = episodeEvent.EpisodeId, SeriesId = episodeEvent.SeriesId });
+                await _context.SaveChangesAsync();
+            }
+        }
+
 
         [HttpGet]
         [ProducesResponseType(200)]
@@ -66,7 +123,19 @@ namespace ProfileService.Controllers
             }
             else
             {
-                return Ok(user);
+                var profile = new UserProfileDto
+                {
+                    UserId = user.UserId,
+                    BirthDate = user.BirthDate,
+                    City = user.City,
+                    SeriesWatchedCount = user.SeriesWatched.Count(),
+                    SeriesLikedCount = user.SeriesLiked.Count(),
+                    EpisodeWatchedCount = user.EpisodeDiary.Count(),
+                    Name = user.Name,
+                    ProfileImageUrl = user.ProfileImageUrl
+                };
+
+                return Ok(profile);
             }
         }
 

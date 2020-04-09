@@ -33,10 +33,6 @@ namespace ProfileService.Data
         {
             base.OnModelCreating(builder);
 
-            builder.Entity<User>()
-                .Property(e => e.UserId)
-                .ValueGeneratedOnAdd();
-
             builder.Entity<EpisodeDiary>()
                .HasKey(ew => new { ew.UserId, ew.EpisodeId });
             builder.Entity<EpisodeDiary>()
