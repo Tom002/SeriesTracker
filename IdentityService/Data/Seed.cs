@@ -22,6 +22,7 @@ namespace IdentityService.Data
                         UserName = "bob@test.com",
                         Email = "bob@test.com"
                     };
+
                     var result = await userManager.CreateAsync(identityUser, "Password123");
 
                     var userEvent = new UserCreatedEvent

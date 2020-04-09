@@ -31,8 +31,9 @@ namespace IdentityService
                     context.Database.Migrate();
                     Seed.SeedData(usermanager, capBus, context).Wait();
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
+                    Console.WriteLine(e);
                 }
             }
             host.Run();
