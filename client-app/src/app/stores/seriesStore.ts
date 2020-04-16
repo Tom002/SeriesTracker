@@ -1,5 +1,5 @@
 import {observable, action, runInAction, computed} from 'mobx';
-import { ISeries, ICategory } from '../models/series';
+import { ISeriesForList, ICategory, ISeriesDetails } from '../models/series';
 import agent from '../api/agent';
 import { createContext } from 'react';
 import { DropdownItemProps } from 'semantic-ui-react';
@@ -7,9 +7,9 @@ import { ISeriesParams, IPagination } from '../models/searchParams';
 import { IArtist } from '../models/artist';
 
 class SeriesStore {
-    @observable seriesRegistry = new Map<number, ISeries>();
+    @observable seriesRegistry = new Map<number, ISeriesForList>();
     @observable categoryRegistry = new Map<number, ICategory>();
-    
+    @observable selectedSeries: ISeriesDetails | null = null;
 
     @observable currentPage = 1;
     @observable totalPages = 1;
@@ -28,7 +28,18 @@ class SeriesStore {
         })
     }
 
-   
+    @action getSingleSeries = async (id: number) => {
+        try {
+            let series = await agent.series.get(id);
+            runInAction("loading series details",() => {
+                if(series) {
+                    this.selectedSeries = series;
+                }
+            })
+        } catch (error) {
+            console.log(error);
+        }
+    }
   
     @action loadSeries = async (params: URLSearchParams) => {
         this.seriesRegistry.clear();

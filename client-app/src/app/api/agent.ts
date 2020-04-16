@@ -1,7 +1,7 @@
 import axios, { AxiosResponse } from 'axios';
 import { AuthService } from './auth';
 import { User } from 'oidc-client';
-import { ISeries, ICategory } from '../models/series';
+import { ISeriesForList, ICategory, ISeriesDetails } from '../models/series';
 import { IProfile } from '../models/profile';
 import { IArtist } from '../models/artist';
 
@@ -50,7 +50,8 @@ const requests = {
 };
 
 const series = {
-    list: (params: URLSearchParams): Promise<AxiosResponse<ISeries[]>> => axios.get("/series", {params: params}),
+    list: (params: URLSearchParams): Promise<AxiosResponse<ISeriesForList[]>> => axios.get("/series", {params: params}),
+    get: (id: number): Promise<ISeriesDetails> => axios.get(`/series/${id}`).then(responseBody)
 }
 
 const categories = {

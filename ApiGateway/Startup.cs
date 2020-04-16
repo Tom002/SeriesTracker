@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
+using Ocelot.Provider.Kubernetes;
 
 namespace ApiGateway
 {
@@ -39,7 +40,8 @@ namespace ApiGateway
 
             services.AddAuthentication()
                     .AddIdentityServerAuthentication(authenticationProviderKey, options);
-            services.AddOcelot();
+            services.AddOcelot()
+                .AddKubernetes();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

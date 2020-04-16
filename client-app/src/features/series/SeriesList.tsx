@@ -137,7 +137,7 @@ const SeriesList = () => {
 
                     <Form.Button primary fluid onClick={() => {
                         setPage(1);
-                        //loadSeries(getAxiosParams())
+                        loadSeries(getAxiosParams())
                     }}>
                         Search
                     </Form.Button>

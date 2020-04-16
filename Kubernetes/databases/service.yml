@@ -1,0 +1,65 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mssql-identity-service
+spec:
+  selector:
+    app: mssql-identity
+  ports:
+    - protocol: TCP
+      port: 2100
+      targetPort: 1433
+  type: LoadBalancer
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mssql-browsing-service
+spec:
+  selector:
+    app: mssql-browsing
+  ports:
+    - protocol: TCP
+      port: 2101
+      targetPort: 1433
+  type: LoadBalancer
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mssql-users-service
+spec:
+  selector:
+    app: mssql-users
+  ports:
+    - protocol: TCP
+      port: 2102
+      targetPort: 1433
+  type: LoadBalancer
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mssql-review-service
+spec:
+  selector:
+    app: mssql-review
+  ports:
+    - protocol: TCP
+      port: 2103
+      targetPort: 1433
+  type: LoadBalancer
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mssql-watching-service
+spec:
+  selector:
+    app: mssql-watching
+  ports:
+    - protocol: TCP
+      port: 2104
+      targetPort: 1433
+  type: LoadBalancer
+  

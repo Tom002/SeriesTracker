@@ -1,0 +1,168 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: mssql-identity
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mssql-identity
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+      - name: mssql-identity
+        image: mcr.microsoft.com/mssql/server:2017-latest
+        ports:
+        - containerPort: 1433
+        env:
+        - name: ACCEPT_EULA
+          value: "Y"
+        - name: SA_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mssql
+              key: SA_PASSWORD
+        volumeMounts:
+        - name: mssql-identity-storage
+          mountPath: /var/opt/mssql
+      volumes:
+      - name: mssql-identity-storage
+        persistentVolumeClaim:
+          claimName: mssql-identity-data
+---
+
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: mssql-browsing
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mssql-browsing
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+      - name: mssql-browsing
+        image: mcr.microsoft.com/mssql/server:2017-latest
+        ports:
+        - containerPort: 1433
+        env:
+        - name: ACCEPT_EULA
+          value: "Y"
+        - name: SA_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mssql
+              key: SA_PASSWORD
+        volumeMounts:
+        - name: mssql-browsing-storage
+          mountPath: /var/opt/mssql
+      volumes:
+      - name: mssql-browsing-storage
+        persistentVolumeClaim:
+          claimName: mssql-browsing-data
+---
+
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: mssql-users
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mssql-users
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+      - name: mssql-users
+        image: mcr.microsoft.com/mssql/server:2017-latest
+        ports:
+        - containerPort: 1433
+        env:
+        - name: ACCEPT_EULA
+          value: "Y"
+        - name: SA_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mssql
+              key: SA_PASSWORD
+        volumeMounts:
+        - name: mssql-users-storage
+          mountPath: /var/opt/mssql
+      volumes:
+      - name: mssql-users-storage
+        persistentVolumeClaim:
+          claimName: mssql-users-data
+---
+
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: mssql-review
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mssql-review
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+      - name: mssql-review
+        image: mcr.microsoft.com/mssql/server:2017-latest
+        ports:
+        - containerPort: 1433
+        env:
+        - name: ACCEPT_EULA
+          value: "Y"
+        - name: SA_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mssql
+              key: SA_PASSWORD
+        volumeMounts:
+        - name: mssql-review-storage
+          mountPath: /var/opt/mssql
+      volumes:
+      - name: mssql-review-storage
+        persistentVolumeClaim:
+          claimName: mssql-review-data
+---
+
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: mssql-watching
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mssql-watching
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+      - name: mssql-watching
+        image: mcr.microsoft.com/mssql/server:2017-latest
+        ports:
+        - containerPort: 1433
+        env:
+        - name: ACCEPT_EULA
+          value: "Y"
+        - name: SA_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mssql
+              key: SA_PASSWORD
+        volumeMounts:
+        - name: mssql-watching-storage
+          mountPath: /var/opt/mssql
+      volumes:
+      - name: mssql-watching-storage
+        persistentVolumeClaim:
+          claimName: mssql-watching-data

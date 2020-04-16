@@ -1,10 +1,10 @@
-import { ISeries } from "../../app/models/series";
+import { ISeriesForList } from "../../app/models/series";
 import { Card, Image, Label } from "semantic-ui-react";
 import React from 'react';
 import { Link } from "react-router-dom";
 
 
-const SeriesCard: React.FC<{ series: ISeries }> = ({
+const SeriesCard: React.FC<{ series: ISeriesForList }> = ({
     series
 }) => {
     return (

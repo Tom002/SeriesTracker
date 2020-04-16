@@ -1,5 +1,3 @@
-import { ISeries } from "./series";
-
 export interface IArtist {
     artistId: number,
     name: string,

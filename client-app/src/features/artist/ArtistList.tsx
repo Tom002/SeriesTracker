@@ -29,6 +29,7 @@ const ArtistList = () => {
         }
         params.append("Occupation", searchParams.occupation.toString());
         params.append("PageNumber", currentPage.toString());
+        params.append("Sort", searchParams.sort.toString());
         return params;
     }
 
@@ -137,6 +138,7 @@ const ArtistList = () => {
 
                     <Form.Button primary fluid onClick={() => {
                         setCurrentPage(1);
+                        loadArtists(getAxiosParams());
                     }}>
                         Search
                     </Form.Button>

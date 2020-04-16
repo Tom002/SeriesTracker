@@ -8,6 +8,7 @@ import './App.css';
 import SeriesList from '../../features/series/SeriesList';
 import UserStore from '../stores/userStore';
 import ArtistList from '../../features/artist/ArtistList';
+import SeriesDetails from '../../features/series/SeriesDetails';
 
 const App = () => {
 
@@ -24,6 +25,7 @@ const App = () => {
         <NavBar/>
         <Switch>
           <Route exact path="/" component={Homepage}/>
+          <Route exact path="/series/:id" component={SeriesDetails} />
           <Route exact path="/series" component={SeriesList} />
           <Route exact path="/actors" component={ArtistList} />
           <Route exact path="/register" 

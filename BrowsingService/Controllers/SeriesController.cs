@@ -70,10 +70,9 @@ namespace BrowsingService.Controllers
         [ProducesResponseType(200)]
         public async Task<ActionResult<List<Series>>> GetSeries([FromQuery] SeriesParams filter)
         {
-            var seriesQuery = _context.Series
+            IQueryable<Series> seriesQuery = _context.Series
                 .Include(series => series.Categories).ThenInclude(sc => sc.Category)
-                .Include(series => series.Reviews)
-                .AsQueryable();
+                .Include(series => series.Reviews);
 
             if (!String.IsNullOrEmpty(filter.TitleFilter))
             {

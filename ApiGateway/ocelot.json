@@ -14,6 +14,19 @@
     },
 
     {
+      "DownstreamPathTemplate": "/api/series/{seriesId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "browsingservice",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/series/{seriesId}",
+      "UpstreamHttpMethod": [ "Get" ]
+    },
+
+    {
       "DownstreamPathTemplate": "/api/series/categories",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
