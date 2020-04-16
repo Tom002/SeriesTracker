@@ -13,8 +13,5 @@ namespace ProfileService.Dto
         public string City { get; set; }
         public string About { get; set; }
         public string ProfileImageUrl { get; set; }
-        public int SeriesWatchedCount { get; set; }
-        public int EpisodeWatchedCount { get; set; }
-        public int SeriesLikedCount { get; set; }
     }
 }

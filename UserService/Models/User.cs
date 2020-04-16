@@ -18,15 +18,5 @@ namespace ProfileService.Models
         [MaxLength(400)]
         public string About { get; set; }
         public string ProfileImageUrl { get; set; }
-
-        public ICollection<SeriesLiked> SeriesLiked { get; set; } = new List<SeriesLiked>();
-
-        public ICollection<SeriesWatched> SeriesWatched { get; set; } = new List<SeriesWatched>();
-
-        public ICollection<SeriesFollowed> SeriesFollowed { get; set; } = new List<SeriesFollowed>();
-
-        public ICollection<EpisodeDiary> EpisodeDiary { get; set; } = new List<EpisodeDiary>();
-
-        public ICollection<EpisodeCalendar> EpisodeCalendar { get; set; } = new List<EpisodeCalendar>();
     }
 }
