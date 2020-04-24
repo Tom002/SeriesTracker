@@ -17,8 +17,10 @@ namespace BrowsingService.Helpers
             CreateMap<Series, SeriesCreatedEvent>();
             CreateMap<Category, CategoryDto>();
             CreateMap<Episode, EpisodeCreatedEvent>();
+            CreateMap<Episode, EpisodeDto>();
             CreateMap<Artist, ArtistForListDto>().ConvertUsing<ArtistToDtoConverter>();
             CreateMap<PersonApiResponse, Artist>().ConvertUsing<PersonToArtistConverter>();
+            CreateMap<SeriesActor, ActorWithRoleDto>().ConvertUsing<SeriesActorToDtoConverter>();
             CreateMap<Genre, Category>()
                 .ForMember(c => c.CategoryId, opt => opt.MapFrom(g => g.id))
                 .ForMember(c => c.CategoryName, opt => opt.MapFrom(g => g.name));
@@ -56,6 +58,21 @@ namespace BrowsingService.Helpers
                     City = source.City,
                     Name = source.Name,
                     ImageUrl = source.ImageUrl
+                };
+            }
+        }
+
+        public class SeriesActorToDtoConverter : ITypeConverter<SeriesActor, ActorWithRoleDto>
+        {
+            public ActorWithRoleDto Convert(SeriesActor source, ActorWithRoleDto destination, ResolutionContext context)
+            {
+                return new ActorWithRoleDto
+                {
+                    ArtistId = source.ArtistId,
+                    ImageUrl = source.Artist.ImageUrl,
+                    Name = source.Artist.Name,
+                    RoleName = source.RoleName,
+                    Order = source.Order
                 };
             }
         }

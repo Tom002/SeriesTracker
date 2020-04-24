@@ -1,4 +1,5 @@
-﻿using BrowsingService.Services.ApiResponseModels;
+﻿using BrowsingService.Services;
+using BrowsingService.Services.ApiResponseModels;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -9,7 +10,7 @@ using System.Web;
 
 namespace BrowsingService.Data
 {
-    public class MovieDbService
+    public class MovieDbClient : IMovieDbClient
     {
         private readonly Uri baseUri = new Uri("https://api.themoviedb.org/3");
 
