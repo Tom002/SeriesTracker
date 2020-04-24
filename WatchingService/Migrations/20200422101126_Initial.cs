@@ -47,6 +47,7 @@ namespace WatchingService.Migrations
                 {
                     EpisodeId = table.Column<int>(nullable: false),
                     ViewerId = table.Column<string>(nullable: false),
+                    SeriesId = table.Column<int>(nullable: false),
                     WatchingDate = table.Column<DateTime>(nullable: false),
                     IsInDiary = table.Column<bool>(nullable: false)
                 },
@@ -58,6 +59,12 @@ namespace WatchingService.Migrations
                         column: x => x.EpisodeId,
                         principalTable: "Episode",
                         principalColumn: "EpisodeId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_EpisodeWatched_Series_SeriesId",
+                        column: x => x.SeriesId,
+                        principalTable: "Series",
+                        principalColumn: "SeriesId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_EpisodeWatched_Viewer_ViewerId",
@@ -119,6 +126,11 @@ namespace WatchingService.Migrations
                 name: "IX_EpisodeWatched_EpisodeId",
                 table: "EpisodeWatched",
                 column: "EpisodeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_EpisodeWatched_SeriesId",
+                table: "EpisodeWatched",
+                column: "SeriesId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_SeriesLiked_SeriesId",

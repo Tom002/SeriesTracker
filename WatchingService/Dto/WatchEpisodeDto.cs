@@ -15,6 +15,9 @@ namespace WatchingService.Dto
         public int EpisodeId { get; set; }
 
         [Required]
+        public int SeriesId { get; set; }
+
+        [Required]
         public DateTime WatchingDate { get; set; }
 
         [Required]

@@ -43,12 +43,17 @@ namespace WatchingService.Migrations
                     b.Property<bool>("IsInDiary")
                         .HasColumnType("bit");
 
+                    b.Property<int>("SeriesId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("WatchingDate")
                         .HasColumnType("datetime2");
 
                     b.HasKey("ViewerId", "EpisodeId");
 
                     b.HasIndex("EpisodeId");
+
+                    b.HasIndex("SeriesId");
 
                     b.ToTable("EpisodeWatched");
                 });
@@ -108,6 +113,12 @@ namespace WatchingService.Migrations
                     b.HasOne("WatchingService.Models.Episode", "Episode")
                         .WithMany("EpisodesWatched")
                         .HasForeignKey("EpisodeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("WatchingService.Models.Series", "Series")
+                        .WithMany()
+                        .HasForeignKey("SeriesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

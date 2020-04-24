@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
 using Common.Events;
 using DotNetCore.CAP;
 using Microsoft.AspNetCore.Mvc;
@@ -33,7 +35,7 @@ namespace WatchingService.Controllers
             }
         }
 
-        [CapSubscribe("series.created")]
+        [CapSubscribe("browsingservice.series.created")]
         public async Task ReceiveSeriesCreated(SeriesCreatedEvent seriesEvent)
         {
             if (!await _context.Series.AnyAsync(series => series.SeriesId == seriesEvent.SeriesId))
@@ -43,7 +45,7 @@ namespace WatchingService.Controllers
             }
         }
 
-        [CapSubscribe("episode.created")]
+        [CapSubscribe("browsingservice.episode.created")]
         public async Task ReceiveEpisodeCreated(EpisodeCreatedEvent episodeEvent)
         {
             if (!await _context.Episode.AnyAsync(episode => episode.EpisodeId == episodeEvent.EpisodeId))
@@ -51,6 +53,74 @@ namespace WatchingService.Controllers
                 _context.Episode.Add(new Episode { EpisodeId = episodeEvent.EpisodeId, SeriesId = episodeEvent.SeriesId });
                 await _context.SaveChangesAsync();
             }
+        }
+
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        [HttpGet("{userId}/series/watched")]
+        public async Task<ActionResult<SeriesWatchedListDto>> GetSeriesWatched(string userId)
+        {
+            if(!await _context.Viewer.AnyAsync(v => v.ViewerId == userId))
+            {
+                return NotFound("Searched user does not exist");
+            }
+
+            var seriesWatched = await _context.SeriesWatched.Where(s => s.ViewerId == userId).ToListAsync();
+            var watchedListDto = new SeriesWatchedListDto
+            {
+                ViewerId = userId,
+                SeriesWatchedIds = seriesWatched.Select(s => s.SeriesId).ToList()
+            };
+            return Ok(watchedListDto);
+        }
+
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        [HttpGet("{userId}/series/{seriesId}/episodes")]
+        public async Task<ActionResult<SeriesEpisodesWatchedListDto>> GetSeriesEpisodesWatched(string userId, int seriesId)
+        {
+            if (!await _context.Viewer.AnyAsync(v => v.ViewerId == userId))
+            {
+                return NotFound("Requested user does not exist");
+            }
+
+            if(!await _context.Series.AnyAsync(s => s.SeriesId == seriesId))
+            {
+                return NotFound("Requested series does not exist");
+            }
+
+            var episodesWatched = await _context.EpisodeWatched
+                .Where(e => e.SeriesId == seriesId
+                        &&
+                       e.ViewerId == userId)
+                .ToListAsync();
+
+            var watchedListDto = new SeriesEpisodesWatchedListDto
+            {
+                ViewerId = userId,
+                SeriesId = seriesId,
+                EpisodesWatchedIds = episodesWatched.Select(e => e.EpisodeId).ToList()
+            };
+            return Ok(watchedListDto);
+        }
+
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        [HttpGet("{userId}/series/liked")]
+        public async Task<ActionResult<SeriesLikedListDto>> GetSeriesLiked(string userId)
+        {
+            if (!await _context.Viewer.AnyAsync(v => v.ViewerId == userId))
+            {
+                return NotFound("Searched user does not exist");
+            }
+
+            var seriesLiked = await _context.SeriesLiked.Where(s => s.ViewerId == userId).ToListAsync();
+            var likedListDto = new SeriesLikedListDto
+            {
+                ViewerId = userId,
+                SeriesLikedIds = seriesLiked.Select(s => s.SeriesId).ToList()
+            };
+            return Ok(likedListDto);
         }
 
         [ProducesResponseType(204)]
@@ -118,7 +188,10 @@ namespace WatchingService.Controllers
                 return Unauthorized();
             }
             var user = await _context.Viewer.FirstOrDefaultAsync(viewer => viewer.ViewerId == watchEpisodeDto.ViewerId);
-            var episode = await _context.Episode.FirstOrDefaultAsync(episode => episode.EpisodeId == watchEpisodeDto.EpisodeId);
+            var episode = await _context.Episode
+                .FirstOrDefaultAsync(episode => episode.EpisodeId == watchEpisodeDto.EpisodeId
+                                    &&
+                                    episode.SeriesId == watchEpisodeDto.SeriesId);
             if (user == null || episode == null)
             {
                 return NotFound();
@@ -135,7 +208,8 @@ namespace WatchingService.Controllers
                 EpisodeId = watchEpisodeDto.EpisodeId,
                 ViewerId = watchEpisodeDto.ViewerId,
                 WatchingDate = watchEpisodeDto.WatchingDate,
-                IsInDiary = watchEpisodeDto.AddToDiary
+                IsInDiary = watchEpisodeDto.AddToDiary,
+                SeriesId = watchEpisodeDto.SeriesId
             };
 
             using (var trans = _context.Database.BeginTransaction(_capBus, autoCommit: false))
@@ -166,11 +240,19 @@ namespace WatchingService.Controllers
                         IsInDiary = episodeWatched.IsInDiary
                     };
 
-                    await _capBus.PublishAsync("watchingService.episodeWatched", episodeWatchedEvent);
-                    await trans.CommitAsync();
-                    return NoContent();
+                    if(await _context.SaveChangesAsync() > 0)
+                    {
+                        await _capBus.PublishAsync("watchingService.episodeWatched", episodeWatchedEvent);
+                        await trans.CommitAsync();
+                        return NoContent();
+                    }
+                    else
+                    {
+                        throw new Exception();
+                    }
+
                 }
-                catch (System.Exception)
+                catch (Exception e)
                 {
                     await trans.RollbackAsync();
                     return BadRequest("Error while saving watched episode");
