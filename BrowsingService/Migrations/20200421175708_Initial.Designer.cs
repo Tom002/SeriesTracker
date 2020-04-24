@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BrowsingService.Migrations
 {
     [DbContext(typeof(BrowsingDbContext))]
-    [Migration("20200408220345_Initial")]
+    [Migration("20200421175708_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -141,6 +141,9 @@ namespace BrowsingService.Migrations
 
                     b.Property<int?>("EndYear")
                         .HasColumnType("int");
+
+                    b.Property<DateTime?>("LastAirDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<int?>("StartYear")
                         .HasColumnType("int");

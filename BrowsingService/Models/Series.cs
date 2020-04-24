@@ -23,6 +23,8 @@ namespace BrowsingService.Models
 
         public int? EndYear { get; set; }
 
+        public DateTime? LastAirDate { get; set; }
+
         public ICollection<Episode> Episodes { get; set; } = new List<Episode>();
 
         public ICollection<SeriesWriter> Writers { get; set; } = new List<SeriesWriter>();

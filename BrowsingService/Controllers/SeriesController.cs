@@ -70,6 +70,7 @@ namespace BrowsingService.Controllers
         [ProducesResponseType(200)]
         public async Task<ActionResult<List<Series>>> GetSeries([FromQuery] SeriesParams filter)
         {
+            Console.WriteLine(Environment.GetEnvironmentVariable("RABBITMQ_PASSWORD"));
             IQueryable<Series> seriesQuery = _context.Series
                 .Include(series => series.Categories).ThenInclude(sc => sc.Category)
                 .Include(series => series.Reviews);
@@ -126,9 +127,9 @@ namespace BrowsingService.Controllers
         {
             var series = await _context.Series
                 .Include(s => s.Episodes)
-                .Include(s => s.Writers)
-                .Include(s => s.Cast)
-                .Include(s => s.Categories)
+                .Include(s => s.Writers).ThenInclude(sw => sw.Artist)
+                .Include(s => s.Cast).ThenInclude(sc => sc.Artist)
+                .Include(s => s.Categories).ThenInclude(sc => sc.Category)
                 .Where(s => s.SeriesId == id)
                 .FirstOrDefaultAsync();
 
@@ -138,7 +139,45 @@ namespace BrowsingService.Controllers
             }
             else
             {
-                return Ok(series);
+                var seriesDetails = new SeriesDetailsDto
+                {
+                    SeriesId = series.SeriesId,
+                    Categories = _mapper.Map<List<CategoryDto>>(series.Categories.Select(sc => sc.Category).ToList()),
+                    Cast = _mapper.Map<List<ActorWithRoleDto>>(series.Cast.ToList()),
+                    Writers = series.Writers.Select(s => new WriterDto { ArtistId = s.ArtistId, Name = s.Artist.Name}).ToList(),
+                    RatingAverage = series.Reviews.Any() ? series.Reviews.Average(r => r.Rating) : 0,
+                    RatingsCount = series.Reviews.Count(),
+                    CoverImageUrl = series.CoverImageUrl,
+                    Description = series.Description,
+                    SeasonNumbers = series.Episodes.Select(e => e.Season).Distinct().ToList(),
+                    StartYear = series.StartYear,
+                    EndYear = series.EndYear,
+                    Title = series.Title
+                };
+                return Ok(seriesDetails);
+            }
+        }
+
+        [HttpGet("{id}/season/{seasonNumber}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult<Series>> GetSeasonEpisodes(int id, int seasonNumber)
+        {
+            var series = await _context.Series
+                .Include(s => s.Episodes)
+                .Where(s => s.SeriesId == id)
+                .FirstOrDefaultAsync();
+
+            series.Episodes = series.Episodes.Where(e => e.Season == seasonNumber).ToList();
+
+            if(series != null && series.Episodes.Any())
+            {
+                var episodeList = _mapper.Map<List<EpisodeDto>>(series.Episodes);
+                return Ok(episodeList);
+            }
+            else
+            {
+                return NotFound("Series or season not found");
             }
         }
     }

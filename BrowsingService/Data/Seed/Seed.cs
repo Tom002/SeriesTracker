@@ -37,7 +37,8 @@ namespace BrowsingService.Data
                     StartYear = series.first_air_date.HasValue ? series.first_air_date.Value.Year : (int?)null,
                     EndYear = series.last_air_date.HasValue ? series.last_air_date.Value.Year : (int?)null,
                     CoverImageUrl = imageBasePath + series.poster_path,
-                    Title = series.name.Substring(0, Math.Min(200, series.name.Length))
+                    Title = series.name.Substring(0, Math.Min(200, series.name.Length)),
+                    LastAirDate = series.last_air_date
                 };
 
                 foreach (var writer in series.writers)
@@ -127,11 +128,11 @@ namespace BrowsingService.Data
                     foreach (var series in seriesToCreate)
                     {
                         var seriesEvent = mapper.Map<SeriesCreatedEvent>(series);
-                        capBus.Publish("series.created", seriesEvent);
+                        capBus.Publish("browsingservice.series.created", seriesEvent);
                         foreach (var episode in series.Episodes)
                         {
                             var episodeEvent = mapper.Map<EpisodeCreatedEvent>(episode);
-                            capBus.Publish("episode.created", episodeEvent);
+                            capBus.Publish("browsingservice.episode.created", episodeEvent);
                         }
                     }
                     trans.Commit();

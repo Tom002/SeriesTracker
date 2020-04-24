@@ -140,6 +140,9 @@ namespace BrowsingService.Migrations
                     b.Property<int?>("EndYear")
                         .HasColumnType("int");
 
+                    b.Property<DateTime?>("LastAirDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<int?>("StartYear")
                         .HasColumnType("int");
 

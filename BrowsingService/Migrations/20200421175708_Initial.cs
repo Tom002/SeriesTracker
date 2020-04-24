@@ -45,7 +45,8 @@ namespace BrowsingService.Migrations
                     CoverImageUrl = table.Column<string>(nullable: true),
                     Description = table.Column<string>(maxLength: 2000, nullable: true),
                     StartYear = table.Column<int>(nullable: true),
-                    EndYear = table.Column<int>(nullable: true)
+                    EndYear = table.Column<int>(nullable: true),
+                    LastAirDate = table.Column<DateTime>(nullable: true)
                 },
                 constraints: table =>
                 {

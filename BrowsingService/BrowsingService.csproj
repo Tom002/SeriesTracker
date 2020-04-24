@@ -5,6 +5,7 @@
     <UserSecretsId>98a592c0-5864-4226-bda4-25a3ab983363</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <DockerComposeProjectPath>..\docker-compose.dcproj</DockerComposeProjectPath>
+    <DockerfileTag>browsing</DockerfileTag>
   </PropertyGroup>
 
   <ItemGroup>
