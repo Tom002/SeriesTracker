@@ -53,6 +53,20 @@
     },
 
     {
+      "DownstreamPathTemplate": "/api/watching/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "watchingservice",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/watching/{everything}",
+      "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ]
+    },
+
+
+    {
       "DownstreamPathTemplate": "/api/profile/{userId}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [

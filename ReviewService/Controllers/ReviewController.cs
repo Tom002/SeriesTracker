@@ -29,7 +29,7 @@ namespace ReviewService.Controllers
             _capBus = capBus;
         }
 
-        [CapSubscribe("series.created")]
+        [CapSubscribe("browsingservice.series.created")]
         public async Task ReceiveSeriesCreated(SeriesCreatedEvent seriesEvent)
         {
             if(!await _context.Series.AnyAsync(series => series.SeriesId == seriesEvent.SeriesId))
@@ -39,7 +39,7 @@ namespace ReviewService.Controllers
             }
         }
 
-        [CapSubscribe("episode.created")]
+        [CapSubscribe("browsingservice.episode.created")]
         public async Task ReceiveEpisodeCreated(EpisodeCreatedEvent episodeEvent)
         {
             if (!await _context.Episode.AnyAsync(episode => episode.EpisodeId == episodeEvent.EpisodeId))

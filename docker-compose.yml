@@ -78,7 +78,6 @@ services:
       - seriestracker-network
 
 
-
   apigateway:
     image: ${DOCKER_REGISTRY-}apigateway
     build:
