@@ -1,4 +1,4 @@
-import { IArtist } from "./artist";
+import { IArtist, ICastMember } from "./artist";
 
 export interface ISeriesForList {
     seriesId: number,
@@ -17,8 +17,11 @@ export interface ISeriesDetails {
     description: string,
     startYear: number | null,
     endYear: number | null,
+    ratingAverage: number,
+    ratingsCount: number,
+    seasonNumbers: number[],
+    cast: ICastMember[],
     categories: ICategory[],
-    episodes: IEpisode[],
     writers: IArtist[],
     reviews: IReview[]
 }
@@ -37,6 +40,35 @@ export interface IEpisode {
     lengthInMinutes: number,
     release: Date | null,
     coverImageUrl: string,
+}
+
+export interface IEpisodeWatched {
+    episodeId: number,
+    watchingDate: Date
+}
+
+export interface ISeriesWatchedList {
+    viewerId: string,
+    seriesWatchedIds: number[]
+}
+
+export interface ISeriesEpisodesWatchedList {
+    viewerId: string,
+    seriesId: number,
+    episodesWatchedIds: number[]
+}
+
+export interface IWatchSeriesRequest {
+    viewerId: string,
+    seriesId: number,
+}
+
+export interface IWatchEpisodeRequest {
+    viewerId: string,
+    episodeId: number,
+    seriesId: number,
+    watchingDate: Date,
+    addToDiary: boolean
 }
 
 export interface IReview {

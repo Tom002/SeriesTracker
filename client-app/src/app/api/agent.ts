@@ -1,11 +1,11 @@
 import axios, { AxiosResponse } from 'axios';
 import { AuthService } from './auth';
 import { User } from 'oidc-client';
-import { ISeriesForList, ICategory, ISeriesDetails } from '../models/series';
+import { ISeriesForList, ICategory, ISeriesDetails, IEpisode, ISeriesWatchedList, ISeriesEpisodesWatchedList, IWatchSeriesRequest, IWatchEpisodeRequest } from '../models/series';
 import { IProfile } from '../models/profile';
 import { IArtist } from '../models/artist';
 
-axios.defaults.baseURL = "https://localhost:5101";
+axios.defaults.baseURL = "http://localhost:4100";
 
 var auth = new AuthService();
 var refreshing = false;
@@ -51,7 +51,9 @@ const requests = {
 
 const series = {
     list: (params: URLSearchParams): Promise<AxiosResponse<ISeriesForList[]>> => axios.get("/series", {params: params}),
-    get: (id: number): Promise<ISeriesDetails> => axios.get(`/series/${id}`).then(responseBody)
+    get: (id: number): Promise<ISeriesDetails> => axios.get(`/series/${id}`).then(responseBody),
+    getSeason: (seriesId: number, season: number): Promise<IEpisode[]> => 
+        axios.get(`/series/${seriesId}/season/${season}`).then(responseBody)
 }
 
 const categories = {
@@ -60,6 +62,17 @@ const categories = {
 
 const artists = {
     list: (params: URLSearchParams): Promise<AxiosResponse<IArtist[]>> => axios.get("/artists", {params: params}), 
+}
+
+const watching = {
+    listSeriesWatched:(userId: string): Promise<ISeriesWatchedList> => 
+        axios.get(`/watching/${userId}/series/watched`).then(responseBody),
+    listEpisodesWatched:(userId: string, seriesId: number): Promise<ISeriesEpisodesWatchedList> => 
+        axios.get(`/watching/${userId}/series/${seriesId}/episodes`).then(responseBody),
+    watchSeries: (data: IWatchSeriesRequest) => 
+        axios.post('/watching/series', data).then(responseBody),
+    watchEpisode: (data: IWatchEpisodeRequest) =>
+        axios.post('/watching/episode', data).then(responseBody) 
 }
 
 const profile = {
@@ -71,5 +84,6 @@ export default {
     series,
     categories,
     profile,
-    artists
+    artists,
+    watching
 }

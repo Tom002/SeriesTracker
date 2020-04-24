@@ -1,5 +1,5 @@
 import {observable, action, runInAction, computed} from 'mobx';
-import { ISeriesForList, ICategory, ISeriesDetails } from '../models/series';
+import { ISeriesForList, ICategory, ISeriesDetails, IEpisode } from '../models/series';
 import agent from '../api/agent';
 import { createContext } from 'react';
 import { DropdownItemProps } from 'semantic-ui-react';
@@ -10,7 +10,7 @@ class SeriesStore {
     @observable seriesRegistry = new Map<number, ISeriesForList>();
     @observable categoryRegistry = new Map<number, ICategory>();
     @observable selectedSeries: ISeriesDetails | null = null;
-
+    @observable loadedEpisodes: IEpisode[] = [];
     @observable currentPage = 1;
     @observable totalPages = 1;
 
@@ -73,12 +73,44 @@ class SeriesStore {
         }
     }
 
+    @action loadSeasonEpisodes = async (seriesId: number, seasonNumber: number) => {
+        try {
+            var episodes = await agent.series.getSeason(seriesId, seasonNumber);
+            runInAction("loading season", () => {
+                for (const episode of episodes) {
+                    this.loadedEpisodes.push(episode);
+                }
+            })
+        } catch (error) {
+            
+        }
+    }
+
+    @action clearLoadedEpisodes = () => {
+        runInAction("clearing loaded episodes", () => {
+            this.loadedEpisodes = [];
+        })
+    }
+
     @computed get categoriesForDropdown(): DropdownItemProps[] {
         return Array.from(this.categoryRegistry.values()).map(c => ({
           key: c.categoryId,
           text: c.categoryName,
           value: c.categoryId
         }));
+    }
+
+    @computed get seasonsForDropdown(): DropdownItemProps[] {
+        if(this.selectedSeries) {
+            return this.selectedSeries.seasonNumbers.sort().map(s => ({
+                key: s,
+                text: String(s),
+                value: s
+            }));
+        } else {
+            return [];
+        }
+
     }
 
 }
