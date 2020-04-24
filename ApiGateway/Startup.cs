@@ -6,6 +6,7 @@ using IdentityServer4.AccessTokenValidation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Ocelot.DependencyInjection;
@@ -16,14 +17,29 @@ namespace ApiGateway
 {
     public class Startup
     {
+        public Startup(IConfiguration configuration)
+        {
+            Configuration = configuration;
+        }
+
+        public IConfiguration Configuration { get; }
+
         public void ConfigureServices(IServiceCollection services)
         {
             var authenticationProviderKey = "IdentityServerAuthentication";
 
+            // Default value, docker compose url
+            string identityUrl = "http://identityservice";
+            
+            if(!String.IsNullOrEmpty(Configuration["IDENTITY_URL"]))
+            {
+                identityUrl = Configuration["IDENTITY_URL"];
+            }
+
             Action<IdentityServerAuthenticationOptions> options = o =>
             {
                 o.RequireHttpsMetadata = false;
-                o.Authority = "http://identityservice";
+                o.Authority = identityUrl;
                 o.ApiName = "gateway";
                 o.SupportedTokens = SupportedTokens.Both;
             };

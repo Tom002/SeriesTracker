@@ -32,6 +32,24 @@ namespace ReviewService
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // Default value, docker compose url
+            string identityUrl = "http://identityservice";
+
+            if (!String.IsNullOrEmpty(Configuration["IDENTITY_URL"]))
+            {
+                identityUrl = Configuration["IDENTITY_URL"];
+            }
+
+            string rabbitPassword;
+            if (String.IsNullOrEmpty(Configuration["RABBITMQ_PASSWORD"]))
+            {
+                rabbitPassword = Configuration["RabbitMQConfig:Password"];
+            }
+            else
+            {
+                rabbitPassword = Configuration["RABBITMQ_PASSWORD"];
+            }
+
             services.AddControllers();
 
             services.AddDbContext<ReviewDbContext>(opt =>
@@ -45,7 +63,7 @@ namespace ReviewService
                 {
                     conf.HostName = Configuration["RabbitMQConfig:Hostname"];
                     conf.UserName = Configuration["RabbitMQConfig:UserName"];
-                    conf.Password = Configuration["RabbitMQConfig:Password"];
+                    conf.Password = rabbitPassword;
                     conf.Port = int.Parse(Configuration["RabbitMQConfig:Port"]);
                 });
             });
@@ -62,7 +80,7 @@ namespace ReviewService
             services.AddAuthentication("Bearer")
                 .AddIdentityServerAuthentication(options =>
                 {
-                    options.Authority = "http://identityservice";
+                    options.Authority = identityUrl;
                     options.RequireHttpsMetadata = false;
                     options.ApiName = "review";
                 });

@@ -1,0 +1,157 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: browsing-config
+data:
+  appsettings.json: |-
+    {
+        "ConnectionStrings": {
+            "DefaultConnection": "Server=mssql-browsing-service,2101;Database=BrowseDb;User Id=sa;Password=BigPassw0rd"
+        },
+        "RabbitMQConfig": {
+            "Hostname": "messagebus-rabbitmq",
+            "UserName": "user",
+            "Port": 5672
+        },
+    }
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: identity-config
+data:
+  appsettings.json: |-
+    {
+        "ConnectionStrings": {
+            "DefaultConnection": "Server=mssql-identity-service,2100;Database=AspIdentity;User Id=sa;Password=BigPassw0rd"
+        },
+        "RabbitMQConfig": {
+            "Hostname": "messagebus-rabbitmq",
+            "UserName": "user",
+            "Port": 5672
+        },
+    }
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: profile-config
+data:
+  appsettings.json: |-
+    {
+        "ConnectionStrings": {
+            "DefaultConnection": "Server=mssql-users-service,2102;Database=UsersDb;User Id=sa;Password=BigPassw0rd"
+        },
+        "RabbitMQConfig": {
+            "Hostname": "messagebus-rabbitmq",
+            "UserName": "user",
+            "Port": 5672
+        },
+    }
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: review-config
+data:
+  appsettings.json: |-
+    {
+        "ConnectionStrings": {
+            "DefaultConnection": "Server=mssql-review-service,2103;Database=ReviewDb;User Id=sa;Password=BigPassw0rd"
+        },
+        "RabbitMQConfig": {
+            "Hostname": "messagebus-rabbitmq",
+            "UserName": "user",
+            "Port": 5672
+        },
+    }
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: watching-config
+data:
+  appsettings.json: |-
+    {
+        "ConnectionStrings": {
+            "DefaultConnection": "Server=mssql-watching-service,2104;Database=WatchingDb;User Id=sa;Password=BigPassw0rd"
+        },
+        "RabbitMQConfig": {
+            "Hostname": "messagebus-rabbitmq",
+            "UserName": "user",
+            "Port": 5672
+        },
+    }
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gateway-config
+data:
+  ocelot.json: |-
+    {
+    "ReRoutes": [
+        {
+        "DownstreamPathTemplate": "/api/series",
+        "DownstreamScheme": "http",
+        "UpstreamPathTemplate": "/series",
+        "ServiceName": "browsing-service",
+        "UpstreamHttpMethod": [ "Get" ]
+        },
+
+        {
+        "DownstreamPathTemplate": "/api/series/{seriesId}",
+        "DownstreamScheme": "http",
+        "UpstreamPathTemplate": "/series/{seriesId}",
+        "ServiceName": "browsing-service",
+        "UpstreamHttpMethod": [ "Get" ]
+        },
+
+        {
+        "DownstreamPathTemplate": "/api/series/categories",
+        "DownstreamScheme": "http",
+        "UpstreamPathTemplate": "/categories",
+        "ServiceName": "browsing-service",
+        "UpstreamHttpMethod": [ "Get" ]
+        },
+
+        {
+        "DownstreamPathTemplate": "/api/artist",
+        "DownstreamScheme": "http",
+        "UpstreamPathTemplate": "/artists",
+        "ServiceName": "browsing-service",
+        "UpstreamHttpMethod": [ "Get" ]
+        },
+
+        {
+          "DownstreamPathTemplate": "/api/profile/{userId}",
+          "DownstreamScheme": "http",
+          "UpstreamPathTemplate": "/users/{userId}",
+          "ServiceName": "profile-service",
+          "UpstreamHttpMethod": [ "Get" ],
+          "AuthenticationOptions": {
+              "AuthenticationProviderKey": "IdentityServerAuthentication",
+              "AllowedScopes": []
+          }
+        },
+
+        {
+          "DownstreamPathTemplate": "/api/watching/{everything}",
+          "DownstreamScheme": "http",
+          "ServiceName": "watching-service",
+          "UpstreamPathTemplate": "/watching/{everything}",
+          "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ],
+          "AuthenticationOptions": {
+              "AuthenticationProviderKey": "IdentityServerAuthentication",
+              "AllowedScopes": []
+          }
+        }
+    ],
+    "GlobalConfiguration": {
+        "ServiceDiscoveryProvider": {
+        "Port": 443,
+        "Namespace": "default",
+        "Type": "kube"
+            }
+        }
+    }

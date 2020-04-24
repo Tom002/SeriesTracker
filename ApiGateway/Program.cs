@@ -29,7 +29,11 @@ namespace ApiGateway
 
             builder.ConfigureServices(s => s.AddSingleton(builder))
                     .ConfigureAppConfiguration(
-                          ic => ic.AddJsonFile("ocelot.json"))
+                          conf => 
+                          {
+                              conf.AddJsonFile("ocelot.json");
+                              conf.AddJsonFile("config/ocelot.json", optional: true, reloadOnChange: true);
+                          })
                     .UseStartup<Startup>();
             var host = builder.Build();
             return host;

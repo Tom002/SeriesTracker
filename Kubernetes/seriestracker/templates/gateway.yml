@@ -1,57 +1,51 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: browsing-service
+  name: gateway
   labels:
-    app.kubernetes.io/name: browsing-service
+    app.kubernetes.io/name: gateway
     app.kubernetes.io/instance: {{ .Release.Name }}
 spec:
-  replicas: {{ .Values.browsing.replicas }}
   selector:
     matchLabels:
-      app.kubernetes.io/name: browsing-service
+      app.kubernetes.io/name: gateway
       app.kubernetes.io/instance: {{ .Release.Name }}
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: browsing-service
+        app.kubernetes.io/name: gateway
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
       containers:
-      - name: browsing-service
-        image: browsingimage
+      - name: gateway-container
+        image: gatewayimage
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 80
         - containerPort: 443
         env:
-        - name: RABBITMQ_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: messagebus-rabbitmq
-              key: rabbitmq-password
         - name: IDENTITY_URL
           value: {{ .Values.identity.url }}
         volumeMounts:
-        - name: browsing-config-volume
+        - name: gateway-config-volume
           mountPath: /app/config
       volumes:
-      - name: browsing-config-volume
+      - name: gateway-config-volume
         configMap:
-          name: browsing-config
+          name: gateway-config
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: browsing-service
+  name: gateway
   labels:
-    app.kubernetes.io/name: browsing-service
+    app.kubernetes.io/name: gateway
     app.kubernetes.io/instance: {{ .Release.Name }}
 spec:
   selector:
-    app.kubernetes.io/name: browsing-service
+    app.kubernetes.io/name: gateway
     app.kubernetes.io/instance: {{ .Release.Name }}
   ports:
-  - port: 4001
+  - port: 4100
     targetPort: 80
   type: LoadBalancer

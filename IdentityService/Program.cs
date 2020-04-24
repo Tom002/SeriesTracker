@@ -19,8 +19,13 @@ namespace IdentityService
     {
         public static void Main(string[] args)
         {
-            var host = CreateHostBuilder(args).Build();
-            using(var scope = host.Services.CreateScope())
+            var host = CreateHostBuilder(args)
+                .ConfigureLogging(logging =>
+                {
+                    logging.AddConsole();
+                })
+                .Build();
+            using (var scope = host.Services.CreateScope())
             {
                 var services = scope.ServiceProvider;
                 try
@@ -41,7 +46,10 @@ namespace IdentityService
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-            
+                .ConfigureAppConfiguration((hostingContext, config) =>
+                {
+                    config.AddJsonFile("config/appsettings.json", optional:true, reloadOnChange: true);
+                })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();

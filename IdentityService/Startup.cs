@@ -29,6 +29,16 @@ namespace IdentityService
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            string rabbitPassword;
+            if (String.IsNullOrEmpty(Configuration["RABBITMQ_PASSWORD"]))
+            {
+                rabbitPassword = Configuration["RabbitMQConfig:Password"];
+            }
+            else
+            {
+                rabbitPassword = Configuration["RABBITMQ_PASSWORD"];
+            }
+
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
@@ -39,7 +49,7 @@ namespace IdentityService
                 {
                     conf.HostName = Configuration["RabbitMQConfig:Hostname"];
                     conf.UserName = Configuration["RabbitMQConfig:UserName"];
-                    conf.Password = Configuration["RabbitMQConfig:Password"];
+                    conf.Password = rabbitPassword;
                     conf.Port = int.Parse(Configuration["RabbitMQConfig:Port"]);
                 });
             });

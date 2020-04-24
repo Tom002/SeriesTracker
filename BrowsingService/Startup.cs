@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using BrowsingService.Data;
 using BrowsingService.Helpers;
+using BrowsingService.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -31,6 +32,16 @@ namespace BrowsingService
         {
             services.AddControllers();
 
+            string rabbitPassword;
+            if(String.IsNullOrEmpty(Configuration["RABBITMQ_PASSWORD"]))
+            {
+                rabbitPassword = Configuration["RabbitMQConfig:Password"];
+            }
+            else
+            {
+                rabbitPassword = Configuration["RABBITMQ_PASSWORD"];
+            }
+
             services.AddDbContext<BrowsingDbContext>(opt =>
             {
                 opt.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
@@ -51,15 +62,18 @@ namespace BrowsingService
                 {
                     conf.HostName = Configuration["RabbitMQConfig:Hostname"];
                     conf.UserName = Configuration["RabbitMQConfig:UserName"];
-                    conf.Password = Configuration["RabbitMQConfig:Password"];
+                    conf.Password = rabbitPassword;
                     conf.Port = int.Parse(Configuration["RabbitMQConfig:Port"]);
                 });
             });
             services.AddAutoMapper(typeof(AutomapperProfiles));
+            services.AddScoped<IMovieDbClient, MovieDbClient>();
+            services.AddScoped<IScopedProcessingService, GetNewEpisodesTask>();
+            services.AddHostedService<NewEpisodeService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
             if (env.IsDevelopment())
             {
