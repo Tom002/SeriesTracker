@@ -1,0 +1,16 @@
+apiVersion : apps/v1beta1
+kind: Deployment
+metadata:
+  name: browsingtestimage 
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: browsingtestimage 
+    spec:
+      containers:
+        - name: browsingtestimage 
+          image: seriestracker.azurecr.io/browsingtestimage
+          ports:
+          - containerPort: 80
