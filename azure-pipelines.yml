@@ -51,3 +51,8 @@ stages:
           dockerComposeFile: '**/docker-compose.yml'
           action: 'Push services'
     
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        ArtifactName: 'seriestracker_build'
+        publishLocation: 'Container'
