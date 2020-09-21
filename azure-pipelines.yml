@@ -36,6 +36,6 @@ stages:
         script: 'ls'
     - task: PublishBuildArtifacts@1
       inputs:
-        PathtoPublish: '/Kubernetes'
+        PathtoPublish: 'Kubernetes'
         ArtifactName: 'seriestracker_build'
         publishLocation: 'Container'
