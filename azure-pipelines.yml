@@ -41,6 +41,7 @@ stages:
         azureContainerRegistry: '{"loginServer":"seriestrackeracr.azurecr.io", "id" : "/subscriptions/8445a3a1-9b69-45a5-8c09-9e1e6ebe6617/resourceGroups/series_tracker/providers/Microsoft.ContainerRegistry/registries/seriestrackerAcr"}'
         dockerComposeFile: '**/docker-compose.yml'
         action: 'Build services'
+        additionalImageTags: 'v1'
       
     - task: DockerCompose@0
       inputs:
