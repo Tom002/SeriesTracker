@@ -4,40 +4,40 @@ metadata:
   name: watching-service
   labels:
     app.kubernetes.io/name: watching-service
-    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/instance: { { .Release.Name } }
 spec:
   selector:
     matchLabels:
       app.kubernetes.io/name: watching-service
-      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/instance: { { .Release.Name } }
   template:
     metadata:
       labels:
         app.kubernetes.io/name: watching-service
-        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/instance: { { .Release.Name } }
     spec:
       containers:
-      - name: watching-service
-        image: seriestracker.azurecr.io/watchingservice:v1
-        imagePullPolicy: IfNotPresent
-        ports:
-        - containerPort: 80
-        - containerPort: 443
-        env:
-        - name: RABBITMQ_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: messagebus-rabbitmq
-              key: rabbitmq-password
-        - name: IDENTITY_URL
-          value: {{ .Values.identity.url }}
-        volumeMounts:
-        - name: watching-config-volume
-          mountPath: /app/config
+        - name: watching-service
+          image: seriestrackeracr.azurecr.io/watchingservice:v1
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+            - containerPort: 443
+          env:
+            - name: RABBITMQ_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: messagebus-rabbitmq
+                  key: rabbitmq-password
+            - name: IDENTITY_URL
+              value: { { .Values.identity.url } }
+          volumeMounts:
+            - name: watching-config-volume
+              mountPath: /app/config
       volumes:
-      - name: watching-config-volume
-        configMap:
-          name: watching-config
+        - name: watching-config-volume
+          configMap:
+            name: watching-config
 ---
 apiVersion: v1
 kind: Service
@@ -45,14 +45,14 @@ metadata:
   name: watching-service
   labels:
     app.kubernetes.io/name: watching-service
-    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/instance: { { .Release.Name } }
 spec:
   selector:
     app.kubernetes.io/name: watching-service
-    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/instance: { { .Release.Name } }
   ports:
-  - name: http
-    protocol: TCP
-    port: 80
-    targetPort: 80
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 80
   type: ClusterIP

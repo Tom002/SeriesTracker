@@ -23,6 +23,7 @@ namespace WatchingService
                 try
                 {
                     var context = services.GetRequiredService<WatchingDbContext>();
+                    context.Database.EnsureDeleted();
                     context.Database.Migrate();
                 }
                 catch (Exception)

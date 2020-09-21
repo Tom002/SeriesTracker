@@ -4,38 +4,38 @@ metadata:
   name: identity-service
   labels:
     app.kubernetes.io/name: identity-service
-    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/instance: { { .Release.Name } }
 spec:
   selector:
     matchLabels:
       app.kubernetes.io/name: identity-service
-      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/instance: { { .Release.Name } }
   template:
     metadata:
       labels:
         app.kubernetes.io/name: identity-service
-        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/instance: { { .Release.Name } }
     spec:
       containers:
-      - name: identity-service
-        image: seriestracker.azurecr.io/identityservice:v1
-        imagePullPolicy: IfNotPresent
-        ports:
-        - containerPort: 80
-        - containerPort: 443
-        env:
-        - name: RABBITMQ_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: messagebus-rabbitmq
-              key: rabbitmq-password
-        volumeMounts:
-        - name: identity-config-volume
-          mountPath: /app/config
+        - name: identity-service
+          image: seriestrackeracr.azurecr.io/identityservice:v1
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+            - containerPort: 443
+          env:
+            - name: RABBITMQ_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: messagebus-rabbitmq
+                  key: rabbitmq-password
+          volumeMounts:
+            - name: identity-config-volume
+              mountPath: /app/config
       volumes:
-      - name: identity-config-volume
-        configMap:
-          name: identity-config
+        - name: identity-config-volume
+          configMap:
+            name: identity-config
 ---
 apiVersion: v1
 kind: Service
@@ -43,18 +43,18 @@ metadata:
   name: identity-service
   labels:
     app.kubernetes.io/name: identity-service
-    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/instance: { { .Release.Name } }
 spec:
   selector:
     app.kubernetes.io/name: identity-service
-    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/instance: { { .Release.Name } }
   ports:
-  - name: http
-    protocol: TCP
-    port: 80
-    targetPort: 80
-  - name: https
-    protocol: TCP
-    port: 443
-    targetPort: 443
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 80
+    - name: https
+      protocol: TCP
+      port: 443
+      targetPort: 443
   type: LoadBalancer

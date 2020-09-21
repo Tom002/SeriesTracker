@@ -1,4 +1,4 @@
-USE [WatchingDb]
+USE [watchingDb]
 GO
 
 DROP TABLE [cap].[Published]

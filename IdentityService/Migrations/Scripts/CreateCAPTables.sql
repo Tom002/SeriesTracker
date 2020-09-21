@@ -1,4 +1,4 @@
-USE [AspIdentity]
+USE [IdentityDb]
 GO
 
 CREATE SCHEMA cap

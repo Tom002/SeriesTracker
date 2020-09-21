@@ -1,4 +1,4 @@
-USE [ReviewDb]
+USE [reviewDb]
 GO
 
 DROP TABLE [cap].[Published]
