@@ -14,6 +14,14 @@ namespace WatchingService.Models
         [Required]
         public int SeriesId { get; set; }
 
+        [Required]
+        public int Season { get; set; }
+
+        [Required]
+        public int EpisodeNumber { get; set; }
+
+        public string CoverImageUrl { get; set; }
+
         public ICollection<EpisodeWatched> EpisodesWatched { get; set; }
     }
 }

@@ -10,7 +10,7 @@ using WatchingService.Data;
 namespace WatchingService.Migrations
 {
     [DbContext(typeof(WatchingDbContext))]
-    [Migration("20200422101126_Initial")]
+    [Migration("20200921125807_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,15 @@ namespace WatchingService.Migrations
             modelBuilder.Entity("WatchingService.Models.Episode", b =>
                 {
                     b.Property<int>("EpisodeId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("CoverImageUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("EpisodeNumber")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Season")
                         .HasColumnType("int");
 
                     b.Property<int>("SeriesId")
@@ -64,6 +73,13 @@ namespace WatchingService.Migrations
                 {
                     b.Property<int>("SeriesId")
                         .HasColumnType("int");
+
+                    b.Property<string>("CoverImageUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .HasColumnType("nvarchar(200)")
+                        .HasMaxLength(200);
 
                     b.HasKey("SeriesId");
 

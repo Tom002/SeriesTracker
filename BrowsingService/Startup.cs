@@ -6,8 +6,11 @@ using AutoMapper;
 using BrowsingService.Data;
 using BrowsingService.Helpers;
 using BrowsingService.Services;
+using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -70,6 +73,22 @@ namespace BrowsingService
             services.AddScoped<IMovieDbClient, MovieDbClient>();
             services.AddScoped<IScopedProcessingService, GetNewEpisodesTask>();
             services.AddHostedService<NewEpisodeService>();
+            var hcBuilder = services.AddHealthChecks();
+            hcBuilder
+                .AddSqlServer(
+                    Configuration.GetConnectionString("DefaultConnection"),
+                    name: "CatalogDB-check",
+                    tags: new string[] { "catalogdb" });
+            hcBuilder
+                    .AddRabbitMQ(
+                        $"amqp://" +
+                        $"{Configuration["RabbitMQConfig:UserName"]}:" +
+                        $"{rabbitPassword}@" +
+                        $"{Configuration["RabbitMQConfig:Hostname"]}:" +
+                        $"{Configuration["RabbitMQConfig: Port"]}/",
+                        name: "catalog-rabbitmqbus-check",
+                        tags: new string[] { "rabbitmqbus" });
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -78,6 +97,17 @@ namespace BrowsingService
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+            }
+            else
+            {
+                app.UseExceptionHandler(appBuilder =>
+                {
+                    appBuilder.Run(async context =>
+                    {
+                        context.Response.StatusCode = 500;
+                        await context.Response.WriteAsync("An unexpected fault happened, try again later");
+                    });
+                });
             }
 
             //app.UseHttpsRedirection();
@@ -88,6 +118,15 @@ namespace BrowsingService
 
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapHealthChecks("/health/readiness", new HealthCheckOptions()
+                {
+                    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+                });
+                endpoints.MapHealthChecks("/health/liveness", new HealthCheckOptions()
+                {
+                    Predicate = _ => false,
+                    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+                });
                 endpoints.MapControllers();
             });
         }

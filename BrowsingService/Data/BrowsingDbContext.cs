@@ -32,6 +32,10 @@ namespace BrowsingService.Data
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
+            //builder.Entity<SeriesReview>()
+            //    .Property(sr => sr.)
+            //    .ValueGeneratedNever();
+
             builder.Entity<SeriesActor>()
                 .HasKey(sa => new { sa.ArtistId, sa.SeriesId });
             builder.Entity<SeriesActor>()

@@ -24,6 +24,9 @@ namespace BrowsingService.Helpers
             CreateMap<Genre, Category>()
                 .ForMember(c => c.CategoryId, opt => opt.MapFrom(g => g.id))
                 .ForMember(c => c.CategoryName, opt => opt.MapFrom(g => g.name));
+            CreateMap<SeriesReview, SeriesReviewDto>();
+            CreateMap<SeriesReviewCreatedEvent, SeriesReview>();
+            CreateMap<EpisodeReviewCreatedEvent, EpisodeReview>();
         }
 
         public class PersonToArtistConverter : ITypeConverter<PersonApiResponse, Artist>

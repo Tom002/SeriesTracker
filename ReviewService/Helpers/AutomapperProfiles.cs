@@ -11,8 +11,14 @@ namespace ReviewService.Helpers
         {
             CreateMap<CreateSeriesReviewDto, SeriesReview>();
             CreateMap<CreateEpisodeReviewDto, EpisodeReview>();
+            CreateMap<SeriesReviewCreatedEvent, SeriesReview>();
             CreateMap<SeriesReview, SeriesReviewCreatedEvent>();
+            CreateMap<EpisodeReviewCreatedEvent, EpisodeReview>();
             CreateMap<EpisodeReview, EpisodeReviewCreatedEvent>();
+            CreateMap<SeriesReview, UserSeriesReviewInfoDto>()
+                .ForMember(dest => dest.IsReviewedByUser, opt => opt.MapFrom(src => true));
+            CreateMap<SeriesReview, SeriesReviewUpdateDto>();
+            CreateMap<SeriesReviewUpdateDto, SeriesReview>();
         }
     }
 }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mail;
 using System.Threading.Tasks;
 using IdentityService.Data;
 using IdentityService.Models;
@@ -52,6 +53,7 @@ namespace IdentityService
                     conf.Password = rabbitPassword;
                     conf.Port = int.Parse(Configuration["RabbitMQConfig:Port"]);
                 });
+                x.UseDashboard();
             });
 
             services.AddIdentity<ApplicationUser, IdentityRole>(options => {
@@ -69,14 +71,26 @@ namespace IdentityService
 
             services.AddMvc();
 
-            // configure identity server with in-memory stores, keys, clients and scopes
-            services.AddIdentityServer(x => x.IssuerUri = "series_identity")
-                .AddDeveloperSigningCredential()
-                .AddInMemoryPersistedGrants()
-                .AddInMemoryIdentityResources(Config.GetIdentityResources())
-                .AddInMemoryApiResources(Config.GetApiResources())
-                .AddInMemoryClients(Config.GetClients())
-                .AddAspNetIdentity<ApplicationUser>();
+            var builder = services.AddIdentityServer(options =>
+            {
+                options.IssuerUri = "series_identity";    
+            })
+            .AddDeveloperSigningCredential()
+            .AddInMemoryPersistedGrants()
+            .AddInMemoryIdentityResources(Config.GetIdentityResources())
+            .AddInMemoryApiResources(Config.GetApiResources())
+            .AddInMemoryClients(Config.GetClients())
+            .AddAspNetIdentity<ApplicationUser>();
+
+            builder.Services.ConfigureExternalCookie(options => {
+                options.Cookie.IsEssential = true;
+                options.Cookie.SameSite = SameSiteMode.Unspecified;
+            });
+
+            builder.Services.ConfigureApplicationCookie(options => {
+                options.Cookie.IsEssential = true;
+                options.Cookie.SameSite = SameSiteMode.Unspecified;
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

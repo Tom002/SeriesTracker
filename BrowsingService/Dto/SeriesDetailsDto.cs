@@ -29,6 +29,8 @@ namespace BrowsingService.Dto
 
         public List<WriterDto> Writers { get; set; } = new List<WriterDto>();
 
+        public List<SeriesReviewDto> Reviews { get; set; } = new List<SeriesReviewDto>();
+
         public double RatingAverage { get; set; }
 
         public int RatingsCount { get; set; }

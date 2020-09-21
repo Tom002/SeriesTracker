@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
       - name: gateway-container
-        image: gatewayimage
+        image: seriestracker.azurecr.io/apigateway:v1
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 80
@@ -46,6 +46,12 @@ spec:
     app.kubernetes.io/name: gateway
     app.kubernetes.io/instance: {{ .Release.Name }}
   ports:
-  - port: 4100
+  - name: http
+    protocol: TCP
+    port: 80
     targetPort: 80
+  - name: https
+    protocol: TCP
+    port: 443
+    targetPort: 443  
   type: LoadBalancer

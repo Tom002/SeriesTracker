@@ -9,6 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="7.0.0" />
     <PackageReference Include="DotNetCore.CAP" Version="3.0.2" />
     <PackageReference Include="DotNetCore.CAP.RabbitMQ" Version="3.0.2" />
     <PackageReference Include="DotNetCore.CAP.SqlServer" Version="3.0.2" />
@@ -25,6 +26,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Migrations\Scripts\" />
   </ItemGroup>
 
 

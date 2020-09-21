@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
       - name: browsing-service
-        image: browsingimage
+        image: seriestracker.azurecr.io/browsingservice:v1
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 80
@@ -35,6 +35,24 @@ spec:
         volumeMounts:
         - name: browsing-config-volume
           mountPath: /app/config
+        readinessProbe:
+          httpGet:
+            path: /health/readiness
+            port: 80
+          initialDelaySeconds: 10
+          timeoutSeconds: 30
+          periodSeconds: 60
+          successThreshold: 1
+          failureThreshold: 5
+        livenessProbe:
+          httpGet:
+            path: /health/liveness
+            port: 80
+          initialDelaySeconds: 10
+          timeoutSeconds: 5
+          periodSeconds: 15
+          successThreshold: 1
+          failureThreshold: 3
       volumes:
       - name: browsing-config-volume
         configMap:
@@ -52,6 +70,8 @@ spec:
     app.kubernetes.io/name: browsing-service
     app.kubernetes.io/instance: {{ .Release.Name }}
   ports:
-  - port: 4001
+  - name: http
+    protocol: TCP
+    port: 80
     targetPort: 80
-  type: LoadBalancer
+  type: ClusterIP

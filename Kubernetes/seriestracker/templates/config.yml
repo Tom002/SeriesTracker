@@ -6,7 +6,7 @@ data:
   appsettings.json: |-
     {
         "ConnectionStrings": {
-            "DefaultConnection": "Server=mssql-browsing-service,2101;Database=BrowseDb;User Id=sa;Password=BigPassw0rd"
+            "DefaultConnection": "Server=mssql-browsing-service,1433;Database=BrowseDb;User Id=sa;Password=Mr.Anderson!333!"
         },
         "RabbitMQConfig": {
             "Hostname": "messagebus-rabbitmq",
@@ -23,7 +23,7 @@ data:
   appsettings.json: |-
     {
         "ConnectionStrings": {
-            "DefaultConnection": "Server=mssql-identity-service,2100;Database=AspIdentity;User Id=sa;Password=BigPassw0rd"
+            "DefaultConnection": "Server=mssql-identity-service,1433;Database=AspIdentity;User Id=sa;Password=Mr.Anderson!333!"
         },
         "RabbitMQConfig": {
             "Hostname": "messagebus-rabbitmq",
@@ -40,7 +40,7 @@ data:
   appsettings.json: |-
     {
         "ConnectionStrings": {
-            "DefaultConnection": "Server=mssql-users-service,2102;Database=UsersDb;User Id=sa;Password=BigPassw0rd"
+            "DefaultConnection": "Server=mssql-users-service,1433;Database=UsersDb;User Id=sa;Password=Mr.Anderson!333!"
         },
         "RabbitMQConfig": {
             "Hostname": "messagebus-rabbitmq",
@@ -57,7 +57,7 @@ data:
   appsettings.json: |-
     {
         "ConnectionStrings": {
-            "DefaultConnection": "Server=mssql-review-service,2103;Database=ReviewDb;User Id=sa;Password=BigPassw0rd"
+            "DefaultConnection": "Server=mssql-review-service,1433;Database=ReviewDb;User Id=sa;Password=Mr.Anderson!333!"
         },
         "RabbitMQConfig": {
             "Hostname": "messagebus-rabbitmq",
@@ -74,7 +74,7 @@ data:
   appsettings.json: |-
     {
         "ConnectionStrings": {
-            "DefaultConnection": "Server=mssql-watching-service,2104;Database=WatchingDb;User Id=sa;Password=BigPassw0rd"
+            "DefaultConnection": "Server=mssql-watching-service,1433;Database=WatchingDb;User Id=sa;Password=Mr.Anderson!333!"
         },
         "RabbitMQConfig": {
             "Hostname": "messagebus-rabbitmq",

@@ -1,17 +1,17 @@
 import axios, { AxiosResponse } from 'axios';
 import { AuthService } from './auth';
 import { User } from 'oidc-client';
-import { ISeriesForList, ICategory, ISeriesDetails, IEpisode, ISeriesWatchedList, ISeriesEpisodesWatchedList, IWatchSeriesRequest, IWatchEpisodeRequest } from '../models/series';
+import { ISeriesForList, ICategory, ISeriesDetails, IEpisode, ISeriesWatchedList, ISeriesEpisodesWatchedList, IWatchSeriesRequest, IWatchEpisodeRequest, IReviewSeriesRequest, IReviewEpisodeRequest, IUserSeriesReviewInfo } from '../models/series';
 import { IProfile } from '../models/profile';
 import { IArtist } from '../models/artist';
 
-axios.defaults.baseURL = "http://localhost:4100";
+axios.defaults.baseURL = "http://localhost:5100/";
 
 var auth = new AuthService();
 var refreshing = false;
 
 axios.interceptors.request.use(async (config) => {
-    var user: User|null = await auth.getUser();
+    var user: User | null = await auth.getUser();
     if(user) {
         const token = user.access_token;
         config.headers.Authorization = `Bearer ${token}`;
@@ -41,13 +41,8 @@ axios.interceptors.response.use(
     })
 
 const responseBody = (response: AxiosResponse) => response.data;
+const fullResponse = (response: AxiosResponse) => response;
 
-const requests = {
-    get: (url: string) => axios.get(url).then(responseBody),
-    post: (url: string, body: {}) => axios.post(url, body).then(responseBody),
-    put: (url: string, body: {}) => axios.put(url, body).then(responseBody),
-    del: (url: string) => axios.delete(url).then(responseBody) 
-};
 
 const series = {
     list: (params: URLSearchParams): Promise<AxiosResponse<ISeriesForList[]>> => axios.get("/series", {params: params}),
@@ -57,7 +52,7 @@ const series = {
 }
 
 const categories = {
-    list: (): Promise<ICategory[]> => requests.get("/categories")
+    list: (): Promise<ICategory[]> => axios.get("/categories").then(responseBody)
 }
 
 const artists = {
@@ -70,20 +65,30 @@ const watching = {
     listEpisodesWatched:(userId: string, seriesId: number): Promise<ISeriesEpisodesWatchedList> => 
         axios.get(`/watching/${userId}/series/${seriesId}/episodes`).then(responseBody),
     watchSeries: (data: IWatchSeriesRequest) => 
-        axios.post('/watching/series', data).then(responseBody),
+        axios.post('/watching/series', data),
     watchEpisode: (data: IWatchEpisodeRequest) =>
-        axios.post('/watching/episode', data).then(responseBody) 
+        axios.post('/watching/episode', data) 
+}
+
+const review = {
+    reviewSeries: (data: IReviewSeriesRequest) =>
+        axios.post(`/review/series/${data.seriesId}`, data),
+    reviewEpisode: (data: IReviewEpisodeRequest) =>
+        axios.post('/review/episode/', data),
+    
+    getUserReview: (userId: string, seriesId: number) : Promise<IUserSeriesReviewInfo> =>
+        axios.get(`/review/series/${seriesId}/user/${userId}`).then(responseBody)
 }
 
 const profile = {
-    get: (userId: string): Promise<IProfile> => requests.get(`/users/${userId}`)
+    get: (userId: string): Promise<IProfile> => axios.get(`/users/${userId}`).then(responseBody)
 }
 
 export default {
-    requests,
     series,
     categories,
     profile,
     artists,
-    watching
+    watching,
+    review
 }

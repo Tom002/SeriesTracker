@@ -12,7 +12,10 @@ namespace WatchingService.Migrations
                 columns: table => new
                 {
                     EpisodeId = table.Column<int>(nullable: false),
-                    SeriesId = table.Column<int>(nullable: false)
+                    SeriesId = table.Column<int>(nullable: false),
+                    Season = table.Column<int>(nullable: false),
+                    EpisodeNumber = table.Column<int>(nullable: false),
+                    CoverImageUrl = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -23,7 +26,9 @@ namespace WatchingService.Migrations
                 name: "Series",
                 columns: table => new
                 {
-                    SeriesId = table.Column<int>(nullable: false)
+                    SeriesId = table.Column<int>(nullable: false),
+                    Title = table.Column<string>(maxLength: 200, nullable: true),
+                    CoverImageUrl = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {

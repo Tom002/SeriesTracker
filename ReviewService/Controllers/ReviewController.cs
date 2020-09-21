@@ -6,6 +6,7 @@ using AutoMapper;
 using Common.Events;
 using DotNetCore.CAP;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ReviewService.Data;
@@ -63,8 +64,8 @@ namespace ReviewService.Controllers
         [ProducesResponseType(400)]
         [ProducesResponseType(401)]
         [ProducesResponseType(404)]
-        [HttpPost("/series")]
-        public async Task<ActionResult> CreateSeriesReview(CreateSeriesReviewDto reviewDto)
+        [HttpPost("series/{seriesId}")]
+        public async Task<ActionResult> CreateSeriesReview(int seriesId, [FromBody] CreateSeriesReviewDto reviewDto)
         {
             var signedInUserId = User.FindFirst("sub").Value;
             if (reviewDto.ReviewerId != signedInUserId)
@@ -108,11 +109,62 @@ namespace ReviewService.Controllers
             }
         }
 
+        [HttpPatch("series/{seriesId}/user/{userId}")]
+        public async Task<ActionResult> EditSeriesReview(
+            int seriesId,
+            string userId,
+            JsonPatchDocument<SeriesReviewUpdateDto> patchDocument)
+        {
+            var review = await _context.SeriesReview
+                .FirstOrDefaultAsync(sr => sr.SeriesId == seriesId && sr.ReviewerId == userId);
+
+            if(review == null)
+            {
+                return NotFound();
+            }
+
+            var signedInUserId = User.FindFirst("sub").Value;
+            if(review.ReviewerId != signedInUserId)
+            {
+                return Forbid();
+            }
+
+            var reviewToPatch = _mapper.Map<SeriesReviewUpdateDto>(review);
+            patchDocument.ApplyTo(reviewToPatch, ModelState);
+
+            if(!TryValidateModel(reviewToPatch))
+            {
+                return ValidationProblem(ModelState);
+            }
+
+            _mapper.Map(reviewToPatch, review);
+
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
+
+        [ProducesResponseType(200)]
+        [ProducesResponseType(401)]
+        [HttpGet("series/{seriesId}/user/{userId}")]
+        public async Task<ActionResult<UserSeriesReviewInfoDto>> UserReviewForSeries(int seriesId, string userId)
+        {
+            var review = await _context.SeriesReview
+                .FirstOrDefaultAsync(sr => sr.SeriesId == seriesId && sr.ReviewerId == userId);
+
+            if(review == null)
+            {
+                return Ok(new UserSeriesReviewInfoDto { IsReviewedByUser = false });
+            }
+
+            var response = _mapper.Map<UserSeriesReviewInfoDto>(review);
+            return Ok(response);
+        }
+
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
         [ProducesResponseType(401)]
         [ProducesResponseType(404)]
-        [HttpPost("/episode")]
+        [HttpPost("episode")]
         public async Task<ActionResult> CreateEpisodeReview(CreateEpisodeReviewDto reviewDto)
         {
             var signedInUserId = User.FindFirst("sub").Value;

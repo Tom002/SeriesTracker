@@ -9,11 +9,13 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Logging;
 using ReviewService.Data;
 using ReviewService.Helpers;
@@ -25,6 +27,22 @@ namespace ReviewService
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+        }
+
+        private static NewtonsoftJsonPatchInputFormatter GetJsonPatchInputFormatter()
+        {
+            var builder = new ServiceCollection()
+                .AddLogging()
+                .AddMvc()
+                .AddNewtonsoftJson()
+                .Services.BuildServiceProvider();
+
+            return builder
+                .GetRequiredService<IOptions<MvcOptions>>()
+                .Value
+                .InputFormatters
+                .OfType<NewtonsoftJsonPatchInputFormatter>()
+                .First();
         }
 
         public IConfiguration Configuration { get; }
@@ -50,7 +68,10 @@ namespace ReviewService
                 rabbitPassword = Configuration["RABBITMQ_PASSWORD"];
             }
 
-            services.AddControllers();
+            services.AddControllers(opt =>
+            {
+                opt.InputFormatters.Insert(0, GetJsonPatchInputFormatter());
+            });
 
             services.AddDbContext<ReviewDbContext>(opt =>
             {

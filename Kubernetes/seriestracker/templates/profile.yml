@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
       - name: profile-service
-        image: profileimage
+        image: seriestracker.azurecr.io/profileservice:v1
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 80
@@ -51,6 +51,8 @@ spec:
     app.kubernetes.io/name: profile-service
     app.kubernetes.io/instance: {{ .Release.Name }}
   ports:
-  - port: 4002
+  - name: http
+    protocol: TCP
+    port: 80
     targetPort: 80
-  type: LoadBalancer
+  type: ClusterIP

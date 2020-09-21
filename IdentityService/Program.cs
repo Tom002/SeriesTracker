@@ -1,7 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using DotNetCore.CAP;
 using IdentityService.Data;
 using IdentityService.Models;
@@ -33,7 +30,7 @@ namespace IdentityService
                     var usermanager = services.GetRequiredService<UserManager<ApplicationUser>>();
                     var context = services.GetRequiredService<ApplicationDbContext>();
                     var capBus = services.GetRequiredService<ICapPublisher>();
-                    context.Database.Migrate();
+                    context.Database.Migrate();                    
                     Seed.SeedData(usermanager, capBus, context).Wait();
                 }
                 catch (Exception e)

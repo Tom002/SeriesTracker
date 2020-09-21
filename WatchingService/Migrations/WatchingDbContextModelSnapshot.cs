@@ -24,6 +24,15 @@ namespace WatchingService.Migrations
                     b.Property<int>("EpisodeId")
                         .HasColumnType("int");
 
+                    b.Property<string>("CoverImageUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("EpisodeNumber")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Season")
+                        .HasColumnType("int");
+
                     b.Property<int>("SeriesId")
                         .HasColumnType("int");
 
@@ -62,6 +71,13 @@ namespace WatchingService.Migrations
                 {
                     b.Property<int>("SeriesId")
                         .HasColumnType("int");
+
+                    b.Property<string>("CoverImageUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .HasColumnType("nvarchar(200)")
+                        .HasMaxLength(200);
 
                     b.HasKey("SeriesId");
 

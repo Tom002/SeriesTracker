@@ -22,6 +22,10 @@ namespace ProfileService.Data
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
+
+            builder.Entity<User>()
+                .Property(v => v.UserId)
+                .ValueGeneratedNever();
         }
     }
 }

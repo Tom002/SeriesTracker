@@ -11,6 +11,11 @@ namespace WatchingService.Models
         [Required]
         public int SeriesId { get; set; }
 
+        [MaxLength(200)]
+        public string Title { get; set; }
+
+        public string CoverImageUrl { get; set; }
+
         public ICollection<SeriesWatched> SeriesWatched { get; set; }
 
         public ICollection<SeriesLiked> SeriesLiked { get; set; }

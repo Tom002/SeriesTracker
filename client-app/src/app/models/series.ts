@@ -71,6 +71,31 @@ export interface IWatchEpisodeRequest {
     addToDiary: boolean
 }
 
+export interface IReviewSeriesRequest {
+    reviewerId: string,
+    seriesId: number,
+    reviewTitle: string | null,
+    reviewDate: Date | null,
+    reviewText: string | null,
+    rating: number | null
+}
+
+export interface IReviewEpisodeRequest {
+    reviewerId: string,
+    episodeId: number,
+    rating: number | null
+}
+
+export interface IUserSeriesReviewInfo {
+    seriesId: number,
+    isReviewedByUser: boolean,
+    reviewerId: string | null,
+    reviewTitle: string | null,
+    reviewDate: Date | null,
+    reviewText: string | null,
+    rating: number | null
+}
+
 export interface IReview {
     reviewerId: string,
     reviewTitle: string,

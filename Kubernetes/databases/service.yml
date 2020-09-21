@@ -7,7 +7,7 @@ spec:
     app: mssql-identity
   ports:
     - protocol: TCP
-      port: 2100
+      port: 1433
       targetPort: 1433
   type: LoadBalancer
 ---
@@ -20,7 +20,7 @@ spec:
     app: mssql-browsing
   ports:
     - protocol: TCP
-      port: 2101
+      port: 1433
       targetPort: 1433
   type: LoadBalancer
 ---
@@ -33,7 +33,7 @@ spec:
     app: mssql-users
   ports:
     - protocol: TCP
-      port: 2102
+      port: 1433
       targetPort: 1433
   type: LoadBalancer
 ---
@@ -46,7 +46,7 @@ spec:
     app: mssql-review
   ports:
     - protocol: TCP
-      port: 2103
+      port: 1433
       targetPort: 1433
   type: LoadBalancer
 ---
@@ -59,7 +59,7 @@ spec:
     app: mssql-watching
   ports:
     - protocol: TCP
-      port: 2104
+      port: 1433
       targetPort: 1433
   type: LoadBalancer
   

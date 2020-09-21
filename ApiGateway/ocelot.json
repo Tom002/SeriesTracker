@@ -65,6 +65,19 @@
       "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ]
     },
 
+    {
+      "DownstreamPathTemplate": "/api/review/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "reviewservice",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/review/{everything}",
+      "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ]
+    },
+
 
     {
       "DownstreamPathTemplate": "/api/profile/{userId}",

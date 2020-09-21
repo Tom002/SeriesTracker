@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
       - name: review-service
-        image: reviewimage
+        image: seriestracker.azurecr.io/reviewservice:v1
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 80
@@ -51,6 +51,8 @@ spec:
     app.kubernetes.io/name: review-service
     app.kubernetes.io/instance: {{ .Release.Name }}
   ports:
-  - port: 4003
+  - name: http
+    protocol: TCP
+    port: 80
     targetPort: 80
-  type: LoadBalancer
+  type: ClusterIP

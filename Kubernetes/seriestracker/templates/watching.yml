@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
       - name: watching-service
-        image: watchingimage
+        image: seriestracker.azurecr.io/watchingservice:v1
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 80
@@ -51,6 +51,8 @@ spec:
     app.kubernetes.io/name: watching-service
     app.kubernetes.io/instance: {{ .Release.Name }}
   ports:
-  - port: 4004
+  - name: http
+    protocol: TCP
+    port: 80
     targetPort: 80
-  type: LoadBalancer
+  type: ClusterIP

@@ -67,10 +67,10 @@ namespace BrowsingService.Controllers
         }
 
         [HttpGet]
+        [HttpHead]
         [ProducesResponseType(200)]
         public async Task<ActionResult<List<Series>>> GetSeries([FromQuery] SeriesParams filter)
         {
-            Console.WriteLine(Environment.GetEnvironmentVariable("RABBITMQ_PASSWORD"));
             IQueryable<Series> seriesQuery = _context.Series
                 .Include(series => series.Categories).ThenInclude(sc => sc.Category)
                 .Include(series => series.Reviews);
@@ -130,6 +130,7 @@ namespace BrowsingService.Controllers
                 .Include(s => s.Writers).ThenInclude(sw => sw.Artist)
                 .Include(s => s.Cast).ThenInclude(sc => sc.Artist)
                 .Include(s => s.Categories).ThenInclude(sc => sc.Category)
+                .Include(s => s.Reviews)
                 .Where(s => s.SeriesId == id)
                 .FirstOrDefaultAsync();
 
@@ -143,6 +144,7 @@ namespace BrowsingService.Controllers
                 {
                     SeriesId = series.SeriesId,
                     Categories = _mapper.Map<List<CategoryDto>>(series.Categories.Select(sc => sc.Category).ToList()),
+                    Reviews = _mapper.Map<List<SeriesReviewDto>>(series.Reviews.ToList()),
                     Cast = _mapper.Map<List<ActorWithRoleDto>>(series.Cast.ToList()),
                     Writers = series.Writers.Select(s => new WriterDto { ArtistId = s.ArtistId, Name = s.Artist.Name}).ToList(),
                     RatingAverage = series.Reviews.Any() ? series.Reviews.Average(r => r.Rating) : 0,
@@ -168,10 +170,10 @@ namespace BrowsingService.Controllers
                 .Where(s => s.SeriesId == id)
                 .FirstOrDefaultAsync();
 
-            series.Episodes = series.Episodes.Where(e => e.Season == seasonNumber).ToList();
-
+            
             if(series != null && series.Episodes.Any())
             {
+                series.Episodes = series.Episodes.Where(e => e.Season == seasonNumber).ToList();
                 var episodeList = _mapper.Map<List<EpisodeDto>>(series.Episodes);
                 return Ok(episodeList);
             }

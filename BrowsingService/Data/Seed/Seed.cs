@@ -16,7 +16,7 @@ namespace BrowsingService.Data
     {
         public static async Task SeedData(BrowsingDbContext context, ICapPublisher capBus, IMapper mapper)
         {
-            const string imageBasePath = "https://image.tmdb.org/t/p/original";
+            const string imageBasePath = "https://image.tmdb.org/t/p/w400";
 
             List<CompleteSeries> seriesList = new List<CompleteSeries>();
 
