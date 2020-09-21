@@ -51,8 +51,13 @@ stages:
           dockerComposeFile: '**/docker-compose.yml'
           action: 'Push services'
     
+    - task: Bash@3
+      inputs:
+        targetType: 'inline'
+        script: 'ls -d */'
+
     - task: PublishBuildArtifacts@1
       inputs:
-        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)/Kubernetes'
         ArtifactName: 'seriestracker_build'
         publishLocation: 'Container'
