@@ -1,7 +1,8 @@
 {
   "ReRoutes": [
+
     {
-      "DownstreamPathTemplate": "/api/series",
+      "DownstreamPathTemplate": "/api/series/{everything}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -9,12 +10,12 @@
           "Port": 80
         }
       ],
-      "UpstreamPathTemplate": "/series",
-      "UpstreamHttpMethod": [ "Get" ]
+      "UpstreamPathTemplate": "/series/{everything}",
+      "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ]
     },
 
     {
-      "DownstreamPathTemplate": "/api/series/{seriesId}",
+      "DownstreamPathTemplate": "/api/series/categories/{everything}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -22,12 +23,12 @@
           "Port": 80
         }
       ],
-      "UpstreamPathTemplate": "/series/{seriesId}",
-      "UpstreamHttpMethod": [ "Get" ]
+      "UpstreamPathTemplate": "/categories/{everything}",
+      "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ]
     },
 
     {
-      "DownstreamPathTemplate": "/api/series/categories",
+      "DownstreamPathTemplate": "/api/artist/{everything}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -35,21 +36,8 @@
           "Port": 80
         }
       ],
-      "UpstreamPathTemplate": "/categories",
-      "UpstreamHttpMethod": [ "Get" ]
-    },
-
-    {
-      "DownstreamPathTemplate": "/api/artist",
-      "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "browsingservice",
-          "Port": 80
-        }
-      ],
-      "UpstreamPathTemplate": "/artists",
-      "UpstreamHttpMethod": [ "Get" ]
+      "UpstreamPathTemplate": "/artists/{everything}",
+      "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ]
     },
 
     {
@@ -80,7 +68,7 @@
 
 
     {
-      "DownstreamPathTemplate": "/api/profile/{userId}",
+      "DownstreamPathTemplate": "/api/profile/{everything}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -88,8 +76,8 @@
           "Port": 80
         }
       ],
-      "UpstreamPathTemplate": "/users/{userId}",
-      "UpstreamHttpMethod": [ "Get" ],
+      "UpstreamPathTemplate": "/users/{everything}",
+      "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "IdentityServerAuthentication",
         "AllowedScopes": []

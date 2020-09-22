@@ -5,7 +5,7 @@ import { ISeriesForList, ICategory, ISeriesDetails, IEpisode, ISeriesWatchedList
 import { IProfile } from '../models/profile';
 import { IArtist } from '../models/artist';
 
-axios.defaults.baseURL = "http://localhost:5100/";
+axios.defaults.baseURL = "http://20.54.142.229/";
 
 var auth = new AuthService();
 var refreshing = false;

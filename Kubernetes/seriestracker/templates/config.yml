@@ -92,43 +92,35 @@ data:
     {
     "ReRoutes": [
         {
-        "DownstreamPathTemplate": "/api/series",
+        "DownstreamPathTemplate": "/api/series/{everything}",
         "DownstreamScheme": "http",
-        "UpstreamPathTemplate": "/series",
+        "UpstreamPathTemplate": "/series/{everything}",
         "ServiceName": "browsing-service",
-        "UpstreamHttpMethod": [ "Get" ]
+        "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ]
         },
 
         {
-        "DownstreamPathTemplate": "/api/series/{seriesId}",
+        "DownstreamPathTemplate": "/api/series/categories/{everything}",
         "DownstreamScheme": "http",
-        "UpstreamPathTemplate": "/series/{seriesId}",
+        "UpstreamPathTemplate": "/categorie/{everything}s",
         "ServiceName": "browsing-service",
-        "UpstreamHttpMethod": [ "Get" ]
+        "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ]
         },
 
         {
-        "DownstreamPathTemplate": "/api/series/categories",
+        "DownstreamPathTemplate": "/api/artist/{everything}",
         "DownstreamScheme": "http",
-        "UpstreamPathTemplate": "/categories",
+        "UpstreamPathTemplate": "/artists/{everything}",
         "ServiceName": "browsing-service",
-        "UpstreamHttpMethod": [ "Get" ]
+        "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ]
         },
 
         {
-        "DownstreamPathTemplate": "/api/artist",
-        "DownstreamScheme": "http",
-        "UpstreamPathTemplate": "/artists",
-        "ServiceName": "browsing-service",
-        "UpstreamHttpMethod": [ "Get" ]
-        },
-
-        {
-          "DownstreamPathTemplate": "/api/profile/{userId}",
+          "DownstreamPathTemplate": "/api/profile/{everything}",
           "DownstreamScheme": "http",
-          "UpstreamPathTemplate": "/users/{userId}",
+          "UpstreamPathTemplate": "/users/{everything}",
           "ServiceName": "profile-service",
-          "UpstreamHttpMethod": [ "Get" ],
+          "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ],
           "AuthenticationOptions": {
               "AuthenticationProviderKey": "IdentityServerAuthentication",
               "AllowedScopes": []
@@ -145,7 +137,19 @@ data:
               "AuthenticationProviderKey": "IdentityServerAuthentication",
               "AllowedScopes": []
           }
-        }
+        },
+
+        {
+          "DownstreamPathTemplate": "/api/review/{everything}",
+          "DownstreamScheme": "http",
+          "ServiceName": "review-service",
+          "UpstreamPathTemplate": "/review/{everything}",
+          "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ],
+          "AuthenticationOptions": {
+              "AuthenticationProviderKey": "IdentityServerAuthentication",
+              "AllowedScopes": []
+          }
+        },
     ],
     "GlobalConfiguration": {
         "ServiceDiscoveryProvider": {
