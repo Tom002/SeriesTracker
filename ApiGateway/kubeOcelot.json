@@ -1,0 +1,71 @@
+{
+  "ReRoutes": [
+    {
+      "DownstreamPathTemplate": "/api/series/{everything}",
+      "DownstreamScheme": "http",
+      "UpstreamPathTemplate": "/series/{everything}",
+      "ServiceName": "browsing-service",
+      "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ]
+    },
+
+    {
+      "DownstreamPathTemplate": "/api/series/categories/{everything}",
+      "DownstreamScheme": "http",
+      "UpstreamPathTemplate": "/categorie/{everything}s",
+      "ServiceName": "browsing-service",
+      "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ]
+    },
+
+    {
+      "DownstreamPathTemplate": "/api/artist/{everything}",
+      "DownstreamScheme": "http",
+      "UpstreamPathTemplate": "/artists/{everything}",
+      "ServiceName": "browsing-service",
+      "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ]
+    },
+
+    {
+      "DownstreamPathTemplate": "/api/profile/{everything}",
+      "DownstreamScheme": "http",
+      "UpstreamPathTemplate": "/users/{everything}",
+      "ServiceName": "profile-service",
+      "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "IdentityServerAuthentication",
+        "AllowedScopes": []
+      }
+    },
+
+    {
+      "DownstreamPathTemplate": "/api/watching/{everything}",
+      "DownstreamScheme": "http",
+      "ServiceName": "watching-service",
+      "UpstreamPathTemplate": "/watching/{everything}",
+      "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "IdentityServerAuthentication",
+        "AllowedScopes": []
+      }
+    },
+
+    {
+      "DownstreamPathTemplate": "/api/review/{everything}",
+      "DownstreamScheme": "http",
+      "ServiceName": "review-service",
+      "UpstreamPathTemplate": "/review/{everything}",
+      "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "IdentityServerAuthentication",
+        "AllowedScopes": []
+      }
+    }
+  ],
+  "GlobalConfiguration": {
+    "ServiceDiscoveryProvider": {
+      "Port": 443,
+      "Namespace": "default",
+      "Type": "kube"
+    }
+  }
+}
+}
