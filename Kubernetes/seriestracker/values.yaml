@@ -1,4 +1,4 @@
 browsing:
-  replicas: 2
+  replicas: 1
 identity:
   url: "http://identity-service"
