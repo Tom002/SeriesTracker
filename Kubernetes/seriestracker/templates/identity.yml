@@ -23,12 +23,6 @@ spec:
           ports:
             - containerPort: 80
             - containerPort: 443
-          env:
-            - name: RABBITMQ_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: messagebus-rabbitmq
-                  key: rabbitmq-password
           volumeMounts:
             - name: identity-config-volume
               mountPath: /app/config

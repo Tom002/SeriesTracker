@@ -1,4 +1,4 @@
-USE [reviewDb]
+USE [ReviewDb]
 GO
 
 CREATE SCHEMA cap

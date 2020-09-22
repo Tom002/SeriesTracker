@@ -23,11 +23,12 @@ namespace ProfileService
                 try
                 {
                     var context = services.GetRequiredService<UserDbContext>();
-                    context.Database.EnsureDeleted();
+                    //context.Database.EnsureDeleted();
                     context.Database.Migrate();
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
+                    Console.WriteLine();
                 }
             }
             host.Run();

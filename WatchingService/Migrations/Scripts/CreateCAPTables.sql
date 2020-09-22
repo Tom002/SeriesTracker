@@ -1,4 +1,4 @@
-USE [watchingDb]
+USE [WatchingDb]
 GO
 
 CREATE SCHEMA cap

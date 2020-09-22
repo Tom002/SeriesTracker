@@ -27,7 +27,7 @@ namespace BrowsingService
                     var context = services.GetRequiredService<BrowsingDbContext>();
                     var capBus = services.GetRequiredService<ICapPublisher>();
                     var mapper = services.GetRequiredService<IMapper>();
-                    context.Database.EnsureDeleted();
+                    //context.Database.EnsureDeleted();
                     context.Database.Migrate();
                     await Seed.SeedData(context, capBus, mapper);
                 }

@@ -48,6 +48,13 @@ namespace BrowsingService
             services.AddDbContext<BrowsingDbContext>(opt =>
             {
                 opt.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
+                //sqlServerOptionsAction: sqlOptions =>
+                //{
+                //    sqlOptions.EnableRetryOnFailure(
+                //    maxRetryCount: 10,
+                //    maxRetryDelay: TimeSpan.FromSeconds(30),
+                //    errorNumbersToAdd: null);
+                //});
             });
             services.AddCors(options =>
             {
@@ -118,15 +125,15 @@ namespace BrowsingService
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapHealthChecks("/health/readiness", new HealthCheckOptions()
-                {
-                    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
-                });
-                endpoints.MapHealthChecks("/health/liveness", new HealthCheckOptions()
-                {
-                    Predicate = _ => false,
-                    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
-                });
+                //endpoints.MapHealthChecks("/health/readiness", new HealthCheckOptions()
+                //{
+                //    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+                //});
+                //endpoints.MapHealthChecks("/health/liveness", new HealthCheckOptions()
+                //{
+                //    Predicate = _ => false,
+                //    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+                //});
                 endpoints.MapControllers();
             });
         }

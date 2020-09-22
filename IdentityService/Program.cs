@@ -30,7 +30,7 @@ namespace IdentityService
                     var usermanager = services.GetRequiredService<UserManager<ApplicationUser>>();
                     var context = services.GetRequiredService<ApplicationDbContext>();
                     var capBus = services.GetRequiredService<ICapPublisher>();
-                    context.Database.EnsureDeleted();
+                    //context.Database.EnsureDeleted();
                     context.Database.Migrate();                    
                     Seed.SeedData(usermanager, capBus, context).Wait();
                 }

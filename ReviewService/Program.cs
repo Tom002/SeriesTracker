@@ -23,11 +23,12 @@ namespace ReviewService
                 try
                 {
                     var context = services.GetRequiredService<ReviewDbContext>();
-                    context.Database.EnsureDeleted();
+                    //context.Database.EnsureDeleted();
                     context.Database.Migrate();
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
+                    Console.WriteLine();
                 }
             }
             host.Run();

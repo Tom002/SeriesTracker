@@ -1,4 +1,4 @@
-USE [usersDb]
+USE [UsersDb]
 GO
 
 CREATE SCHEMA cap
