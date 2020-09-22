@@ -73,21 +73,21 @@ namespace BrowsingService
             services.AddScoped<IMovieDbClient, MovieDbClient>();
             services.AddScoped<IScopedProcessingService, GetNewEpisodesTask>();
             services.AddHostedService<NewEpisodeService>();
-            var hcBuilder = services.AddHealthChecks();
-            hcBuilder
-                .AddSqlServer(
-                    Configuration.GetConnectionString("DefaultConnection"),
-                    name: "CatalogDB-check",
-                    tags: new string[] { "catalogdb" });
-            hcBuilder
-                    .AddRabbitMQ(
-                        $"amqp://" +
-                        $"{Configuration["RabbitMQConfig:UserName"]}:" +
-                        $"{rabbitPassword}@" +
-                        $"{Configuration["RabbitMQConfig:Hostname"]}:" +
-                        $"{Configuration["RabbitMQConfig: Port"]}/",
-                        name: "catalog-rabbitmqbus-check",
-                        tags: new string[] { "rabbitmqbus" });
+            //var hcBuilder = services.AddHealthChecks();
+            //hcBuilder
+            //    .AddSqlServer(
+            //        Configuration.GetConnectionString("DefaultConnection"),
+            //        name: "CatalogDB-check",
+            //        tags: new string[] { "catalogdb" });
+            //hcBuilder
+            //        .AddRabbitMQ(
+            //            $"amqp://" +
+            //            $"{Configuration["RabbitMQConfig:UserName"]}:" +
+            //            $"{rabbitPassword}@" +
+            //            $"{Configuration["RabbitMQConfig:Hostname"]}:" +
+            //            $"{Configuration["RabbitMQConfig: Port"]}/",
+            //            name: "catalog-rabbitmqbus-check",
+            //            tags: new string[] { "rabbitmqbus" });
 
         }
 
