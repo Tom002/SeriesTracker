@@ -9,9 +9,17 @@
     },
 
     {
+      "DownstreamPathTemplate": "/api/series",
+      "DownstreamScheme": "http",
+      "UpstreamPathTemplate": "/series",
+      "ServiceName": "browsing-service",
+      "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ]
+    },
+
+    {
       "DownstreamPathTemplate": "/api/series/categories/{everything}",
       "DownstreamScheme": "http",
-      "UpstreamPathTemplate": "/categorie/{everything}s",
+      "UpstreamPathTemplate": "/categories/{everything}",
       "ServiceName": "browsing-service",
       "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ]
     },
