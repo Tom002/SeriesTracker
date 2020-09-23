@@ -34,17 +34,6 @@ namespace BrowsingService
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-
-            string rabbitPassword;
-            if(String.IsNullOrEmpty(Configuration["RABBITMQ_PASSWORD"]))
-            {
-                rabbitPassword = Configuration["RabbitMQConfig:Password"];
-            }
-            else
-            {
-                rabbitPassword = Configuration["RABBITMQ_PASSWORD"];
-            }
-
             services.AddDbContext<BrowsingDbContext>(opt =>
             {
                 opt.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
@@ -72,7 +61,7 @@ namespace BrowsingService
                 {
                     conf.HostName = Configuration["RabbitMQConfig:Hostname"];
                     conf.UserName = Configuration["RabbitMQConfig:UserName"];
-                    conf.Password = rabbitPassword;
+                    conf.Password = Configuration["RabbitMQConfig:Password"];
                     conf.Port = int.Parse(Configuration["RabbitMQConfig:Port"]);
                 });
             });
