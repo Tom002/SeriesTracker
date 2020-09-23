@@ -91,7 +91,7 @@ namespace BrowsingService
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> logger)
         {
             logger.LogInformation(Configuration["RabbitMQConfig:Password"]);
-            logger.LogInformation(Configuration["RabbitMQConfig:Password"]);
+            logger.LogError(Configuration["RabbitMQConfig:Password"]);
             logger.LogInformation(Configuration["RabbitMQConfig:Password"]);
             logger.LogInformation(Configuration["RabbitMQConfig:Password"]);
             logger.LogInformation(Configuration["RabbitMQConfig:Password"]);

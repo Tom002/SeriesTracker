@@ -28,8 +28,8 @@ namespace BrowsingService
                     var capBus = services.GetRequiredService<ICapPublisher>();
                     var mapper = services.GetRequiredService<IMapper>();
                     //context.Database.EnsureDeleted();
-                    context.Database.Migrate();
-                    await Seed.SeedData(context, capBus, mapper);
+                    //context.Database.Migrate();
+                    //await Seed.SeedData(context, capBus, mapper);
                 }
                 catch (Exception e)
                 {
