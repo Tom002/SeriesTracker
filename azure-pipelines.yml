@@ -11,8 +11,6 @@ resources:
 variables:
   # Container registry service connection established during pipeline creation
   dockerRegistryServiceConnection: '70b2d43c-0211-4032-a9bd-757315ae0b9e'
-  imageRepository: 'seriestracker'
-  containerRegistry: 'seriestrackeracr.azurecr.io'
   
   # Agent VM image name
   vmImageName: 'ubuntu-latest'
@@ -29,16 +27,16 @@ stages:
     - task: DockerCompose@0
       inputs:
         containerregistrytype: 'Azure Container Registry'
-        azureSubscription: 'Azure for Students (8445a3a1-9b69-45a5-8c09-9e1e6ebe6617)'
-        azureContainerRegistry: '{"loginServer":"seriestrackeracr.azurecr.io", "id" : "/subscriptions/8445a3a1-9b69-45a5-8c09-9e1e6ebe6617/resourceGroups/series_tracker/providers/Microsoft.ContainerRegistry/registries/seriestrackerAcr"}'
+        azureSubscription: 'Ingyenes próba(a941a661-3ebd-4b58-904a-e5d52e6538c4)'
+        azureContainerRegistry: '{"loginServer":"seriestrackerapp.azurecr.io", "id" : "/subscriptions/a941a661-3ebd-4b58-904a-e5d52e6538c4/resourceGroups/seriestracker/providers/Microsoft.ContainerRegistry/registries/seriestrackerapp"}'
         dockerComposeFile: '**/docker-compose.yml'
         action: 'Run services'
     
     - task: DockerCompose@0
       inputs:
         containerregistrytype: 'Azure Container Registry'
-        azureSubscription: 'Azure for Students (8445a3a1-9b69-45a5-8c09-9e1e6ebe6617)'
-        azureContainerRegistry: '{"loginServer":"seriestrackeracr.azurecr.io", "id" : "/subscriptions/8445a3a1-9b69-45a5-8c09-9e1e6ebe6617/resourceGroups/series_tracker/providers/Microsoft.ContainerRegistry/registries/seriestrackerAcr"}'
+        azureSubscription: 'Ingyenes próba(a941a661-3ebd-4b58-904a-e5d52e6538c4)'
+        azureContainerRegistry: '{"loginServer":"seriestrackerapp.azurecr.io", "id" : "/subscriptions/a941a661-3ebd-4b58-904a-e5d52e6538c4/resourceGroups/seriestracker/providers/Microsoft.ContainerRegistry/registries/seriestrackerapp"}'
         dockerComposeFile: '**/docker-compose.yml'
         action: 'Build services'
         additionalImageTags: 'v1'
@@ -46,8 +44,8 @@ stages:
     - task: DockerCompose@0
       inputs:
         containerregistrytype: 'Azure Container Registry'
-        azureSubscription: 'Azure for Students (8445a3a1-9b69-45a5-8c09-9e1e6ebe6617)'
-        azureContainerRegistry: '{"loginServer":"seriestrackeracr.azurecr.io", "id" : "/subscriptions/8445a3a1-9b69-45a5-8c09-9e1e6ebe6617/resourceGroups/series_tracker/providers/Microsoft.ContainerRegistry/registries/seriestrackerAcr"}'
+        azureSubscription: 'Ingyenes próba(a941a661-3ebd-4b58-904a-e5d52e6538c4)'
+        azureContainerRegistry: '{"loginServer":"seriestrackerapp.azurecr.io", "id" : "/subscriptions/a941a661-3ebd-4b58-904a-e5d52e6538c4/resourceGroups/seriestracker/providers/Microsoft.ContainerRegistry/registries/seriestrackerapp"}'
         dockerComposeFile: '**/docker-compose.yml'
         action: 'Push services'
 
