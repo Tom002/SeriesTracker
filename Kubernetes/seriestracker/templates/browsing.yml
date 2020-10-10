@@ -19,8 +19,8 @@ spec:
     spec:
       containers:
         - name: browsing-service
-          image: browsingservice:v1
-          imagePullPolicy: IfNotPresent
+          image: seriestrackerapp.azurecr.io/browsingservice:v1
+          imagePullPolicy: Always
           ports:
             - containerPort: 80
             - containerPort: 443

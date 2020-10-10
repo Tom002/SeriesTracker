@@ -18,8 +18,8 @@ spec:
     spec:
       containers:
         - name: profile-service
-          image: profileservice:v1
-          imagePullPolicy: IfNotPresent
+          image: seriestrackerapp.azurecr.io/profileservice:v1
+          imagePullPolicy: Always
           ports:
             - containerPort: 80
             - containerPort: 443

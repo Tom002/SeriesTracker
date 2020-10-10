@@ -18,8 +18,8 @@ spec:
     spec:
       containers:
         - name: identity-service
-          image: identityservice:v1
-          imagePullPolicy: IfNotPresent
+          image: seriestrackerapp.azurecr.io/identityservice:v1
+          imagePullPolicy: Always
           ports:
             - containerPort: 80
             - containerPort: 443
