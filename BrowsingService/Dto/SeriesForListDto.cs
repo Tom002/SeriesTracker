@@ -20,6 +20,6 @@ namespace BrowsingService.Dto
 
         public List<CategoryDto> Categories { get; set; } = new List<CategoryDto>();
 
-        public double AverageRating { get; set; }
+        public double? AverageRating { get; set; }
     }
 }

@@ -1,12 +1,11 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using Common.Events;
-using DotNetCore.CAP;
+﻿using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using WatchingService.Data;
 using WatchingService.Dto;
+using WatchingService.Helpers;
+using WatchingService.Helpers.Pagination;
+using WatchingService.Helpers.RequestContext;
+using WatchingService.Interfaces;
 using WatchingService.Models;
 
 namespace WatchingService.Controllers
@@ -15,286 +14,262 @@ namespace WatchingService.Controllers
     [ApiController]
     public class WatchingController : ControllerBase
     {
-        private readonly WatchingDbContext _context;
+        private readonly IWatchingService _watchingService;
+        private readonly IRequestContext _requestContext;
 
-        private readonly ICapPublisher _capBus;
-
-        public WatchingController(WatchingDbContext context, ICapPublisher capBus)
+        public WatchingController(IWatchingService watchingService,
+                                  IRequestContext requestContext)
         {
-            _context = context;
-            _capBus = capBus;
-        }
-
-        [CapSubscribe("identityservice.user.created")]
-        public async Task ReceiveUserCreated(UserCreatedEvent userEvent)
-        {
-            if(!await _context.Viewer.AnyAsync(viewer => viewer.ViewerId == userEvent.UserId))
-            {
-                _context.Viewer.Add(new Viewer { ViewerId = userEvent.UserId });
-                await _context.SaveChangesAsync();
-            }
-        }
-
-        [CapSubscribe("browsingservice.series.created")]
-        public async Task ReceiveSeriesCreated(SeriesCreatedEvent seriesEvent)
-        {
-            if (!await _context.Series.AnyAsync(series => series.SeriesId == seriesEvent.SeriesId))
-            {
-                _context.Series.Add(new Series { SeriesId = seriesEvent.SeriesId });
-                await _context.SaveChangesAsync();
-            }
-        }
-
-        [CapSubscribe("browsingservice.episode.created")]
-        public async Task ReceiveEpisodeCreated(EpisodeCreatedEvent episodeEvent)
-        {
-            if (!await _context.Episode.AnyAsync(episode => episode.EpisodeId == episodeEvent.EpisodeId))
-            {
-                _context.Episode.Add(new Episode { EpisodeId = episodeEvent.EpisodeId, SeriesId = episodeEvent.SeriesId });
-                await _context.SaveChangesAsync();
-            }
+            _watchingService = watchingService;
+            _requestContext = requestContext;
         }
 
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
-        [HttpGet("{userId}/series/watched")]
-        public async Task<ActionResult<SeriesWatchedListDto>> GetSeriesWatched(string userId)
+        [HttpGet("viewers/{userId}/series/watched")]
+        public async Task<ActionResult<PagedList<SeriesWatchedListDto>>> 
+            GetSeriesWatched(string userId, [FromQuery] PagingParams pagingParams)
         {
-            if(!await _context.Viewer.AnyAsync(v => v.ViewerId == userId))
+            var viewer = await _watchingService.GetViewer(userId);
+            if(viewer is Viewer)
             {
-                return NotFound("Searched user does not exist");
-            }
-
-            var seriesWatched = await _context.SeriesWatched.Where(s => s.ViewerId == userId).ToListAsync();
-            var watchedListDto = new SeriesWatchedListDto
-            {
-                ViewerId = userId,
-                SeriesWatchedIds = seriesWatched.Select(s => s.SeriesId).ToList()
-            };
-            return Ok(watchedListDto);
-        }
-
-        [ProducesResponseType(200)]
-        [ProducesResponseType(404)]
-        [HttpGet("{userId}/series/{seriesId}/episodes")]
-        public async Task<ActionResult<SeriesEpisodesWatchedListDto>> GetSeriesEpisodesWatched(string userId, int seriesId)
-        {
-            if (!await _context.Viewer.AnyAsync(v => v.ViewerId == userId))
-            {
-                return NotFound("Requested user does not exist");
-            }
-
-            if(!await _context.Series.AnyAsync(s => s.SeriesId == seriesId))
-            {
-                return NotFound("Requested series does not exist");
-            }
-
-            var episodesWatched = await _context.EpisodeWatched
-                .Where(e => e.SeriesId == seriesId
-                        &&
-                       e.ViewerId == userId)
-                .ToListAsync();
-
-            var watchedListDto = new SeriesEpisodesWatchedListDto
-            {
-                ViewerId = userId,
-                SeriesId = seriesId,
-                EpisodesWatchedIds = episodesWatched.Select(e => e.EpisodeId).ToList()
-            };
-            return Ok(watchedListDto);
-        }
-
-        [ProducesResponseType(200)]
-        [ProducesResponseType(404)]
-        [HttpGet("{userId}/series/liked")]
-        public async Task<ActionResult<SeriesLikedListDto>> GetSeriesLiked(string userId)
-        {
-            if (!await _context.Viewer.AnyAsync(v => v.ViewerId == userId))
-            {
-                return NotFound("Searched user does not exist");
-            }
-
-            var seriesLiked = await _context.SeriesLiked.Where(s => s.ViewerId == userId).ToListAsync();
-            var likedListDto = new SeriesLikedListDto
-            {
-                ViewerId = userId,
-                SeriesLikedIds = seriesLiked.Select(s => s.SeriesId).ToList()
-            };
-            return Ok(likedListDto);
-        }
-
-        [ProducesResponseType(204)]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(401)]
-        [ProducesResponseType(404)]
-        [HttpPost("series")]
-        public async Task<ActionResult> WatchSeries(WatchSeriesDto watchSeriesDto)
-        {
-            var signedInUserId = User.FindFirst("sub").Value;
-            if (watchSeriesDto.ViewerId != signedInUserId)
-            {
-                return Unauthorized();
-            }
-
-            var user = await _context.Viewer.FirstOrDefaultAsync(viewer => viewer.ViewerId == watchSeriesDto.ViewerId);
-            var series = await _context.Series.FirstOrDefaultAsync(viewer => viewer.SeriesId == watchSeriesDto.SeriesId);
-            if (user == null || series == null)
-            {
-                return NotFound();
-            }
-            if (await _context.SeriesWatched.AnyAsync(sw => 
-                sw.SeriesId == watchSeriesDto.SeriesId && 
-                sw.ViewerId == watchSeriesDto.ViewerId))
-            {
-                return BadRequest("You are already watching this series");
-            }
-
-            var seriesWatched = new SeriesWatched { SeriesId = watchSeriesDto.SeriesId, ViewerId = watchSeriesDto.ViewerId };
-
-            using (var trans = _context.Database.BeginTransaction(_capBus, autoCommit: false))
-            {
-                try
-                {
-                    _context.SeriesWatched.Add(seriesWatched);
-                    await _context.SaveChangesAsync();
-
-                    var seriesWatchedEvent = new SeriesWatchedEvent
-                    {
-                        SeriesId = seriesWatched.SeriesId,
-                        ViewerId = seriesWatched.ViewerId
-                    };
-                    await _capBus.PublishAsync("watchingService.seriesWatched.created", seriesWatchedEvent);
-                    await trans.CommitAsync();
-                    return NoContent();
-                }
-                catch (System.Exception)
-                {
-                    await trans.RollbackAsync();
-                    return BadRequest("Error while saving watched series");
-                }
-            }
-        }
-
-        [ProducesResponseType(204)]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(401)]
-        [ProducesResponseType(404)]
-        [HttpPost("episode")]
-        public async Task<ActionResult> WatchEpisode([FromBody] WatchEpisodeDto watchEpisodeDto)
-        {
-            var signedInUserId = User.FindFirst("sub").Value;
-            if (watchEpisodeDto.ViewerId != signedInUserId)
-            {
-                return Unauthorized();
-            }
-            var user = await _context.Viewer.FirstOrDefaultAsync(viewer => viewer.ViewerId == watchEpisodeDto.ViewerId);
-            var episode = await _context.Episode
-                .FirstOrDefaultAsync(episode => episode.EpisodeId == watchEpisodeDto.EpisodeId
-                                    &&
-                                    episode.SeriesId == watchEpisodeDto.SeriesId);
-            if (user == null || episode == null)
-            {
-                return NotFound();
-            }
-            if (await _context.EpisodeWatched.AnyAsync(ew => 
-                ew.ViewerId == watchEpisodeDto.ViewerId && 
-                ew.EpisodeId == watchEpisodeDto.EpisodeId))
-            {
-                return BadRequest("You have already watched this episode");
-            }
-
-            var episodeWatched = new EpisodeWatched
-            {
-                EpisodeId = watchEpisodeDto.EpisodeId,
-                ViewerId = watchEpisodeDto.ViewerId,
-                WatchingDate = watchEpisodeDto.WatchingDate,
-                IsInDiary = watchEpisodeDto.AddToDiary,
-                SeriesId = watchEpisodeDto.SeriesId
-            };
-
-            using (var trans = _context.Database.BeginTransaction(_capBus, autoCommit: false))
-            {
-                try
-                {
-                    _context.EpisodeWatched.Add(episodeWatched);
-
-                    if (!await _context.SeriesWatched.AnyAsync(sw =>
-                        sw.SeriesId == episode.SeriesId &&
-                        sw.ViewerId == watchEpisodeDto.ViewerId))
-                    {
-                        var seriesWatched = new SeriesWatched { SeriesId = episode.SeriesId, ViewerId = watchEpisodeDto.ViewerId };
-                        _context.SeriesWatched.Add(seriesWatched);
-                        var seriesWatchedEvent = new SeriesWatchedEvent
-                        {
-                            SeriesId = seriesWatched.SeriesId,
-                            ViewerId = seriesWatched.ViewerId
-                        };
-                        await _capBus.PublishAsync("watchingService.seriesWatched.created", seriesWatchedEvent);
-                    }
-
-                    var episodeWatchedEvent = new EpisodeWatchedEvent
-                    {
-                        ViewerId = episodeWatched.ViewerId,
-                        EpisodeId = episodeWatched.EpisodeId,
-                        WatchingDate = episodeWatched.WatchingDate,
-                        IsInDiary = episodeWatched.IsInDiary
-                    };
-
-                    if(await _context.SaveChangesAsync() > 0)
-                    {
-                        await _capBus.PublishAsync("watchingService.episodeWatched", episodeWatchedEvent);
-                        await trans.CommitAsync();
-                        return NoContent();
-                    }
-                    else
-                    {
-                        throw new Exception();
-                    }
-
-                }
-                catch (Exception e)
-                {
-                    await trans.RollbackAsync();
-                    return BadRequest("Error while saving watched episode");
-                }
-            }
-        }
-
-        [HttpPost("like/series")]
-        [ProducesResponseType(204)]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(401)]
-        [ProducesResponseType(404)]
-        public async Task<ActionResult> LikeSeries(LikeSeriesDto likeSeriesDto)
-        {
-            var signedInUserId = User.FindFirst("sub").Value;
-            if (likeSeriesDto.ViewerId != signedInUserId)
-            {
-                return Unauthorized();
-            }
-
-            var user = await _context.Viewer.FirstOrDefaultAsync(viewer => viewer.ViewerId == likeSeriesDto.ViewerId);
-            var series = await _context.Series.FirstOrDefaultAsync(series => series.SeriesId == likeSeriesDto.SeriesId);
-            if (user == null || series == null)
-            {
-                return NotFound();
-            }
-            if (await _context.SeriesLiked.AnyAsync(sl => 
-                sl.SeriesId == likeSeriesDto.SeriesId &&
-                sl.ViewerId == likeSeriesDto.ViewerId))
-            {
-                return BadRequest("You have already liked this series");
-            }
-
-            var seriesLiked = new SeriesLiked { SeriesId = likeSeriesDto.SeriesId, ViewerId = likeSeriesDto.ViewerId };
-            _context.SeriesLiked.Add(seriesLiked);
-            if (await _context.SaveChangesAsync() > 0)
-            {
-                return NoContent();
+                var seriesWatchedList = await _watchingService.GetSeriesWatchedList(viewer, pagingParams);
+                Response.AddPagination(seriesWatchedList.CurrentPage,
+                                       seriesWatchedList.PageSize,
+                                       seriesWatchedList.TotalCount,
+                                       seriesWatchedList.TotalPages);
+                return Ok(seriesWatchedList);
             }
             else
             {
-                return BadRequest("Could not like the series");
+                return NotFound();
+            }
+        }
+
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        [HttpGet("viewers/{userId}/series/liked")]
+        public async Task<ActionResult<PagedList<SeriesLikedListDto>>>
+            GetSeriesLiked(string userId, [FromQuery] PagingParams pagingParams)
+        {
+            var viewer = await _watchingService.GetViewer(userId);
+            if (viewer is Viewer)
+            {
+                var seriesLikedList = await _watchingService.GetSeriesLikedList(viewer, pagingParams);
+                Response.AddPagination(seriesLikedList.CurrentPage,
+                                       seriesLikedList.PageSize,
+                                       seriesLikedList.TotalCount,
+                                       seriesLikedList.TotalPages);
+                return Ok(seriesLikedList);
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
+
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        [Authorize]
+        [HttpGet("series/{seriesId}/myWatching")]
+        public async Task<ActionResult<ViewerSeriesWatchedInfoDto>> GetSeriesWatchedInfo(int seriesId)
+        {
+            var viewerId = _requestContext.UserId;
+            var series = await _watchingService.GetSeries(seriesId);
+            if(series is Series)
+            {
+                var seriesWatchedInfo = await _watchingService.GetSeriesWatchedInfo(series, viewerId);
+                return Ok(seriesWatchedInfo);
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
+
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(401)]
+        [ProducesResponseType(404)]
+        [Authorize]
+        [HttpPost("series/{seriesId}/watch")]
+        public async Task<ActionResult> WatchSeries(int seriesId)
+        {
+            var userId = _requestContext.UserId;
+            var series = await _watchingService.GetSeries(seriesId);
+            if(series is Series)
+            {
+                var isSeriesWatched = await _watchingService.IsSeriesWatchedByViewer(seriesId, userId);
+                if(isSeriesWatched)
+                {
+                    return BadRequest("You are already watching this series");
+                }
+
+                var seriesWatchedCreatedSuccess = await _watchingService.CreateSeriesWatched(series, userId);
+                if (seriesWatchedCreatedSuccess)
+                    return NoContent();
+                return BadRequest("Unexpected error while saving series watched");
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
+
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(401)]
+        [ProducesResponseType(404)]
+        [Authorize]
+        [HttpDelete("series/{seriesId}/watch")]
+        public async Task<ActionResult> DeleteSeriesWatched(int seriesId)
+        {
+            var userId = _requestContext.UserId;
+            var series = await _watchingService.GetSeries(seriesId);
+            if (series is Series)
+            {
+                var seriesWatched = await _watchingService.GetSeriesWatched(series, userId);
+                if (seriesWatched is SeriesWatched)
+                {
+                    var seriesWatchedDeletedSuccess = await _watchingService.DeleteSeriesWatched(seriesWatched);
+                    if (seriesWatchedDeletedSuccess)
+                        return NoContent();
+                    return BadRequest("Unexpected error while deleting series watched");
+                }
+                else
+                {
+                    return BadRequest("You have not watched this series");
+                }
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
+
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(401)]
+        [ProducesResponseType(404)]
+        [Authorize]
+        [HttpPost("episode/{episodeId}/watch")]
+        public async Task<ActionResult> WatchEpisode(int episodeId)
+        {
+            var userId = _requestContext.UserId;
+            var episode = await _watchingService.GetEpisode(episodeId);
+            if(episode is Episode)
+            {
+                if(await _watchingService.IsEpisodeWatchedByViewer(episode, userId))
+                {
+                    return BadRequest("You have already watched this episode");
+                }
+
+                var episodeWatchedCreatedSuccess = await _watchingService.CreateEpisodeWatched(episode, userId);
+                if (episodeWatchedCreatedSuccess)
+                    return NoContent();
+                return BadRequest("Unexpected error while saving episode watched");
+            }
+            else
+            {
+                return NotFound();
+            }
+
+            
+        }
+
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(401)]
+        [ProducesResponseType(404)]
+        [Authorize]
+        [HttpDelete("episode/{episodeId}/watch")]
+        public async Task<ActionResult> DeleteEpisodeWatched(int episodeId)
+        {
+            var userId = _requestContext.UserId;
+            var episode = await _watchingService.GetEpisode(episodeId);
+            if (episode is Episode)
+            {
+                var episodeWatched = await _watchingService.GetEpisodeWatched(episode, userId);
+                if (episodeWatched is EpisodeWatched)
+                {
+                    var episodeWatchedDeletedSuccess = await _watchingService.DeleteEpisodeWatched(episodeWatched);
+                    if (episodeWatchedDeletedSuccess)
+                        return NoContent();
+                    return BadRequest("Unexpected error while deleting episode watched");
+                }
+                else
+                {
+                    return BadRequest("You didn't watch this episode");
+                }
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
+
+        
+        
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(401)]
+        [ProducesResponseType(404)]
+        [Authorize]
+        [HttpPost("series/{seriesId}/like")]
+        public async Task<ActionResult> LikeSeries(int seriesId)
+        {
+            var userId = _requestContext.UserId;
+            var series = await _watchingService.GetSeries(seriesId);
+            
+            if(series is Series)
+            {
+                if(await _watchingService.IsSeriesLikedByViewer(seriesId, userId))
+                {
+                    return BadRequest("You have already liked this series");
+                }
+
+                var seriesLikedCreatedSucces = await _watchingService.CreateSeriesLiked(series, userId);
+                if (seriesLikedCreatedSucces)
+                    return NoContent();
+                return BadRequest("Unexpected error while saving series liked");
+
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
+
+        
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(401)]
+        [ProducesResponseType(404)]
+        [Authorize]
+        [HttpDelete("series/{seriesId}/like")]
+        public async Task<ActionResult> DeleteSeriesLiked(int seriesId)
+        {
+            var userId = _requestContext.UserId;
+            var series = await _watchingService.GetSeries(seriesId);
+
+            if (series is Series)
+            {
+                var seriesLiked = await _watchingService.GetSeriesLiked(series, userId);
+                if (seriesLiked is SeriesLiked)
+                {
+                    var seriesLikedDeletedSuccess = await _watchingService.DeleteSeriesLiked(seriesLiked);
+                    if (seriesLikedDeletedSuccess)
+                        return NoContent();
+                    return BadRequest("Unexpected error while deleting liked series");
+                }
+                else
+                {
+                    return BadRequest("You didnt like this series");
+                }
+            }
+            else
+            {
+                return NotFound();
             }
         }
     }

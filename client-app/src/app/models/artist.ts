@@ -17,3 +17,28 @@ export interface ICastMember {
     order: number,
     imageUrl: string
 }
+
+export interface IArtistDetails {
+    artistId: number,
+    name: string,
+    birthDate?: Date,
+    deathDate?: Date,
+    city: string,
+    imageUrl: string,
+    about: string,
+    writerOf: IWriterOfSeries[],
+    appearedIn: IActorInSeries[]
+}
+
+export interface IWriterOfSeries {
+    seriesId: number,
+    title: string,
+    coverImageUrl: string
+}
+
+export interface IActorInSeries {
+    seriesId: number,
+    title: string,
+    coverImageUrl: string,
+    roleName: string
+}

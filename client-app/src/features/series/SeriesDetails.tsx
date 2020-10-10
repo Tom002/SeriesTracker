@@ -1,5 +1,5 @@
-import { ISeriesForList } from "../../app/models/series";
-import React, { useContext, useEffect, Fragment, useState, SyntheticEvent } from "react";
+import React, { useContext, useEffect, Fragment, useState, SyntheticEvent, FormEvent } from "react";
+import { Comment, Form, Input, TextArea } from 'semantic-ui-react'
 import { RouteComponentProps } from "react-router-dom";
 import SeriesStore from "../../app/stores/seriesStore";
 import UserStore from "../../app/stores/userStore";
@@ -27,6 +27,12 @@ import {
   RatingProps,
 } from "semantic-ui-react";
 import moment from "moment";
+import { ISeriesRateRequest, ISeriesReviewRequest } from "../../app/models/series";
+import agent from "../../app/api/agent";
+import { wait } from "@testing-library/react";
+import RootStore from "../../app/stores/rootStore";
+import SeriesReview from "./SeriesReview";
+import MyReview from "./MyReview";
 
 interface SeriesDetailParams {
   id: string;
@@ -36,57 +42,57 @@ const SeriesDetails: React.FC<RouteComponentProps<SeriesDetailParams>> = ({
   match,
   history,
 }) => {
-  const seriesStore = useContext(SeriesStore);
-  const userStore = useContext(UserStore);
+  const rootStore = useContext(RootStore);
+
+  const [newSeriesReview, setNewSeriesReview] = useState<ISeriesReviewRequest>(
+    {
+      reviewTitle: "",
+      reviewText: ""
+    }
+  )
+
+  const handleInputChange = (
+    event: FormEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = event.currentTarget;
+    setNewSeriesReview({ ...newSeriesReview, [name]: value });
+  };
+
   const {
-    getSingleSeries,
-    selectedSeries,
-    seasonsForDropdown,
-    loadedEpisodes,
-    loadSeasonEpisodes,
     clearLoadedEpisodes,
-  } = seriesStore;
+    clearSelectedSeries,
+    getSingleSeries,
+    rateSelectedSeries,
+    reviewSelectedSeries,
+    watchSelectedSeries,
+    watchEpisodeOfSelectedSeries,
+    loadSeasonEpisodes,
+    seasonsForDropdown,
+    selectedSeries,
+    selectedSeriesUserReview,
+    selectedSeriesWatchedInfo,
+    loadedEpisodes,
+    likeSelectedSeries
+  } = rootStore.seriesStore;
+  
   const {
     currentUser,
     userProfile,
-    seriesWatched,
-    getSeriesWatched,
-    watchSeries,
-    episodesWatched,
-    watchEpisode,
-    getEpisodesWatchedForSeries,
-    getSelectedSeriesReview,
-    reviewSeries,
-    selectedSeriesReview,
-    cleanSelectedSeriesReview
-  } = userStore;
+  } = rootStore.userStore;
+  
   const [selectedSeason, setselectedSeason] = useState(1);
 
   useEffect(() => {
-    
     if (match.params.id) {
-      let id = Number(match.params.id);
-      if (!isNaN(id)) {
-        getSingleSeries(id).then(() => {
-          if (currentUser && !currentUser.expired) {
-            getSeriesWatched(currentUser.profile.sub);
-            if (selectedSeries) {
-              getSelectedSeriesReview(currentUser.profile.sub, selectedSeries?.seriesId);
-              getEpisodesWatchedForSeries(
-                currentUser.profile.sub,
-                selectedSeries.seriesId
-              );
-            }
-          }
-        });
-      }
-
-      return () => {
-        clearLoadedEpisodes();
-        cleanSelectedSeriesReview();
-      }
+        let id = Number(match.params.id);
+        getSingleSeries(id);
     }
-  }, [watchEpisode, reviewSeries]);
+    return () => {
+      clearLoadedEpisodes();
+      clearSelectedSeries();
+    }  
+  }
+  , []);
 
   const handleSeasonChange = (event: any, data: DropdownProps) => {
     if (data.value) {
@@ -100,17 +106,27 @@ const SeriesDetails: React.FC<RouteComponentProps<SeriesDetailParams>> = ({
     }
   };
 
-  const addSeriesReview = async (event: SyntheticEvent, data: RatingProps) => {
-    if(selectedSeriesReview) {
-      // Már volt review, módosítunk rajta, PUT
+  const addSeriesRating = async (event: SyntheticEvent, data: RatingProps) => {
+    if(currentUser && !currentUser.expired && data.rating) {
+      var reviewRequest: ISeriesRateRequest = {
+        rating: Number(data.rating)
+      };
+      rateSelectedSeries(reviewRequest).then(() => {
+      })
+      .catch(() => {
+        console.log("Review failed");
+      })
     }
-    else {
-      // Még nem volt review, POST
-      if(selectedSeries && data.rating && currentUser) {
-        await reviewSeries(currentUser.profile.sub, selectedSeries?.seriesId, +data.rating);
-     }
-    }
+  }
 
+  const addSeriesReview = async () => {
+    if(currentUser && 
+      !currentUser.expired &&
+      selectedSeries &&
+      newSeriesReview.reviewText.length > 0 &&
+      newSeriesReview.reviewTitle.length > 0) {
+        await reviewSelectedSeries(newSeriesReview);
+      }
   }
 
   return (
@@ -164,47 +180,42 @@ const SeriesDetails: React.FC<RouteComponentProps<SeriesDetailParams>> = ({
               <Table.Body>
                 <Table.Row>
                   <Table.Cell>
-                    {selectedSeries &&
-                    seriesWatched.includes(selectedSeries.seriesId) ? (
-                      <Button content="Watched" size="mini" />
-                    ) : (
-                      selectedSeries && (
-                        <Button
-                          content="Watch"
-                          size="mini"
-                          onClick={() =>
-                            watchSeries(
-                              currentUser.profile.sub,
-                              selectedSeries.seriesId
-                            )
-                          }
-                        />
-                      )
+                    {(selectedSeriesWatchedInfo?.isWatchingSeries 
+                      ?  <Button content="Watched" size="mini" />
+                      :  <Button
+                            content="Watch"
+                            size="mini"
+                            onClick={() => watchSelectedSeries()}/>
                     )}
                   </Table.Cell>
                   <Table.Cell textAlign="center">
-                    <Button size="mini" content="Like" />
-                  </Table.Cell>
-                  <Table.Cell textAlign="center">
-                    <Button size="mini" content="Follow" />
+                  {(selectedSeriesWatchedInfo?.hasLikedSeries 
+                      ?  <Button content="Liked" size="mini" />
+                      :  <Button
+                            content="Like"
+                            size="mini"
+                            onClick={() => likeSelectedSeries()}/>
+                    )}
                   </Table.Cell>
                 </Table.Row>
                 <Table.Row textAlign="center">
-                  <Table.Cell colspan="3">
-                    {(currentUser && selectedSeriesReview?.isReviewedByUser && selectedSeriesReview.rating 
+                  <Table.Cell colspan="2">
+                    {(currentUser && selectedSeriesUserReview?.isReviewedByUser && selectedSeriesUserReview.rating 
                       ?  <Header size="medium">Your Rating</Header>
                       :  <Header size="medium">Rate Series</Header>
                     )}
                     <Rating
-                      onRate={addSeriesReview}
+                      onRate={addSeriesRating}
                       maxRating={5}
-                      rating={selectedSeriesReview?.rating ? selectedSeriesReview?.rating : undefined}
+                      rating={(selectedSeriesUserReview && selectedSeriesUserReview.rating) 
+                                ? selectedSeriesUserReview.rating 
+                                : undefined}
                       size="large"
                     />
                   </Table.Cell>
                 </Table.Row>
                 <Table.Row textAlign="center">
-                  <Table.Cell colspan="3">
+                  <Table.Cell colspan="2">
                     { }
                     <Button>Add a review</Button>
                   </Table.Cell>
@@ -214,97 +225,153 @@ const SeriesDetails: React.FC<RouteComponentProps<SeriesDetailParams>> = ({
           )}
         </Grid.Column>
       </Grid>
-
-      <Grid
-        floated="left"
-        style={{ marginLeft: "2em", marginTop: "2em", marginRight: "2em" }}
-      >
-        <Grid.Column width={6}>
-          <Header textAlign="center" size="medium">
-            Cast
-          </Header>
-          <Grid doubling columns={3}>
-            {selectedSeries?.cast.map((actor) => (
-              <Grid.Column>
-                <Card textAlign="center">
-                  <Image size="small" src={actor.imageUrl} />
-                  <Card.Content>
-                    <Card.Header>{actor.name}</Card.Header>
-                    <Card.Meta>as {actor.roleName}</Card.Meta>
-                  </Card.Content>
-                </Card>
-              </Grid.Column>
-            ))}
-          </Grid>
-        </Grid.Column>
-        <Grid.Column width={10}>
-          <Container textAlign="center">
-            <Header size="medium">Episodes</Header>
-            <Dropdown
-              value={selectedSeason}
-              onChange={handleSeasonChange}
-              placeholder="Season number"
-              selection
-              options={seasonsForDropdown}
-            />
-            <Button style={{ marginLeft: "1em" }} onClick={loadSeason}>
-              List episodes
-            </Button>
-          </Container>
-
-          <Item.Group divided>
-            {loadedEpisodes
-              .filter((e) => e.season === selectedSeason)
-              .map((episode) => (
-                <Item key={episode.episodeId}>
-                  <Item.Image src={episode.coverImageUrl} />
-                  <Item.Content>
-                    <Item.Header as="a">{episode.episodeTitle}</Item.Header>
-                    <Item.Meta>
-                      {episode.release
-                        ? moment(episode.release).format("YYYY/MM/DD")
-                        : "Release unknown"}
-                    </Item.Meta>
-                    <Item.Description>{episode.description}</Item.Description>
-                    <Item.Extra>
-                      <Label>Season {episode.season}</Label>
-                      <Label>Episode {episode.episodeNumber}</Label>
-                      {currentUser &&
-                        userProfile &&
-                        !currentUser.expired &&
-                        selectedSeries &&
-                        (episodesWatched.includes(episode.episodeId) ? (
-                          <Button floated="right">
-                            Watched
-                            <Icon
-                              style={{ marginLeft: "0.5em" }}
-                              name="eye slash outline"
-                            />
-                          </Button>
-                        ) : (
-                          <Button
-                            floated="right"
-                            onClick={() =>
-                              watchEpisode(
-                                currentUser?.profile.sub,
-                                selectedSeries.seriesId,
-                                episode.episodeId,
-                                new Date(),
-                                false
-                              )
-                            }
-                          >
-                            Watch
-                            <Icon style={{ marginLeft: "0.5em" }} name="eye" />
-                          </Button>
-                        ))}
-                    </Item.Extra>
-                  </Item.Content>
-                </Item>
+      
+      <Segment vertical>                
+        <Grid
+          floated="left"
+          style={{ marginLeft: "2em", marginTop: "2em", marginRight: "2em" }}
+        >
+          <Grid.Column width={6}>
+            <Header textAlign="center" size="medium">
+              Cast
+            </Header>
+            
+            <Grid doubling columns={3}>
+              {selectedSeries?.cast.map((actor) => (
+                <Grid.Column>
+                  <Card textAlign="center">
+                    <Image size="small" src={actor.imageUrl} />
+                    <Card.Content>
+                      <Card.Header>{actor.name}</Card.Header>
+                      <Card.Meta>as {actor.roleName}</Card.Meta>
+                    </Card.Content>
+                  </Card>
+                </Grid.Column>
               ))}
-          </Item.Group>
-        </Grid.Column>
-      </Grid>
+            </Grid>
+          </Grid.Column>
+          <Grid.Column width={10}>
+            <Container textAlign="center">
+              <Header size="medium">Episodes</Header>
+              <Dropdown
+                value={selectedSeason}
+                onChange={handleSeasonChange}
+                placeholder="Season number"
+                selection
+                options={seasonsForDropdown}
+              />
+              <Button style={{ marginLeft: "1em" }} onClick={loadSeason}>
+                List episodes
+              </Button>
+            </Container>
+
+            <Item.Group divided>
+              {loadedEpisodes
+                .filter((e) => e.season === selectedSeason)
+                .map((episode) => (
+                  <Item key={episode.episodeId}>
+                    <Item.Image src={episode.coverImageUrl} />
+                    <Item.Content>
+                      <Item.Header as="a">{episode.episodeTitle}</Item.Header>
+                      <Item.Meta>
+                        {episode.release
+                          ? moment(episode.release).format("YYYY/MM/DD")
+                          : "Release unknown"}
+                      </Item.Meta>
+                      <Item.Description>{episode.description}</Item.Description>
+                      <Item.Extra>
+                        <Label>Season {episode.season}</Label>
+                        <Label>Episode {episode.episodeNumber}</Label>
+                        {currentUser && userProfile && !currentUser.expired &&
+                          (
+                            selectedSeries && selectedSeriesWatchedInfo?.episodesWatchedIdList &&
+                              selectedSeriesWatchedInfo.episodesWatchedIdList.includes(episode.episodeId) 
+                              ? (
+                                <Button floated="right">
+                                  Watched
+                                  <Icon
+                                    style={{ marginLeft: "0.5em" }}
+                                    name="eye slash outline"
+                                  />
+                                </Button>
+                              )
+                              : (
+                                <Button
+                                  floated="right"
+                                  onClick={() => watchEpisodeOfSelectedSeries(episode.episodeId)}
+                                >
+                                  Watch
+                                  <Icon style={{ marginLeft: "0.5em" }} name="eye" />
+                                </Button>
+                                ) 
+                          )
+                        }
+                      </Item.Extra>
+                    </Item.Content>
+                  </Item>
+                ))}
+            </Item.Group>
+          </Grid.Column>
+        </Grid>
+      </Segment>  
+      
+      <Segment vertical secondary>
+        <Grid
+          floated="left"
+          style={{ marginLeft: "2em", marginTop: "2em", marginRight: "2em" }}
+        >
+          <Grid.Column width={12}>
+              <Header textAlign="center" size="medium">
+                Reviews
+              </Header>
+              <Card.Group>
+                {selectedSeries?.reviews && selectedSeries.reviews.map(review => (
+                  <SeriesReview review={review} />
+                ))} 
+              </Card.Group>       
+          </Grid.Column>
+
+          <Grid.Column width={4}>
+            {selectedSeriesUserReview?.isReviewedByUser && 
+            selectedSeriesUserReview.reviewText &&
+            selectedSeriesUserReview.reviewTitle
+            ? (
+              <Fragment>
+                <Header textAlign="center" size="medium">
+                  Your review
+                </Header>
+                <MyReview review={selectedSeriesUserReview} />
+              </Fragment>
+              )
+            : (
+              <Fragment>
+                  <Header textAlign="center">
+                    Add a review
+                  </Header>
+                  <Form onSubmit={addSeriesReview}>
+                    <Form.Input 
+                      required 
+                      onChange={handleInputChange}
+                      name='reviewTitle' 
+                      placeholder='Review Title' 
+                      value={newSeriesReview.reviewTitle} 
+                    />
+                    <Form.Input 
+                      required 
+                      onChange={handleInputChange}
+                      name='reviewText' 
+                      placeholder='Review Text' 
+                      value={newSeriesReview.reviewText} 
+                    />
+                    <Form.Button content='Add Review' />
+                  </Form>
+              </Fragment>
+              )
+            } 
+          </Grid.Column>
+        </Grid>
+      </Segment>
+      
     </Fragment>
   );
 };

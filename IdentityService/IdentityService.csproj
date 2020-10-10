@@ -6,13 +6,16 @@
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <DockerComposeProjectPath>..\docker-compose.dcproj</DockerComposeProjectPath>
     <DockerfileTag>identity</DockerfileTag>
+    <ApplicationInsightsResourceId>/subscriptions/a941a661-3ebd-4b58-904a-e5d52e6538c4/resourceGroups/seriestracker/providers/microsoft.insights/components/seriestrackerInsights</ApplicationInsightsResourceId>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="DotNetCore.CAP" Version="3.0.2" />
+    <PackageReference Include="DotNetCore.CAP.AzureServiceBus" Version="3.0.2" />
     <PackageReference Include="DotNetCore.CAP.Dashboard" Version="3.0.2" />
     <PackageReference Include="DotNetCore.CAP.RabbitMQ" Version="3.0.2" />
     <PackageReference Include="DotNetCore.CAP.SqlServer" Version="3.0.2" />
+    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.14.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.2" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.9.10" />
     <PackageReference Include="IdentityServer4.AspNetIdentity" Version="3.0.1" />
@@ -33,6 +36,11 @@
   <ItemGroup>
     <Content Include="Migrations\**\*.sql" CopyToPublishDirectory="PreserveNewest" />
     <!-- CopyToPublishDirectory = { Always, PreserveNewest, Never } -->
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Migrations\20200921103024_CreateCAPTables.cs" />
+    <Compile Remove="Migrations\20200921103024_CreateCAPTables.Designer.cs" />
   </ItemGroup>
 
 </Project>

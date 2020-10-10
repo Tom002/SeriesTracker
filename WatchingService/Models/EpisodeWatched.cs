@@ -17,13 +17,5 @@ namespace WatchingService.Models
         public string ViewerId { get; set; }
 
         public Viewer Viewer { get; set; }
-
-        [Required]
-        public int SeriesId { get; set; }
-        public Series Series { get; set; }
-
-        public DateTime WatchingDate { get; set; }
-
-        public bool IsInDiary { get; set; }
     }
 }

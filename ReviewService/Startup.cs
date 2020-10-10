@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using Common.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -19,6 +20,9 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Logging;
 using ReviewService.Data;
 using ReviewService.Helpers;
+using ReviewService.Helpers.RequestContext;
+using ReviewService.Interfaces;
+using ReviewService.Services;
 
 namespace ReviewService
 {
@@ -75,15 +79,9 @@ namespace ReviewService
 
             services.AddDbContext<ReviewDbContext>(opt =>
             {
-                opt.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
-                    //sqlServerOptionsAction: sqlOptions =>
-                    //{
-                    //    sqlOptions.EnableRetryOnFailure(
-                    //    maxRetryCount: 10,
-                    //    maxRetryDelay: TimeSpan.FromSeconds(30),
-                    //    errorNumbersToAdd: null);
-                    //});
+                opt.UseSqlServer(Configuration.GetConnectionString("AzureSqlConnection"));
             });
+            services.AddTransient<ISubscriberService, SubscriberService>();
             services.AddCap(x =>
             {
                 x.UseEntityFramework<ReviewDbContext>();
@@ -91,19 +89,19 @@ namespace ReviewService
                 {
                     conf.HostName = Configuration["RabbitMQConfig:Hostname"];
                     conf.UserName = Configuration["RabbitMQConfig:UserName"];
-                    conf.Password = rabbitPassword;
+                    conf.Password = Configuration["RabbitMQConfig:Password"];
                     conf.Port = int.Parse(Configuration["RabbitMQConfig:Port"]);
                 });
             });
 
-            services.AddMvcCore(config =>
-            {
-                var policy = new AuthorizationPolicyBuilder()
-                     .RequireAuthenticatedUser()
-                     .Build();
-                config.Filters.Add(new AuthorizeFilter(policy));
-            })
-            .AddAuthorization();
+            //services.AddMvcCore(config =>
+            //{
+            //    var policy = new AuthorizationPolicyBuilder()
+            //         .RequireAuthenticatedUser()
+            //         .Build();
+            //    config.Filters.Add(new AuthorizeFilter(policy));
+            //})
+            //.AddAuthorization();
 
             services.AddAuthentication("Bearer")
                 .AddIdentityServerAuthentication(options =>
@@ -124,6 +122,12 @@ namespace ReviewService
                 });
             });
             services.AddAutoMapper(typeof(AutomapperProfiles));
+            services.AddApplicationInsightsTelemetry(Configuration["APPINSIGHTS_INSTRUMENTATIONKEY"]);
+
+            services.AddHttpContextAccessor();
+            services.AddScoped<IRequestContext, HttpRequestContext>();
+            services.AddScoped<IMessageTracker, MessageTracker>();
+            services.AddScoped<IReviewService, Services.ReviewService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -139,7 +143,7 @@ namespace ReviewService
             app.UseRouting();
             app.UseCors("default");
             app.UseAuthentication();
-
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {

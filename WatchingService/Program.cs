@@ -24,7 +24,7 @@ namespace WatchingService
                 {
                     var context = services.GetRequiredService<WatchingDbContext>();
                     //context.Database.EnsureDeleted();
-                    context.Database.Migrate();
+                    //context.Database.Migrate();
                 }
                 catch (Exception e)
                 {

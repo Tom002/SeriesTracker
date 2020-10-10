@@ -19,6 +19,8 @@ namespace ReviewService.Data
 
         public DbSet<Episode> Episode { get; set; }
 
+        public DbSet<ProcessedEvent> ProcessedEvents { get; set; }
+
         public ReviewDbContext(DbContextOptions<ReviewDbContext> options)
        : base(options)
         {
@@ -64,6 +66,10 @@ namespace ReviewService.Data
                 .HasOne(review => review.Reviewer)
                 .WithMany(reviewer => reviewer.SeriesReviews)
                 .HasForeignKey(review => review.ReviewerId);
+
+            builder.Entity<ProcessedEvent>()
+                .Property(p => p.EventId)
+                .ValueGeneratedNever();
         }
     }
 }

@@ -30,6 +30,13 @@ namespace WatchingService.Migrations
                     b.Property<int>("EpisodeNumber")
                         .HasColumnType("int");
 
+                    b.Property<string>("EpisodeTitle")
+                        .HasColumnType("nvarchar(200)")
+                        .HasMaxLength(200);
+
+                    b.Property<DateTime>("Release")
+                        .HasColumnType("datetime2");
+
                     b.Property<int>("Season")
                         .HasColumnType("int");
 
@@ -49,22 +56,21 @@ namespace WatchingService.Migrations
                     b.Property<int>("EpisodeId")
                         .HasColumnType("int");
 
-                    b.Property<bool>("IsInDiary")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("SeriesId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("WatchingDate")
-                        .HasColumnType("datetime2");
-
                     b.HasKey("ViewerId", "EpisodeId");
 
                     b.HasIndex("EpisodeId");
 
-                    b.HasIndex("SeriesId");
-
                     b.ToTable("EpisodeWatched");
+                });
+
+            modelBuilder.Entity("WatchingService.Models.ProcessedEvent", b =>
+                {
+                    b.Property<Guid>("EventId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("EventId");
+
+                    b.ToTable("ProcessedEvents");
                 });
 
             modelBuilder.Entity("WatchingService.Models.Series", b =>
@@ -74,6 +80,12 @@ namespace WatchingService.Migrations
 
                     b.Property<string>("CoverImageUrl")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("EndYear")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StartYear")
+                        .HasColumnType("int");
 
                     b.Property<string>("Title")
                         .HasColumnType("nvarchar(200)")
@@ -129,12 +141,6 @@ namespace WatchingService.Migrations
                     b.HasOne("WatchingService.Models.Episode", "Episode")
                         .WithMany("EpisodesWatched")
                         .HasForeignKey("EpisodeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("WatchingService.Models.Series", "Series")
-                        .WithMany()
-                        .HasForeignKey("SeriesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

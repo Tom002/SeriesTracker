@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using BrowsingService.Data;
+using BrowsingService.Helpers;
 using BrowsingService.Models;
 using Common.Events;
 using DotNetCore.CAP;
@@ -115,7 +116,7 @@ namespace BrowsingService.Services
                         await _context.SaveChangesAsync();
                         foreach (var episodeEvent in newEpisodeEventList)
                         {
-                            await _capBus.PublishAsync("browsingservice.episode.created", episodeEvent);
+                            await _capBus.SendEventAsync("browsingservice.episode.created", episodeEvent);
                         }
                         await trans.CommitAsync();
                     }

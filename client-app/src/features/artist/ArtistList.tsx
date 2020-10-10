@@ -4,13 +4,21 @@ import { IArtistParams, ArtistOccupation, ArtistSortBy } from "../../app/models/
 import SeriesStore from "../../app/stores/seriesStore";
 import { Segment, Form, Grid, Pagination, DropdownItemProps, DropdownProps } from "semantic-ui-react";
 import ArtistCard from "./ArtistCard";
-import ArtistStore from "../../app/stores/artistStore";
+import { ArtistStore } from "../../app/stores/artistStore";
+import RootStore from "../../app/stores/rootStore";
 
 
 const ArtistList = () => {
-    const seriesStore = useContext(ArtistStore);
+    const rootStore = useContext(RootStore);
 
-    const { artistRegistry, loadArtists, currentPage, totalPages, setCurrentPage} = seriesStore;
+    const { 
+        artistRegistry,
+        loadArtists,
+        currentPage,
+        totalPages,
+        setCurrentPage
+    } = 
+    rootStore.artistStore;
 
     const [searchParams, setsearchParams] = useState<IArtistParams>({
         nameFilter: "",
@@ -146,14 +154,15 @@ const ArtistList = () => {
                 </Form.Group>
             </Form>
 
-            <Grid columns={5} container doubling stackable>
+            <Grid style={{marginLeft: '2em', marginRight: '2em'}}>
+                <Grid.Row columns={5} stretched>
                 {Array.from(artistRegistry.values()).map(artist => (
                     <Grid.Column>
                         <ArtistCard artist={artist} />
                     </Grid.Column>
                 ))}
+                </Grid.Row>
             </Grid>
-
 
             <Pagination style={{marginTop: '1em', marginLeft: '2em', align:'center'}}
                 boundaryRange={0}

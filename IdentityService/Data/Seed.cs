@@ -1,5 +1,6 @@
 ﻿using Common.Events;
 using DotNetCore.CAP;
+using IdentityService.Helpers;
 using IdentityService.Models;
 using Microsoft.AspNetCore.Identity;
 using System;
@@ -34,7 +35,7 @@ namespace IdentityService.Data
                         ProfileImageUrl = "https://images.dog.ceo/breeds/husky/n02110185_6775.jpg"
                     };
 
-                    capBus.Publish("identityservice.user.created", userEvent);
+                    await capBus.SendEventAsync("identityservice.user.created", userEvent);
                 }
             }
         }

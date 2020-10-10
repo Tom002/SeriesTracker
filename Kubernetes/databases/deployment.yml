@@ -1,8 +1,9 @@
-apiVersion: apps/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: mssql-identity
 spec:
+  selector: mssql-identity
   replicas: 1
   template:
     metadata:
@@ -31,11 +32,12 @@ spec:
         persistentVolumeClaim:
           claimName: mssql-identity-data
 ---
-apiVersion: apps/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: mssql-browsing
 spec:
+  selector: mssql-browsing
   replicas: 1
   template:
     metadata:
@@ -65,11 +67,12 @@ spec:
           claimName: mssql-browsing-data
 ---
 
-apiVersion: apps/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: mssql-users
 spec:
+  selector: mssql-users
   replicas: 1
   template:
     metadata:
@@ -99,11 +102,12 @@ spec:
           claimName: mssql-users-data
 ---
 
-apiVersion: apps/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: mssql-review
 spec:
+  selector: mssql-review
   replicas: 1
   template:
     metadata:
@@ -133,11 +137,12 @@ spec:
           claimName: mssql-review-data
 ---
 
-apiVersion: apps/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: mssql-watching
 spec:
+  selector: mssql-watching
   replicas: 1
   template:
     metadata:

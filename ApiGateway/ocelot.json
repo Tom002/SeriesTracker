@@ -11,11 +11,11 @@
         }
       ],
       "UpstreamPathTemplate": "/series/{everything}",
-      "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ]
+      "UpstreamHttpMethod": [ "Get" ]
     },
 
     {
-      "DownstreamPathTemplate": "/api/series/categories/{everything}",
+      "DownstreamPathTemplate": "/api/series",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -23,8 +23,8 @@
           "Port": 80
         }
       ],
-      "UpstreamPathTemplate": "/categories/{everything}",
-      "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ]
+      "UpstreamPathTemplate": "/series",
+      "UpstreamHttpMethod": [ "Get" ]
     },
 
     {
@@ -36,8 +36,21 @@
           "Port": 80
         }
       ],
-      "UpstreamPathTemplate": "/artists/{everything}",
-      "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ]
+      "UpstreamPathTemplate": "/artist/{everything}",
+      "UpstreamHttpMethod": [ "Get" ]
+    },
+
+    {
+      "DownstreamPathTemplate": "/api/artist",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "browsingservice",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/artist",
+      "UpstreamHttpMethod": [ "Get" ]
     },
 
     {
@@ -66,8 +79,7 @@
       "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ]
     },
 
-
-    {
+  {
       "DownstreamPathTemplate": "/api/profile/{everything}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [

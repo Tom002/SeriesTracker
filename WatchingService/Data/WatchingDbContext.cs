@@ -21,6 +21,8 @@ namespace WatchingService.Data
 
         public DbSet<Episode> Episode { get; set; }
 
+        public DbSet<ProcessedEvent> ProcessedEvents { get; set; }
+
         public WatchingDbContext(DbContextOptions<WatchingDbContext> options)
        : base(options)
         {
@@ -77,6 +79,10 @@ namespace WatchingService.Data
                 .HasOne(sw => sw.Viewer)
                 .WithMany(us => us.SeriesWatched)
                 .HasForeignKey(sw => sw.ViewerId);
+
+            builder.Entity<ProcessedEvent>()
+                .Property(p => p.EventId)
+                .ValueGeneratedNever();
         }
     }
 }

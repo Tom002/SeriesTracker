@@ -31,7 +31,7 @@ namespace ApiGateway
                     .ConfigureAppConfiguration(
                           conf => 
                           {
-                              conf.AddJsonFile("kubeOcelot.json");
+                              conf.AddJsonFile("ocelot.json");
                               //conf.AddJsonFile("config/ocelot.json", optional: true, reloadOnChange: true);
                           })
                     .UseStartup<Startup>();

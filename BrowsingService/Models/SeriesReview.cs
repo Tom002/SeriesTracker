@@ -13,13 +13,7 @@ namespace BrowsingService.Models
         public Series Series { get; set; }
         [Required]
         public string ReviewerId { get; set; }
-
-        [MaxLength(200)]
-        public string ReviewTitle { get; set; }
-        public DateTime ReviewDate { get; set; }
-        [MaxLength(400)]
-        public string ReviewText { get; set; }
         [Range(1, 5)]
-        public int Rating { get; set; }
+        public int? Rating { get; set; }
     }
 }

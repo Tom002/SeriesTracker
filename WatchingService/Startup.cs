@@ -1,7 +1,10 @@
+using AutoMapper;
+using Common.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -9,6 +12,10 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Logging;
 using System;
 using WatchingService.Data;
+using WatchingService.Helpers;
+using WatchingService.Helpers.RequestContext;
+using WatchingService.Interfaces;
+using WatchingService.Services;
 
 namespace WatchingService
 {
@@ -53,14 +60,7 @@ namespace WatchingService
 
             services.AddDbContext<WatchingDbContext>(opt =>
             {
-                opt.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
-                    //sqlServerOptionsAction: sqlOptions =>
-                    //{
-                    //    sqlOptions.EnableRetryOnFailure(
-                    //    maxRetryCount: 10,
-                    //    maxRetryDelay: TimeSpan.FromSeconds(30),
-                    //    errorNumbersToAdd: null);
-                    //});
+                opt.UseSqlServer(Configuration.GetConnectionString("AzureSqlConnection"));
             });
 
             services.AddAuthentication("Bearer")
@@ -81,7 +81,7 @@ namespace WatchingService
                         .AllowAnyMethod();
                 });
             });
-
+            services.AddTransient<ISubscriberService, SubscriberService>();
             services.AddCap(x =>
             {
                 x.UseEntityFramework<WatchingDbContext>();
@@ -89,10 +89,16 @@ namespace WatchingService
                 {
                     conf.HostName = Configuration["RabbitMQConfig:Hostname"];
                     conf.UserName = Configuration["RabbitMQConfig:UserName"];
-                    conf.Password = rabbitPassword;
+                    conf.Password = Configuration["RabbitMQConfig:Password"];
                     conf.Port = int.Parse(Configuration["RabbitMQConfig:Port"]);
                 });
             });
+            services.AddHttpContextAccessor();
+            services.AddApplicationInsightsTelemetry(Configuration["APPINSIGHTS_INSTRUMENTATIONKEY"]);
+            services.AddScoped<IWatchingService, Services.WatchingService>();
+            services.AddScoped<IRequestContext, HttpRequestContext>();
+            services.AddScoped<IMessageTracker, MessageTracker>();
+            services.AddAutoMapper(typeof(AutomapperProfiles));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -108,6 +114,7 @@ namespace WatchingService
             app.UseRouting();
             app.UseCors("default");
             app.UseAuthentication();
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {

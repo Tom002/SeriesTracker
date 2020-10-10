@@ -26,6 +26,15 @@ export interface ISeriesDetails {
     reviews: IReview[]
 }
 
+export interface IReview {
+    reviewerName: string,
+    reviewerId: string,
+    reviewTitle: string,
+    reviewDate: Date,
+    reviewText: string,
+    rating: number
+}
+
 export interface ICategory {
     categoryId: number,
     categoryName: string
@@ -42,64 +51,57 @@ export interface IEpisode {
     coverImageUrl: string,
 }
 
-export interface IEpisodeWatched {
-    episodeId: number,
-    watchingDate: Date
-}
 
-export interface ISeriesWatchedList {
-    viewerId: string,
-    seriesWatchedIds: number[]
-}
-
-export interface ISeriesEpisodesWatchedList {
-    viewerId: string,
-    seriesId: number,
-    episodesWatchedIds: number[]
-}
-
-export interface IWatchSeriesRequest {
-    viewerId: string,
-    seriesId: number,
-}
-
-export interface IWatchEpisodeRequest {
-    viewerId: string,
-    episodeId: number,
-    seriesId: number,
-    watchingDate: Date,
-    addToDiary: boolean
-}
-
-export interface IReviewSeriesRequest {
-    reviewerId: string,
-    seriesId: number,
-    reviewTitle: string | null,
-    reviewDate: Date | null,
-    reviewText: string | null,
-    rating: number | null
-}
-
-export interface IReviewEpisodeRequest {
-    reviewerId: string,
-    episodeId: number,
-    rating: number | null
+export interface ISeriesWatchedInfo {
+    isWatchingSeries: boolean,
+    hasLikedSeries: boolean,
+    episodesWatchedIdList: number[]
 }
 
 export interface IUserSeriesReviewInfo {
     seriesId: number,
     isReviewedByUser: boolean,
-    reviewerId: string | null,
-    reviewTitle: string | null,
-    reviewDate: Date | null,
-    reviewText: string | null,
-    rating: number | null
+    reviewTitle: string,
+    reviewDate?: Date,
+    reviewText: string,
+    rating?: number  
 }
 
-export interface IReview {
+export interface ISeriesReviewRequest {
+    reviewTitle: string,
+    reviewText: string
+}
+
+export interface ISeriesRateRequest {
+    rating: number
+}
+
+export interface IEpisodeReviewRequest {
+    rating: number
+}
+
+export interface IUserSeriesReview {
+    seriesTitle: string,
+    seriesId: number,
     reviewerId: string,
     reviewTitle: string,
     reviewDate: Date,
     reviewText: string,
-    rating: number
+    rating?: number
+}
+
+export interface ISeriesWatchedListItem {
+    title: string,
+    coverImageUrl: string,
+    startYear: number,
+    endYear?: number,
+    seriesId: number
+}
+
+export interface ISeriesLikedListItem {
+    title: string,
+    coverImageUrl: string,
+    startYear: number,
+    endYear?: number,
+    seriesId: number
 }

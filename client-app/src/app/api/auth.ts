@@ -12,7 +12,7 @@ export class AuthService {
       redirect_uri: `${Constants.clientRoot}signInCallback.html`,
       silent_redirect_uri: `${Constants.clientRoot}signInSilentCallback.html`,
       post_logout_redirect_uri: Constants.clientRoot,
-      response_type: 'id_token token',
+      response_type: 'token id_token',
       scope: "openid users review gateway watching"
     };
     this.userManager = new UserManager(settings);

@@ -1,9 +1,5 @@
 ﻿using BrowsingService.Models;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace BrowsingService.Data
 {
@@ -12,9 +8,10 @@ namespace BrowsingService.Data
         public DbSet<Artist> Artists { get; set; }
         public DbSet<Series> Series { get; set; }
         public DbSet<SeriesReview> SeriesReview { get; set; }
-        public DbSet<EpisodeReview> EpisodeReview { get; set; }
         public DbSet<SeriesWriter> SeriesWriter { get; set; }
         public DbSet<Category> Categories { get; set; }
+        public DbSet<ProcessedEvent> ProcessedEvents { get; set; }
+        public DbSet<Episode> Episodes { get; set; }
 
         public BrowsingDbContext(DbContextOptions<BrowsingDbContext> options)
             : base(options)
@@ -72,9 +69,6 @@ namespace BrowsingService.Data
             builder.Entity<SeriesReview>()
                 .HasKey(review => new { review.ReviewerId, review.SeriesId });
 
-            builder.Entity<EpisodeReview>()
-                .HasKey(review => new { review.ReviewerId, review.EpisodeId });
-
             builder.Entity<Series>()
                 .Property(s => s.SeriesId)
                 .ValueGeneratedNever();
@@ -91,7 +85,9 @@ namespace BrowsingService.Data
                 .Property(c => c.CategoryId)
                 .ValueGeneratedNever();
 
-            
+            builder.Entity<ProcessedEvent>()
+                .Property(p => p.EventId)
+                .ValueGeneratedNever();
 
             base.OnModelCreating(builder);
         }

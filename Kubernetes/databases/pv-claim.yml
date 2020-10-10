@@ -1,18 +1,7 @@
-kind: StorageClass
-apiVersion: storage.k8s.io/v1beta1
-metadata:
-     name: azure-disk
-provisioner: kubernetes.io/azure-disk
-parameters:
-  storageaccounttype: Standard_LRS
-  kind: Managed
----
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
   name: mssql-identity-data
-  annotations:
-    volume.beta.kubernetes.io/storage-class: azure-disk
 spec:
   accessModes:
   - ReadWriteOnce
@@ -24,8 +13,6 @@ kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
   name: mssql-browsing-data
-  annotations:
-    volume.beta.kubernetes.io/storage-class: azure-disk
 spec:
   accessModes:
   - ReadWriteOnce
@@ -37,8 +24,6 @@ kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
   name: mssql-users-data
-  annotations:
-    volume.beta.kubernetes.io/storage-class: azure-disk
 spec:
   accessModes:
   - ReadWriteOnce
@@ -50,8 +35,6 @@ kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
   name: mssql-review-data
-  annotations:
-    volume.beta.kubernetes.io/storage-class: azure-disk
 spec:
   accessModes:
   - ReadWriteOnce
@@ -63,11 +46,9 @@ kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
   name: mssql-watching-data
-  annotations:
-    volume.beta.kubernetes.io/storage-class: azure-disk
 spec:
   accessModes:
   - ReadWriteOnce
   resources:
    requests:
-    storage: 4Gi
+    storage: 4Gi 

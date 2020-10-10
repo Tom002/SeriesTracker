@@ -9,11 +9,14 @@ import SeriesList from '../../features/series/SeriesList';
 import UserStore from '../stores/userStore';
 import ArtistList from '../../features/artist/ArtistList';
 import SeriesDetails from '../../features/series/SeriesDetails';
+import RootStore from '../stores/rootStore';
+import UserProfile from '../../features/user/UserProfile';
+import ArtistDetails from '../../features/artist/ArtistDetails';
 
 const App = () => {
 
-  const userStore = useContext(UserStore);
-  const {loadUser} = userStore;
+  const rootStore = useContext(RootStore);
+  const {loadUser} = rootStore.userStore;
 
   useEffect(() => {
     loadUser()
@@ -26,6 +29,8 @@ const App = () => {
         <Switch>
           <Route exact path="/" component={Homepage}/>
           <Route exact path="/series/:id" component={SeriesDetails} />
+          <Route exact path="/users/:id" component={UserProfile} />
+          <Route exact path="/artists/:id" component={ArtistDetails} />
           <Route exact path="/series" component={SeriesList} />
           <Route exact path="/actors" component={ArtistList} />
           <Route exact path="/register" 

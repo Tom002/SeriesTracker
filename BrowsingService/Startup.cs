@@ -1,18 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using AutoMapper;
 using BrowsingService.Data;
 using BrowsingService.Helpers;
+using BrowsingService.Interfaces;
 using BrowsingService.Services;
-using HealthChecks.UI.Client;
+using Common.Interfaces;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -36,14 +30,7 @@ namespace BrowsingService
             services.AddControllers();
             services.AddDbContext<BrowsingDbContext>(opt =>
             {
-                opt.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
-                //sqlServerOptionsAction: sqlOptions =>
-                //{
-                //    sqlOptions.EnableRetryOnFailure(
-                //    maxRetryCount: 10,
-                //    maxRetryDelay: TimeSpan.FromSeconds(30),
-                //    errorNumbersToAdd: null);
-                //});
+                opt.UseSqlServer(Configuration.GetConnectionString("AzureSqlConnection"));
             });
             services.AddCors(options =>
             {
@@ -54,6 +41,7 @@ namespace BrowsingService
                         .AllowAnyMethod();
                 });
             });
+            services.AddTransient<ISubscriberService, SubscriberService>();
             services.AddCap(x =>
             {
                 x.UseEntityFramework<BrowsingDbContext>();
@@ -68,8 +56,11 @@ namespace BrowsingService
             services.AddAutoMapper(typeof(AutomapperProfiles));
             services.AddScoped<IMovieDbClient, MovieDbClient>();
             services.AddScoped<IScopedProcessingService, GetNewEpisodesTask>();
+            services.AddScoped<IMessageTracker, MessageTracker>();
+            services.AddScoped<ISeriesService, SeriesService>();
             services.AddHostedService<NewEpisodeService>();
-            //var hcBuilder = services.AddHealthChecks();
+            services.AddApplicationInsightsTelemetry(Configuration["APPINSIGHTS_INSTRUMENTATIONKEY"]);
+            var hcBuilder = services.AddHealthChecks();
             //hcBuilder
             //    .AddSqlServer(
             //        Configuration.GetConnectionString("DefaultConnection"),
@@ -79,7 +70,7 @@ namespace BrowsingService
             //        .AddRabbitMQ(
             //            $"amqp://" +
             //            $"{Configuration["RabbitMQConfig:UserName"]}:" +
-            //            $"{rabbitPassword}@" +
+            //            $"{Configuration["RabbitMQConfig:UserName"]}@" +
             //            $"{Configuration["RabbitMQConfig:Hostname"]}:" +
             //            $"{Configuration["RabbitMQConfig: Port"]}/",
             //            name: "catalog-rabbitmqbus-check",
@@ -87,17 +78,10 @@ namespace BrowsingService
 
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> logger)
         {
-            logger.LogInformation(Configuration["RabbitMQConfig:Password"]);
-            logger.LogError(Configuration["RabbitMQConfig:Password"]);
-            logger.LogInformation(Configuration["RabbitMQConfig:Password"]);
-            logger.LogInformation(Configuration["RabbitMQConfig:Password"]);
-            logger.LogInformation(Configuration["RabbitMQConfig:Password"]);
             if (env.IsDevelopment())
             {
-                
                 app.UseDeveloperExceptionPage();
             }
             else

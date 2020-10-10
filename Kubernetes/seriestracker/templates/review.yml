@@ -18,8 +18,8 @@ spec:
     spec:
       containers:
         - name: review-service
-          image: seriestrackeracr.azurecr.io/reviewservice:v1
-          imagePullPolicy: Always
+          image: reviewservice:v1
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80
             - containerPort: 443

@@ -17,6 +17,7 @@ namespace ReviewService.Models
         public Reviewer Reviewer { get; set; }
 
         [Range(1, 5)]
+        [Required]
         public int Rating { get; set; }
     }
 }

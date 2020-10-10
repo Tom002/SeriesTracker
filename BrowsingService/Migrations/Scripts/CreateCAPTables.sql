@@ -1,4 +1,4 @@
-USE [BrowsingDb]
+USE [BrowseDb]
 GO
 
 CREATE SCHEMA cap

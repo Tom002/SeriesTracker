@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Common.Events
 {
-    public class SeriesCreatedEvent
+    public class SeriesCreatedEvent : BaseEvent
     {
         public int SeriesId { get; set; }
 
@@ -12,6 +12,8 @@ namespace Common.Events
 
         public string CoverImageUrl { get; set; }
 
-        public string Description { get; set; }
+        public int? StartYear { get; set; }
+
+        public int? EndYear { get; set; }
     }
 }

@@ -1,13 +1,13 @@
 import React, {useContext, useEffect, useState, FormEvent, SyntheticEvent, Fragment} from 'react'
-import SeriesStore from '../../app/stores/seriesStore';
 import { Grid, Image, Segment, Form, Dropdown, DropdownProps, DropdownItemProps, DropdownItem, Pagination } from 'semantic-ui-react';
 import SeriesCard from './SeriesCard';
 import { observer } from "mobx-react-lite";
 import { ISeriesParams, SeriesSortBy } from '../../app/models/searchParams';
+import RootStore from '../../app/stores/rootStore';
 
 
 const SeriesList = () => {
-    const seriesStore = useContext(SeriesStore)
+    const rootStore = useContext(RootStore);
 
     const {
         loadSeries,
@@ -15,7 +15,7 @@ const SeriesList = () => {
         seriesRegistry,
         categoriesForDropdown,
         totalPages
-    } = seriesStore;
+    } = rootStore.seriesStore;
 
     const [searchParams, setsearchParams] = useState<ISeriesParams>({
         sortBy :SeriesSortBy.Alphabetical,
@@ -145,13 +145,14 @@ const SeriesList = () => {
                 </Form.Group>
             </Form>
 
-
-            <Grid columns={5} container doubling stackable>
+            <Grid style={{marginLeft: '2em', marginRight: '2em'}}>
+                <Grid.Row columns={5} stretched>
                 {Array.from(seriesRegistry.values()).map(series => (
                     <Grid.Column>
                         <SeriesCard series={series} />
                     </Grid.Column>
                 ))}
+                </Grid.Row>
             </Grid>
 
             <Pagination style={{marginTop: '1em', marginLeft: '2em', align:'center'}}

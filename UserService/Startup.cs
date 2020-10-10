@@ -18,6 +18,9 @@ using Microsoft.IdentityModel.Logging;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using AutoMapper;
 using ProfileService.Helpers;
+using ProfileService.Interfaces;
+using ProfileService.Services;
+using Common.Interfaces;
 
 namespace ProfileService
 {
@@ -52,15 +55,9 @@ namespace ProfileService
 
             services.AddDbContext<UserDbContext>(opt =>
             {
-                opt.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
-                    //sqlServerOptionsAction: sqlOptions =>
-                    //{
-                    //    sqlOptions.EnableRetryOnFailure(
-                    //    maxRetryCount: 10,
-                    //    maxRetryDelay: TimeSpan.FromSeconds(30),
-                    //    errorNumbersToAdd: null);
-                    //});
+                opt.UseSqlServer(Configuration.GetConnectionString("AzureSqlConnection"));
             });
+            services.AddTransient<ISubscriberService, SubscriberService>();
             services.AddCap(x =>
             {
                 x.UseEntityFramework<UserDbContext>();
@@ -68,7 +65,7 @@ namespace ProfileService
                 {
                     conf.HostName = Configuration["RabbitMQConfig:Hostname"];
                     conf.UserName = Configuration["RabbitMQConfig:UserName"];
-                    conf.Password = rabbitPassword;
+                    conf.Password = Configuration["RabbitMQConfig:Password"];
                     conf.Port = int.Parse(Configuration["RabbitMQConfig:Port"]);
                 });
             });
@@ -103,6 +100,9 @@ namespace ProfileService
             });
 
             services.AddAutoMapper(typeof(AutomapperProfiles));
+            services.AddApplicationInsightsTelemetry(Configuration["APPINSIGHTS_INSTRUMENTATIONKEY"]);
+            services.AddScoped<IMessageTracker, MessageTracker>();
+            services.AddScoped<IProfileService, Services.ProfileService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

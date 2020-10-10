@@ -9,8 +9,14 @@ const ArtistCard: React.FC<{artist: IArtist}> = ({
     artist
 }) => {
     return (
-        <Card>
-            <Image src={artist.imageUrl} as={Link} to={`/artists/${artist.artistId}`} />
+        <Card style={{marginTop: '2em'}}>
+            <Image src={
+                        artist.imageUrl
+                        ? artist.imageUrl
+                        : "http://via.placeholder.com/400" 
+                        } 
+                    as={Link} 
+                    to={`/artists/${artist.artistId}`} />
             <Card.Content>
                 <Card.Header>{artist.name}</Card.Header>
                 {artist.birthDate && artist.deathDate == null && (

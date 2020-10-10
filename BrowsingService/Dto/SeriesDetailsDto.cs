@@ -1,22 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace BrowsingService.Dto
 {
     public class SeriesDetailsDto
     {
-        [Required]
         public int SeriesId { get; set; }
 
-        [MaxLength(200)]
         public string Title { get; set; }
 
         public string CoverImageUrl { get; set; }
 
-        [MaxLength(2000)]
         public string Description { get; set; }
 
         public int? StartYear { get; set; }
@@ -29,9 +22,9 @@ namespace BrowsingService.Dto
 
         public List<WriterDto> Writers { get; set; } = new List<WriterDto>();
 
-        public List<SeriesReviewDto> Reviews { get; set; } = new List<SeriesReviewDto>();
+        //public List<SeriesReviewDto> Reviews { get; set; } = new List<SeriesReviewDto>();
 
-        public double RatingAverage { get; set; }
+        public double? RatingAverage { get; set; }
 
         public int RatingsCount { get; set; }
 

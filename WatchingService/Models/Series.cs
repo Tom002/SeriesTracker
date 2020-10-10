@@ -8,13 +8,17 @@ namespace WatchingService.Models
 {
     public class Series
     {
-        [Required]
-        public int SeriesId { get; set; }
-
         [MaxLength(200)]
         public string Title { get; set; }
 
         public string CoverImageUrl { get; set; }
+
+        public int StartYear { get; set; }
+
+        public int? EndYear { get; set; }
+
+        [Required]
+        public int SeriesId { get; set; }
 
         public ICollection<SeriesWatched> SeriesWatched { get; set; }
 

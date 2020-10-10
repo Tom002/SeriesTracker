@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using BrowsingService.Helpers;
 using BrowsingService.Models;
 using BrowsingService.Services.ApiResponseModels;
 using Common.Events;
@@ -131,11 +132,11 @@ namespace BrowsingService.Data
                         foreach (var series in seriesToCreate)
                         {
                             var seriesEvent = mapper.Map<SeriesCreatedEvent>(series);
-                            capBus.Publish("browsingservice.series.created", seriesEvent);
+                            capBus.SendEvent("browsingservice.series.created", seriesEvent);
                             foreach (var episode in series.Episodes)
                             {
                                 var episodeEvent = mapper.Map<EpisodeCreatedEvent>(episode);
-                                capBus.Publish("browsingservice.episode.created", episodeEvent);
+                                capBus.SendEvent("browsingservice.episode.created", episodeEvent);
                             }
                         }
                         trans.Commit();

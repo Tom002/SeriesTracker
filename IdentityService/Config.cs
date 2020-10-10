@@ -38,7 +38,7 @@ namespace IdentityService
                     AllowedGrantTypes = GrantTypes.Implicit,
                     RedirectUris = {
                         "http://localhost:3000/signInCallback.html",
-                        "http://localhost:3000/signInSilentCallback.html",
+                        "http://localhost:3000/signInSilentCallback.html"
                     },
                     PostLogoutRedirectUris = {"http://localhost:3000/"},
                     AllowedCorsOrigins = {"http://localhost:3000" },
@@ -51,7 +51,7 @@ namespace IdentityService
                         "gateway",
                         "watching"
                     },
-                    AccessTokenLifetime = 3600,
+                    AccessTokenLifetime = 100000,
                     AllowAccessTokensViaBrowser = true,
                     RequireConsent = false
                 }

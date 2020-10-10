@@ -1,16 +1,22 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using AutoMapper.QueryableExtensions;
+using Common;
 using Common.Events;
+using Common.Interfaces;
 using DotNetCore.CAP;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.JsonPatch;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using ReviewService.Data;
 using ReviewService.Dto;
+using ReviewService.Helpers;
+using ReviewService.Helpers.Pagination;
+using ReviewService.Helpers.RequestContext;
+using ReviewService.Interfaces;
 using ReviewService.Models;
 
 namespace ReviewService.Controllers
@@ -20,193 +26,258 @@ namespace ReviewService.Controllers
     public class ReviewController : ControllerBase
     {
         private readonly ReviewDbContext _context;
+        private readonly IRequestContext _requestContext;
         private readonly ICapPublisher _capBus;
         private readonly IMapper _mapper;
+        private readonly ILogger _logger;
+        private readonly IReviewService _reviewService;
 
-        public ReviewController(ReviewDbContext context, IMapper mapper, ICapPublisher capBus)
+        public ReviewController(ReviewDbContext context,
+                                IMapper mapper,
+                                ICapPublisher capBus,
+                                IRequestContext requestContext,
+                                ILogger<ReviewController> logger,
+                                IReviewService reviewService)
         {
             _context = context;
+            _requestContext = requestContext;
             _mapper = mapper;
             _capBus = capBus;
+            _logger = logger;
+            _reviewService = reviewService;
         }
 
-        [CapSubscribe("browsingservice.series.created")]
-        public async Task ReceiveSeriesCreated(SeriesCreatedEvent seriesEvent)
+        [Authorize]
+        [HttpPut("series/{seriesId}/rate")]
+        public async Task<ActionResult<UserSeriesReviewInfoDto>> RateSeries(int seriesId, [FromBody] AddSeriesReviewRatingDto ratingDto)
         {
-            if(!await _context.Series.AnyAsync(series => series.SeriesId == seriesEvent.SeriesId))
+            var userId = _requestContext.UserId;
+            var reviewer = await _reviewService.GetReviewer(userId);
+            var series = await _reviewService.GetSeries(seriesId);
+            if (reviewer is Reviewer && series is Series)
             {
-                _context.Series.Add(new Series { SeriesId = seriesEvent.SeriesId });
-                await _context.SaveChangesAsync();
-            }
-        }
-
-        [CapSubscribe("browsingservice.episode.created")]
-        public async Task ReceiveEpisodeCreated(EpisodeCreatedEvent episodeEvent)
-        {
-            if (!await _context.Episode.AnyAsync(episode => episode.EpisodeId == episodeEvent.EpisodeId))
-            {
-                _context.Episode.Add(new Episode { EpisodeId = episodeEvent.EpisodeId, SeriesId = episodeEvent.SeriesId });
-                await _context.SaveChangesAsync();
-            }
-        }
-
-        [CapSubscribe("identityservice.user.created")]
-        public async Task ReceiveUserCreated(UserCreatedEvent userEvent)
-        {
-            if(!await _context.Reviewer.AnyAsync(reviewer => reviewer.ReviewerId == userEvent.UserId))
-            {
-                _context.Reviewer.Add(new Reviewer { ReviewerId = userEvent.UserId });
-                await _context.SaveChangesAsync();
-            }
-        }
-
-        [ProducesResponseType(204)]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(401)]
-        [ProducesResponseType(404)]
-        [HttpPost("series/{seriesId}")]
-        public async Task<ActionResult> CreateSeriesReview(int seriesId, [FromBody] CreateSeriesReviewDto reviewDto)
-        {
-            var signedInUserId = User.FindFirst("sub").Value;
-            if (reviewDto.ReviewerId != signedInUserId)
-            {
-                return Unauthorized();
-            }
-
-            var series = await _context.Series.FirstOrDefaultAsync(series => series.SeriesId == reviewDto.SeriesId);
-            var user = await _context.Reviewer.FirstOrDefaultAsync(reviewer => reviewer.ReviewerId == reviewDto.ReviewerId);
-
-            if(series == null || user == null)
-            {
-                return NotFound();
-            }
-
-            if(await _context.SeriesReview.AnyAsync(sr => 
-                sr.ReviewerId == reviewDto.ReviewerId &&
-                sr.SeriesId == reviewDto.SeriesId))
-            {
-                return BadRequest("You have already reviewed this series");
-            }
-            var seriesReview = _mapper.Map<SeriesReview>(reviewDto);
-
-
-            using (var trans = _context.Database.BeginTransaction(_capBus, autoCommit: false))
-            {
-                try
+                var review = await _reviewService.GetSeriesReview(seriesId, userId);
+                if (review is SeriesReview)
                 {
-                    _context.SeriesReview.Add(seriesReview);
-                    await _context.SaveChangesAsync();
-                    var reviewEvent = _mapper.Map<SeriesReviewCreatedEvent>(seriesReview);
-                    await _capBus.PublishAsync("reviewService.seriesReview.created", reviewEvent);
-                    await trans.CommitAsync();
-                    return NoContent();
+                    // Review már létezik, a meglévőt szerkesztjük
+
+                    using (var trans = _context.Database.BeginTransaction(_capBus, autoCommit: false))
+                    {
+                        try
+                        {
+                            _mapper.Map(ratingDto, review);
+                            await _context.SaveChangesAsync();
+                            var reviewEvent = _mapper.Map<SeriesReviewUpdatedEvent>(review);
+                            await _capBus.SendEvent("reviewService.seriesReview.updated", reviewEvent);
+                            await trans.CommitAsync();
+                            
+                            var reviewInfo = _mapper.Map<UserSeriesReviewInfoDto>(review);
+                            return Ok(reviewInfo);
+                        }
+                        catch (Exception e)
+                        {
+                            await trans.RollbackAsync();
+                            _logger.LogError(e, $"Unexpected error while updating series review" +
+                            $" UserId: {reviewer.ReviewerId} SeriesId:{series.SeriesId}");
+                            return BadRequest("Error while saving series review");
+                        }
+                    }
                 }
-                catch (Exception)
+                else
                 {
-                    await trans.RollbackAsync();
-                    return BadRequest("Error while saving series review");
+                    // Review még nem létezik, újat hozunk létre
+                    using (var trans = _context.Database.BeginTransaction(_capBus, autoCommit: false))
+                    {
+                        try
+                        {
+                            var createdReview = _mapper.Map<SeriesReview>(ratingDto);
+                            createdReview.ReviewerId = userId;
+                            createdReview.SeriesId = series.SeriesId;
+                            _context.SeriesReview.Add(createdReview);
+                            await _context.SaveChangesAsync();
+                            var reviewEvent = _mapper.Map<SeriesReviewCreatedEvent>(createdReview);
+                            await _capBus.SendEvent("reviewService.seriesReview.created", reviewEvent);
+                            await trans.CommitAsync();
+
+                            var reviewInfo = _mapper.Map<UserSeriesReviewInfoDto>(createdReview);
+                            return Ok(reviewInfo);
+                        }
+                        catch (Exception e)
+                        {
+                            await trans.RollbackAsync();
+                            _logger.LogError(e, $"Unexpected error while creating series review" +
+                            $" UserId: {reviewer.ReviewerId} SeriesId:{series.SeriesId}");
+                            return BadRequest("Error while saving series review");
+                        }
+                    }
                 }
             }
+            return NotFound();
         }
 
-        [HttpPatch("series/{seriesId}/user/{userId}")]
-        public async Task<ActionResult> EditSeriesReview(
-            int seriesId,
-            string userId,
-            JsonPatchDocument<SeriesReviewUpdateDto> patchDocument)
+        [Authorize]
+        [HttpPut("series/{seriesId}/review")]
+        public async Task<ActionResult<UserSeriesReviewInfoDto>> ReviewSeries(int seriesId, [FromBody] AddSeriesReviewTextDto reviewDto)
         {
-            var review = await _context.SeriesReview
-                .FirstOrDefaultAsync(sr => sr.SeriesId == seriesId && sr.ReviewerId == userId);
-
-            if(review == null)
+            var userId = _requestContext.UserId;
+            var reviewer = await _reviewService.GetReviewer(userId);
+            var series = await _reviewService.GetSeries(seriesId);
+            if (reviewer is Reviewer && series is Series)
             {
-                return NotFound();
+                var review = await _reviewService.GetSeriesReview(seriesId, userId);
+                if (review is SeriesReview)
+                {
+                    using (var trans = _context.Database.BeginTransaction(_capBus, autoCommit: false))
+                    {
+                        try
+                        {
+                            _mapper.Map(reviewDto, review);
+                            await _context.SaveChangesAsync();
+                            var reviewEvent = _mapper.Map<SeriesReviewUpdatedEvent>(review);
+                            await _capBus.SendEvent("reviewService.seriesReview.updated", reviewEvent);
+                            await trans.CommitAsync();
+
+                            var reviewInfo = _mapper.Map<UserSeriesReviewInfoDto>(review);
+                            return Ok(reviewInfo);
+                        }
+                        catch (Exception e)
+                        {
+                            await trans.RollbackAsync();
+                            _logger.LogError(e, $"Unexpected error while updating series review" +
+                            $" UserId: {reviewer.ReviewerId} SeriesId:{series.SeriesId}");
+                            return BadRequest("Error while saving series review");
+                        }
+                    }
+                }
+                else
+                {
+                    using (var trans = _context.Database.BeginTransaction(_capBus, autoCommit: false))
+                    {
+                        try
+                        {
+                            // Review még nem létezik, újat hozunk létre
+                            var createdReview = _mapper.Map<SeriesReview>(reviewDto);
+                            createdReview.ReviewerId = userId;
+                            createdReview.SeriesId = series.SeriesId;
+                            _context.SeriesReview.Add(createdReview);
+                            await _context.SaveChangesAsync();
+                            var reviewEvent = _mapper.Map<SeriesReviewUpdatedEvent>(review);
+                            await _capBus.SendEvent("reviewService.seriesReview.created", reviewEvent);
+                            await trans.CommitAsync();
+
+                            var reviewInfo = _mapper.Map<UserSeriesReviewInfoDto>(createdReview);
+                            return Ok(reviewInfo);
+                        }
+                        catch (Exception e)
+                        {
+                            await trans.RollbackAsync();
+                            _logger.LogError(e, $"Unexpected error while updating series review" +
+                            $" UserId: {reviewer.ReviewerId} SeriesId:{series.SeriesId}");
+                            return BadRequest("Error while saving series review");
+                        }
+                    }
+                    
+                }
             }
-
-            var signedInUserId = User.FindFirst("sub").Value;
-            if(review.ReviewerId != signedInUserId)
-            {
-                return Forbid();
-            }
-
-            var reviewToPatch = _mapper.Map<SeriesReviewUpdateDto>(review);
-            patchDocument.ApplyTo(reviewToPatch, ModelState);
-
-            if(!TryValidateModel(reviewToPatch))
-            {
-                return ValidationProblem(ModelState);
-            }
-
-            _mapper.Map(reviewToPatch, review);
-
-            await _context.SaveChangesAsync();
-            return NoContent();
+            return NotFound();
         }
 
         [ProducesResponseType(200)]
         [ProducesResponseType(401)]
-        [HttpGet("series/{seriesId}/user/{userId}")]
-        public async Task<ActionResult<UserSeriesReviewInfoDto>> UserReviewForSeries(int seriesId, string userId)
+        [HttpGet("series/{seriesId}/myreview")]
+        public async Task<ActionResult<UserSeriesReviewInfoDto>> GetUserReviewForSeries(int seriesId)
         {
-            var review = await _context.SeriesReview
-                .FirstOrDefaultAsync(sr => sr.SeriesId == seriesId && sr.ReviewerId == userId);
-
-            if(review == null)
+            var userId = _requestContext.UserId;
+            var series = await _reviewService.GetSeries(seriesId);
+            if(series is Series)
             {
-                return Ok(new UserSeriesReviewInfoDto { IsReviewedByUser = false });
+                var review = await _reviewService.GetSeriesReview(seriesId, userId);
+                if (review is SeriesReview)
+                {
+                    var response = _mapper.Map<UserSeriesReviewInfoDto>(review);
+                    return Ok(response);
+                }
+                else
+                {
+                    return Ok(new UserSeriesReviewInfoDto { IsReviewedByUser = false });
+                }
             }
+            else
+            {
+                return NotFound();
+            }
+        }
 
-            var response = _mapper.Map<UserSeriesReviewInfoDto>(review);
-            return Ok(response);
+        [ProducesResponseType(200)]
+        [ProducesResponseType(401)]
+        [HttpGet("users/{userId}")]
+        public async Task<ActionResult<PagedList<UserSeriesReviewListDto>>> GetUserSeriesReviews(
+            string userId, 
+            [FromQuery] ReviewParams reviewParams)
+        {
+            var user = await _context.Reviewer.FirstOrDefaultAsync(r => r.ReviewerId == userId);
+            if(user is Reviewer)
+            {
+                var userReviewsQuery = _context.SeriesReview
+                    .Where(r => r.ReviewerId == user.ReviewerId)
+                    .ProjectTo<UserSeriesReviewListDto>(_mapper.ConfigurationProvider);
+
+                var pagedReviews = await PagedList<UserSeriesReviewListDto>
+                    .CreateAsync(userReviewsQuery, reviewParams.PageNumber, reviewParams.PageSize);
+
+                return Ok(pagedReviews);
+            }
+            return NotFound();
         }
 
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
         [ProducesResponseType(401)]
         [ProducesResponseType(404)]
-        [HttpPost("episode")]
-        public async Task<ActionResult> CreateEpisodeReview(CreateEpisodeReviewDto reviewDto)
+        [HttpPut("episode/{episodeId}")]
+        public async Task<ActionResult> ReviewEpisode(int episodeId, EpisodeReviewManipulationDto reviewDto)
         {
-            var signedInUserId = User.FindFirst("sub").Value;
-            if (reviewDto.ReviewerId != signedInUserId)
+            var userId = _requestContext.UserId;
+            var episode = await _reviewService.GetEpisode(episodeId);
+            if (episode is Episode)
             {
-                return Unauthorized();
+                var episodeReview = await _reviewService.GetEpisodeReview(episodeId, userId);
+                if (episodeReview is EpisodeReview)
+                {
+                    var reviewUpdateSuccess = await _reviewService.UpdateEpisodeReview(episodeReview, reviewDto);
+                    if (reviewUpdateSuccess)
+                        return NoContent();
+                    return BadRequest("Unexpected error while saving episode review");
+                }
+                else
+                {
+                    var reviewCreatedSuccess = await _reviewService.CreateEpisodeReview(episodeId, userId, reviewDto);
+                    if (reviewCreatedSuccess)
+                        return NoContent();
+                    return BadRequest("Unexpected error while saving episode review");
+                }
             }
-
-            var episode = await _context.Episode.FirstOrDefaultAsync(episode => episode.SeriesId == reviewDto.EpisodeId);
-            var user = await _context.Reviewer.FirstOrDefaultAsync(reviewer => reviewer.ReviewerId == reviewDto.ReviewerId);
-
-            if (episode == null || user == null)
+            else
             {
                 return NotFound();
             }
+            
+        }
 
-            if (await _context.EpisodeReview.AnyAsync(er =>
-                 er.ReviewerId == reviewDto.ReviewerId &&
-                 er.EpisodeId == reviewDto.EpisodeId))
+
+        [ProducesResponseType(200)]
+        [ProducesResponseType(401)]
+        [HttpGet("series/{seriesId}")]
+        public async Task<ActionResult<PagedList<SeriesReviewListDto>>> 
+            ListSeriesReviews(int seriesId, [FromQuery] PagingParams pagingParams)
+        {
+            var series = await _reviewService.GetSeries(seriesId);
+            if(series is Series)
             {
-                return BadRequest("You have already reviewed this episode");
-            }
-
-            var episodeReview = _mapper.Map<EpisodeReview>(reviewDto);
-
-            using (var trans = _context.Database.BeginTransaction(_capBus, autoCommit: false))
-            {
-                try
-                {
-                    _context.EpisodeReview.Add(episodeReview);
-                    await _context.SaveChangesAsync();
-                    var reviewEvent = _mapper.Map<EpisodeReviewCreatedEvent>(episodeReview);
-                    await _capBus.PublishAsync("reviewService.episodeReview.created", reviewEvent);
-                    await trans.CommitAsync();
-                    return NoContent();
-                }
-                catch (Exception)
-                {
-                    await trans.RollbackAsync();
-                    return BadRequest("Error while saving episode review");
-                }
-            }
+                var reviews = await _reviewService.GetSeriesReviews(series, pagingParams);
+                return Ok(reviews);
+            }  
+            return NotFound();
         }
     }
 }

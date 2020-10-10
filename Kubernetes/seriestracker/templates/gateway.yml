@@ -18,8 +18,8 @@ spec:
     spec:
       containers:
         - name: gateway-container
-          image: seriestrackeracr.azurecr.io/apigateway:v1
-          imagePullPolicy: Always
+          image: apigateway:v1
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80
             - containerPort: 443

@@ -14,7 +14,9 @@
       "launchBrowser": true,
       "launchUrl": "weatherforecast",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "AZURE_USERNAME": "tamas.princz@edu.bme.hu",
+        "AzureKeyvaultConnection": "https://seriestrackervault.vault.azure.net/"
       }
     },
     "BrowsingService": {
@@ -22,7 +24,9 @@
       "launchBrowser": true,
       "launchUrl": "weatherforecast",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "AZURE_USERNAME": "tamas.princz@edu.bme.hu",
+        "AzureKeyvaultConnection": "https://seriestrackervault.vault.azure.net/"
       },
       "applicationUrl": "https://localhost:5001;http://localhost:5000"
     },
@@ -31,7 +35,11 @@
       "launchBrowser": true,
       "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/weatherforecast",
       "publishAllPorts": true,
-      "useSSL": true
+      "useSSL": true,
+      "environmentVariables": {
+        "AZURE_USERNAME": "tamas.princz@edu.bme.hu",
+        "AzureKeyvaultConnection": "https://seriestrackervault.vault.azure.net/"
+      }
     }
   }
 }

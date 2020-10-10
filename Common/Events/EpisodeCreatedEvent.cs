@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Common.Events
 {
-    public class EpisodeCreatedEvent
+    public class EpisodeCreatedEvent : BaseEvent
     {
         public int EpisodeId { get; set; }
 

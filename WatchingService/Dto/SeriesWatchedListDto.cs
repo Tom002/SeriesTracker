@@ -7,8 +7,14 @@ namespace WatchingService.Dto
 {
     public class SeriesWatchedListDto
     {
-        public string ViewerId { get; set; }
+        public string Title { get; set; }
 
-        public List<int> SeriesWatchedIds { get; set; } = new List<int>();
+        public string CoverImageUrl { get; set; }
+
+        public int StartYear { get; set; }
+
+        public int? EndYear { get; set; }
+
+        public int SeriesId { get; set; }
     }
 }

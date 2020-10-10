@@ -1,13 +1,20 @@
 import { observable, action, runInAction } from "mobx";
-import { IArtist } from "../models/artist";
+import { IArtist, IArtistDetails } from "../models/artist";
 import agent from "../api/agent";
 import { IPagination } from "../models/searchParams";
 import { createContext } from "react";
+import { RootStore } from "./rootStore";
 
 
-class ArtistStore {
+export class ArtistStore {
+
+    rootStore: RootStore;
+    constructor(rootStore: RootStore) {
+        this.rootStore = rootStore;
+    }
+
     @observable artistRegistry = new Map<number, IArtist>();
-
+    @observable selectedArtist: IArtistDetails | null = null;
     @observable currentPage = 1;
     @observable totalPages = 1;
 
@@ -19,8 +26,20 @@ class ArtistStore {
         })
     }
 
+    @action clearArtistRegistry = () => {
+        runInAction("clearing artist registry", () => {
+            this.artistRegistry.clear();
+        })
+    }
+
+    @action clearSelectedArtist = () => {
+        runInAction("clearing selected artist", () => {
+            this.selectedArtist = null;
+        })
+    }
+
     @action loadArtists = async(params: URLSearchParams) => {
-        this.artistRegistry.clear();
+        this.clearArtistRegistry();
         try {
             const response = await agent.artists.list(params);
             const pagination : IPagination = JSON.parse(response.headers.pagination);
@@ -36,5 +55,14 @@ class ArtistStore {
             console.log(error);
         }
     }
+
+    @action loadSingleArtist = async(artistId: number) => {
+        this.clearSelectedArtist();
+        var artist = await agent.artists.get(artistId);
+        runInAction("loading selected artist", () => {
+            if(artist) {
+                this.selectedArtist = artist;
+            }
+        })
+    }
 }
-export default createContext(new ArtistStore());

@@ -95,41 +95,37 @@ metadata:
 data:
   ocelot.json: |-
     {
-    "ReRoutes": [
+      "ReRoutes": [
         {
-        "DownstreamPathTemplate": "/api/series/{everything}",
-        "DownstreamScheme": "http",
-        "UpstreamPathTemplate": "/series/{everything}",
-        "ServiceName": "browsing-service",
-        "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ]
-        },
-
-        {
-        "DownstreamPathTemplate": "/api/series/categories/{everything}",
-        "DownstreamScheme": "http",
-        "UpstreamPathTemplate": "/categorie/{everything}s",
-        "ServiceName": "browsing-service",
-        "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ]
-        },
-
-        {
-        "DownstreamPathTemplate": "/api/artist/{everything}",
-        "DownstreamScheme": "http",
-        "UpstreamPathTemplate": "/artists/{everything}",
-        "ServiceName": "browsing-service",
-        "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ]
-        },
-
-        {
-          "DownstreamPathTemplate": "/api/profile/{everything}",
+          "DownstreamPathTemplate": "/api/series/{everything}",
           "DownstreamScheme": "http",
-          "UpstreamPathTemplate": "/users/{everything}",
-          "ServiceName": "profile-service",
-          "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ],
-          "AuthenticationOptions": {
-              "AuthenticationProviderKey": "IdentityServerAuthentication",
-              "AllowedScopes": []
-          }
+          "ServiceName": "browsing-service",
+          "UpstreamPathTemplate": "/series/{everything}",
+          "UpstreamHttpMethod": [ "Get" ]
+        },
+
+        {
+          "DownstreamPathTemplate": "/api/series",
+          "DownstreamScheme": "http",
+          "ServiceName": "browsing-service",
+          "UpstreamPathTemplate": "/series",
+          "UpstreamHttpMethod": [ "Get" ]
+        },
+
+        {
+          "DownstreamPathTemplate": "/api/artist/{everything}",
+          "DownstreamScheme": "http",
+          "ServiceName": "browsing-service",
+          "UpstreamPathTemplate": "/artist/{everything}",
+          "UpstreamHttpMethod": [ "Get" ]
+        },
+
+        {
+          "DownstreamPathTemplate": "/api/artist",
+          "DownstreamScheme": "http",
+          "ServiceName": "browsing-service",
+          "UpstreamPathTemplate": "/artist",
+          "UpstreamHttpMethod": [ "Get" ]
         },
 
         {
@@ -137,11 +133,7 @@ data:
           "DownstreamScheme": "http",
           "ServiceName": "watching-service",
           "UpstreamPathTemplate": "/watching/{everything}",
-          "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ],
-          "AuthenticationOptions": {
-              "AuthenticationProviderKey": "IdentityServerAuthentication",
-              "AllowedScopes": []
-          }
+          "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ]
         },
 
         {
@@ -149,18 +141,26 @@ data:
           "DownstreamScheme": "http",
           "ServiceName": "review-service",
           "UpstreamPathTemplate": "/review/{everything}",
+          "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ]
+        },
+
+        {
+          "DownstreamPathTemplate": "/api/profile/{everything}",
+          "DownstreamScheme": "http",
+          "ServiceName": "profile-service",
+          "UpstreamPathTemplate": "/users/{everything}",
           "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ],
           "AuthenticationOptions": {
-              "AuthenticationProviderKey": "IdentityServerAuthentication",
-              "AllowedScopes": []
+            "AuthenticationProviderKey": "IdentityServerAuthentication",
+            "AllowedScopes": []
           }
-        },
-    ],
-    "GlobalConfiguration": {
-        "ServiceDiscoveryProvider": {
-        "Port": 443,
-        "Namespace": "default",
-        "Type": "kube"
-            }
         }
+      ],
+      "GlobalConfiguration": {
+        "ServiceDiscoveryProvider": {
+          "Port": 443,
+          "Namespace": "default",
+          "Type": "kube"
+        }
+      }
     }

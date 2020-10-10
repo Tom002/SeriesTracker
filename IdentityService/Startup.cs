@@ -42,7 +42,7 @@ namespace IdentityService
 
             services.AddDbContext<ApplicationDbContext>(options =>
             {
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
+                options.UseSqlServer(Configuration.GetConnectionString("AzureSqlConnection"));
                     //sqlServerOptionsAction: sqlOptions =>
                     //{
                     //    sqlOptions.EnableRetryOnFailure(
@@ -55,11 +55,12 @@ namespace IdentityService
             services.AddCap(x =>
             {
                 x.UseEntityFramework<ApplicationDbContext>();
+                //x.UseAzureServiceBus(Configuration["AzureMessageBus:ConnectionString"]);
                 x.UseRabbitMQ(conf =>
                 {
                     conf.HostName = Configuration["RabbitMQConfig:Hostname"];
                     conf.UserName = Configuration["RabbitMQConfig:UserName"];
-                    conf.Password = rabbitPassword;
+                    conf.Password = Configuration["RabbitMQConfig:Password"];
                     conf.Port = int.Parse(Configuration["RabbitMQConfig:Port"]);
                 });
                 x.UseDashboard();
@@ -100,11 +101,17 @@ namespace IdentityService
                 options.Cookie.IsEssential = true;
                 options.Cookie.SameSite = SameSiteMode.Unspecified;
             });
+            services.AddApplicationInsightsTelemetry(Configuration["APPINSIGHTS_INSTRUMENTATIONKEY"]);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseCookiePolicy(new CookiePolicyOptions()
+            {
+                MinimumSameSitePolicy = SameSiteMode.Lax
+            });
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using BrowsingService.Data;
 using BrowsingService.Dto;
 using BrowsingService.Helpers;
@@ -18,7 +19,6 @@ namespace BrowsingService.Controllers
     public class ArtistController : ControllerBase
     {
         private readonly BrowsingDbContext _context;
-
         private readonly IMapper _mapper;
 
         public ArtistController(BrowsingDbContext dbContext, IMapper mapper)
@@ -87,21 +87,20 @@ namespace BrowsingService.Controllers
         [HttpGet("{id}")]
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
-        public async Task<ActionResult<Artist>> GetSingleArtist(int id)
+        public async Task<ActionResult<ArtistDetailsDto>> GetSingleArtist(int id)
         {
             var artist = await _context.Artists
-                .Include(a => a.AppearedIn)
-                .Include(a => a.WriterOf)
                 .Where(a => a.ArtistId == id)
+                .ProjectTo<ArtistDetailsDto>(_mapper.ConfigurationProvider)
                 .FirstOrDefaultAsync();
 
-            if (artist == null)
+            if (artist is ArtistDetailsDto)
             {
-                return NotFound();
+                return Ok(artist);
             }
             else
             {
-                return Ok(artist);
+                return NotFound();
             }
         }
     }

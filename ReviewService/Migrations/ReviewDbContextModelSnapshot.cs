@@ -24,6 +24,22 @@ namespace ReviewService.Migrations
                     b.Property<int>("EpisodeId")
                         .HasColumnType("int");
 
+                    b.Property<string>("CoverImageUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("EpisodeNumber")
+                        .HasColumnType("int");
+
+                    b.Property<string>("EpisodeTitle")
+                        .HasColumnType("nvarchar(200)")
+                        .HasMaxLength(200);
+
+                    b.Property<DateTime?>("Release")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Season")
+                        .HasColumnType("int");
+
                     b.Property<int>("SeriesId")
                         .HasColumnType("int");
 
@@ -50,6 +66,16 @@ namespace ReviewService.Migrations
                     b.ToTable("EpisodeReview");
                 });
 
+            modelBuilder.Entity("ReviewService.Models.ProcessedEvent", b =>
+                {
+                    b.Property<Guid>("EventId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("EventId");
+
+                    b.ToTable("ProcessedEvents");
+                });
+
             modelBuilder.Entity("ReviewService.Models.Reviewer", b =>
                 {
                     b.Property<string>("ReviewerId")
@@ -68,6 +94,19 @@ namespace ReviewService.Migrations
                     b.Property<int>("SeriesId")
                         .HasColumnType("int");
 
+                    b.Property<string>("CoverImageUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("EndYear")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StartYear")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .HasColumnType("nvarchar(200)")
+                        .HasMaxLength(200);
+
                     b.HasKey("SeriesId");
 
                     b.ToTable("Series");
@@ -81,7 +120,7 @@ namespace ReviewService.Migrations
                     b.Property<string>("ReviewerId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<int>("Rating")
+                    b.Property<int?>("Rating")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("ReviewDate")

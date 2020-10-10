@@ -8,7 +8,7 @@ const SeriesCard: React.FC<{ series: ISeriesForList }> = ({
     series
 }) => {
     return (
-        <Card>
+        <Card style={{marginTop: '2em' }}>
             <Image src={series.coverImageUrl} as={Link} to={`/series/${series.seriesId}`} />
             <Card.Content>
                 <Card.Header>{series.title}</Card.Header>
@@ -17,7 +17,7 @@ const SeriesCard: React.FC<{ series: ISeriesForList }> = ({
             <Card.Content extra>
                 <Label.Group color='blue'>
                         {
-                            series.categories.map(category => (
+                            series.categories.slice(0,3).map(category => (
                                 <Label as='a'>
                                     {category.categoryName}
                                 </Label>

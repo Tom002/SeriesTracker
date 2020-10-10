@@ -104,25 +104,17 @@ namespace BrowsingService.Migrations
 
                     b.HasIndex("SeriesId");
 
-                    b.ToTable("Episode");
+                    b.ToTable("Episodes");
                 });
 
-            modelBuilder.Entity("BrowsingService.Models.EpisodeReview", b =>
+            modelBuilder.Entity("BrowsingService.Models.ProcessedEvent", b =>
                 {
-                    b.Property<string>("ReviewerId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid>("EventId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("EpisodeId")
-                        .HasColumnType("int");
+                    b.HasKey("EventId");
 
-                    b.Property<int>("Rating")
-                        .HasColumnType("int");
-
-                    b.HasKey("ReviewerId", "EpisodeId");
-
-                    b.HasIndex("EpisodeId");
-
-                    b.ToTable("EpisodeReview");
+                    b.ToTable("ProcessedEvents");
                 });
 
             modelBuilder.Entity("BrowsingService.Models.Series", b =>
@@ -201,19 +193,8 @@ namespace BrowsingService.Migrations
                     b.Property<int>("SeriesId")
                         .HasColumnType("int");
 
-                    b.Property<int>("Rating")
+                    b.Property<int?>("Rating")
                         .HasColumnType("int");
-
-                    b.Property<DateTime>("ReviewDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("ReviewText")
-                        .HasColumnType("nvarchar(400)")
-                        .HasMaxLength(400);
-
-                    b.Property<string>("ReviewTitle")
-                        .HasColumnType("nvarchar(200)")
-                        .HasMaxLength(200);
 
                     b.HasKey("ReviewerId", "SeriesId");
 
@@ -242,15 +223,6 @@ namespace BrowsingService.Migrations
                     b.HasOne("BrowsingService.Models.Series", "Series")
                         .WithMany("Episodes")
                         .HasForeignKey("SeriesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("BrowsingService.Models.EpisodeReview", b =>
-                {
-                    b.HasOne("BrowsingService.Models.Episode", "Episode")
-                        .WithMany()
-                        .HasForeignKey("EpisodeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

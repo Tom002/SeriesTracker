@@ -1,11 +1,11 @@
 import axios, { AxiosResponse } from 'axios';
 import { AuthService } from './auth';
 import { User } from 'oidc-client';
-import { ISeriesForList, ICategory, ISeriesDetails, IEpisode, ISeriesWatchedList, ISeriesEpisodesWatchedList, IWatchSeriesRequest, IWatchEpisodeRequest, IReviewSeriesRequest, IReviewEpisodeRequest, IUserSeriesReviewInfo } from '../models/series';
+import { ISeriesForList, ICategory, ISeriesDetails, IEpisode, IUserSeriesReviewInfo, ISeriesWatchedInfo, ISeriesReviewRequest, ISeriesRateRequest, IEpisodeReviewRequest, IUserSeriesReview, ISeriesWatchedListItem, ISeriesLikedListItem, IReview } from '../models/series';
 import { IProfile } from '../models/profile';
-import { IArtist } from '../models/artist';
+import { IArtist, IArtistDetails } from '../models/artist';
 
-axios.defaults.baseURL = "http://51.138.90.232/";
+axios.defaults.baseURL = "http://localhost:5100/";
 
 var auth = new AuthService();
 var refreshing = false;
@@ -41,47 +41,82 @@ axios.interceptors.response.use(
     })
 
 const responseBody = (response: AxiosResponse) => response.data;
-const fullResponse = (response: AxiosResponse) => response;
-
 
 const series = {
-    list: (params: URLSearchParams): Promise<AxiosResponse<ISeriesForList[]>> => axios.get("/series", {params: params}),
-    get: (id: number): Promise<ISeriesDetails> => axios.get(`/series/${id}`).then(responseBody),
+    list: (params: URLSearchParams): Promise<AxiosResponse<ISeriesForList[]>> => 
+        axios.get("/series", {params: params}),
+    
+    get: (id: number): Promise<ISeriesDetails> =>
+         axios.get(`/series/${id}`).then(responseBody),
+    
     getSeason: (seriesId: number, season: number): Promise<IEpisode[]> => 
         axios.get(`/series/${seriesId}/season/${season}`).then(responseBody)
 }
 
 const categories = {
-    list: (): Promise<ICategory[]> => axios.get("/categories").then(responseBody)
+    list: (): Promise<ICategory[]> => axios.get("/series/categories").then(responseBody)
 }
 
 const artists = {
-    list: (params: URLSearchParams): Promise<AxiosResponse<IArtist[]>> => axios.get("/artists", {params: params}), 
+    list: (params: URLSearchParams): Promise<AxiosResponse<IArtist[]>> =>
+        axios.get("/artist", {params: params}),
+    
+    get: (artistId: number): Promise<IArtistDetails> =>
+        axios.get(`/artist/${artistId}`).then(responseBody)
 }
 
 const watching = {
-    listSeriesWatched:(userId: string): Promise<ISeriesWatchedList> => 
-        axios.get(`/watching/${userId}/series/watched`).then(responseBody),
-    listEpisodesWatched:(userId: string, seriesId: number): Promise<ISeriesEpisodesWatchedList> => 
-        axios.get(`/watching/${userId}/series/${seriesId}/episodes`).then(responseBody),
-    watchSeries: (data: IWatchSeriesRequest) => 
-        axios.post('/watching/series', data),
-    watchEpisode: (data: IWatchEpisodeRequest) =>
-        axios.post('/watching/episode', data) 
+    getSeriesWatchedInfo: (seriesId: number): Promise<ISeriesWatchedInfo> =>
+        axios.get(`/watching/series/${seriesId}/myWatching`).then(responseBody),
+    
+    getSeriesWatched: (userId: string, params?: URLSearchParams): Promise<ISeriesWatchedListItem[]> =>
+        axios.get(`/watching/viewers/${userId}/series/watched`, {params: params}).then(responseBody),
+    
+    getSeriesLiked: (userId: string, params?: URLSearchParams): Promise<ISeriesLikedListItem[]> =>
+        axios.get(`/watching/viewers/${userId}/series/liked`, {params: params}).then(responseBody),
+        
+    watchSeries: (seriesId: number) =>
+        axios.post(`/watching/series/${seriesId}/watch`),
+
+    deleteSeriesWatched: (seriesId: number) =>
+        axios.delete(`/watching/series/${seriesId}/watch`),
+        
+    watchEpisode: (episodeId: number) =>
+        axios.post(`/watching/episode/${episodeId}/watch`),
+    
+    deleteEpisodeWatched: (episodeId: number) =>
+        axios.delete(`/watching/episode/${episodeId}/watch`),
+
+    likeSeries: (seriesId: number) =>
+        axios.post(`/watching/series/${seriesId}/like`),
+    
+    deleteSeriesLiked: (seriesId: number) =>
+        axios.delete(`/watching/series/${seriesId}/like`),
 }
 
 const review = {
-    reviewSeries: (data: IReviewSeriesRequest) =>
-        axios.post(`/review/series/${data.seriesId}`, data),
-    reviewEpisode: (data: IReviewEpisodeRequest) =>
-        axios.post('/review/episode/', data),
+    getUserReviews: (userId: string, params?: URLSearchParams) : Promise<IUserSeriesReview[]> =>
+        axios.get(`/review/users/${userId}`, {params: params}).then(responseBody),
+
+    getMyReview: (seriesId: number): Promise<IUserSeriesReviewInfo> =>
+        axios.get(`/review/series/${seriesId}/myReview`).then(responseBody),
     
-    getUserReview: (userId: string, seriesId: number) : Promise<IUserSeriesReviewInfo> =>
-        axios.get(`/review/series/${seriesId}/user/${userId}`).then(responseBody)
+    getSeriesReviews: (seriesId: number, params?: URLSearchParams): Promise<IReview[]> =>
+        axios.get(`/review/series/${seriesId}`, {params: params}).then(responseBody),
+    
+    reviewSeries: (seriesId: number, data: ISeriesReviewRequest): Promise<IUserSeriesReviewInfo> =>
+        axios.put(`/review/series/${seriesId}/review`, data).then(responseBody),
+    
+    rateSeries: (seriesId: number, data: ISeriesRateRequest): Promise<IUserSeriesReviewInfo> =>
+        axios.put(`/review/series/${seriesId}/rate`, data).then(responseBody),
+
+    rateEpisode: (episodeId: number, data: IEpisodeReviewRequest) =>
+        axios.put(`/review/episode/${episodeId}`, data)
 }
 
 const profile = {
-    get: (userId: string): Promise<IProfile> => axios.get(`/users/${userId}`).then(responseBody)
+    get: (userId: string): Promise<IProfile> =>
+        axios.get(`/users/${userId}`).then(responseBody)
 }
 
 export default {

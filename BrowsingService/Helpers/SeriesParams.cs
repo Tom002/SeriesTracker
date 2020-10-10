@@ -25,7 +25,7 @@ namespace BrowsingService.Helpers
             AlphabeticalDescending = 5,
         }
 
-        public int CategoryId { get; set; }
+        public int? CategoryId { get; set; }
         public SortBy Sort { get; set; } = SortBy.HighestRating;
 
         public string TitleFilter { get; set; }

@@ -11,6 +11,8 @@ namespace ProfileService.Data
     {
         public DbSet<User> Users { get; set; }
 
+        public DbSet<ProcessedEvent> ProcessedEvents { get; set; }
+
         public UserDbContext(DbContextOptions<UserDbContext> options)
        : base(options)
         {
@@ -25,6 +27,10 @@ namespace ProfileService.Data
 
             builder.Entity<User>()
                 .Property(v => v.UserId)
+                .ValueGeneratedNever();
+
+            builder.Entity<ProcessedEvent>()
+                .Property(p => p.EventId)
                 .ValueGeneratedNever();
         }
     }

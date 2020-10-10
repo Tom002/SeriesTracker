@@ -10,7 +10,6 @@ namespace ReviewService.Dto
     {
         public int SeriesId { get; set; }
         public bool IsReviewedByUser { get; set; }
-        public string ReviewerId { get; set; }
         public string ReviewTitle { get; set; }
         public DateTime? ReviewDate { get; set; }
         public string ReviewText { get; set; }

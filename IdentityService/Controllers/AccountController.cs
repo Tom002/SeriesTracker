@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Http;
 using DotNetCore.CAP;
 using IdentityService.Data;
 using Common.Events;
+using IdentityService.Helpers;
 
 namespace IdentityService.Controllers
 {
@@ -65,8 +66,6 @@ namespace IdentityService.Controllers
             ViewData["ReturnUrl"] = returnUrl;
             if (ModelState.IsValid)
             {
-                // This doesn't count login failures towards account lockout
-                // To enable password failures to trigger account lockout, set lockoutOnFailure: true
                 var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
                 if (result.Succeeded)
                 {
@@ -116,7 +115,7 @@ namespace IdentityService.Controllers
                         ProfileImageUrl = model.ProfileImageUrl
                     };
 
-                    _capBus.Publish("identityservice.user.created", user);
+                    await _capBus.SendEventAsync("identityservice.user.created", user);
 
                     if (result.Succeeded)
                     {

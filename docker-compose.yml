@@ -72,8 +72,11 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
-    container_name: rabbitmq
-    hostname: rabbitmq
+    container_name: messagebus-rabbitmq
+    environment:  
+      RABBITMQ_DEFAULT_USER: "user"  
+      RABBITMQ_DEFAULT_PASS: "Str0ngRabbitPass"
+    hostname: messagebus-rabbitmq
     networks:
       - seriestracker-network
 

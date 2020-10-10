@@ -1,4 +1,4 @@
-USE [BrowsingDb]
+USE [BrowseDb]
 GO
 
 DROP TABLE [cap].[Published]

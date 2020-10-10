@@ -14,11 +14,17 @@ namespace WatchingService.Models
         [Required]
         public int SeriesId { get; set; }
 
+        [MaxLength(200)]
+        public string EpisodeTitle { get; set; }
+
         [Required]
         public int Season { get; set; }
 
         [Required]
         public int EpisodeNumber { get; set; }
+
+        [Required]
+        public DateTime Release { get; set; }
 
         public string CoverImageUrl { get; set; }
 

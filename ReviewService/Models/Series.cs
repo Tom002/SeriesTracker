@@ -8,6 +8,15 @@ namespace ReviewService.Models
 {
     public class Series
     {
+        [MaxLength(200)]
+        public string Title { get; set; }
+
+        public string CoverImageUrl { get; set; }
+
+        public int StartYear { get; set; }
+
+        public int? EndYear { get; set; }
+
         [Required]
         public int SeriesId { get; set; }
 

@@ -1,15 +1,16 @@
 import { Menu, Container, Icon, Button, Segment, Label } from 'semantic-ui-react';
 import React, { useContext, useEffect, Fragment } from 'react'
-import {NavLink, useHistory} from 'react-router-dom';
+import {Link, NavLink, useHistory} from 'react-router-dom';
 import UserStore from '../../app/stores/userStore';
 import { AuthService } from '../../app/api/auth';
 import { observer } from 'mobx-react-lite';
 import { toast } from 'react-toastify';
+import RootStore from '../../app/stores/rootStore';
 
 const NavBar = () => {
     const authService = new AuthService();
-    const userStore = useContext(UserStore);
-    const {userProfile, currentUser} = userStore;
+    const rootStore = useContext(RootStore);
+    const {userProfile, currentUser} = rootStore.userStore;
     let history = useHistory();
 
 
@@ -67,6 +68,11 @@ const NavBar = () => {
               <Menu.Item>
                 <Button onClick={logout}>
                   Logout
+                </Button>
+              </Menu.Item>
+              <Menu.Item>
+                <Button positive as={Link} to={`/users/${userProfile.userId}`}>
+                  My profile
                 </Button>
               </Menu.Item>
             </Fragment>
