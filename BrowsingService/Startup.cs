@@ -80,7 +80,7 @@ namespace BrowsingService
 
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> logger)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {
@@ -104,19 +104,19 @@ namespace BrowsingService
             app.UseCors("default");
             app.UseAuthorization();
 
-            //app.UseEndpoints(endpoints =>
-            //{
-            //    endpoints.MapHealthChecks("/health/readiness", new HealthCheckOptions()
-            //    {
-            //        ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
-            //    });
-            //    endpoints.MapHealthChecks("/health/liveness", new HealthCheckOptions()
-            //    {
-            //        Predicate = _ => false,
-            //        ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
-            //    });
-            //    endpoints.MapControllers();
-            //});
+            app.UseEndpoints(endpoints =>
+            {
+                //endpoints.MapHealthChecks("/health/readiness", new HealthCheckOptions()
+                //{
+                //    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+                //});
+                //endpoints.MapHealthChecks("/health/liveness", new HealthCheckOptions()
+                //{
+                //    Predicate = _ => false,
+                //    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+                //});
+                endpoints.MapControllers();
+            });
         }
     }
 }

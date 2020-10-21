@@ -21,6 +21,7 @@
     <PackageReference Include="DotNetCore.CAP.RabbitMQ" Version="3.0.2" />
     <PackageReference Include="DotNetCore.CAP.SqlServer" Version="3.0.2" />
     <PackageReference Include="IdentityServer4.AccessTokenValidation" Version="3.0.1" />
+    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.15.0" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.14.0" />
     <PackageReference Include="Microsoft.ApplicationInsights.DependencyCollector" Version="2.15.0" />
     <PackageReference Include="Microsoft.ApplicationInsights.Kubernetes" Version="1.1.3" />

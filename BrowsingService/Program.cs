@@ -42,6 +42,14 @@ namespace BrowsingService
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
+                .ConfigureLogging(
+                    builder =>
+                    {
+                        builder.AddApplicationInsights("b557d7f2-f8cb-4a42-9445-e9890611631d");
+                        builder.AddFilter<Microsoft.Extensions.Logging.ApplicationInsights.ApplicationInsightsLoggerProvider>
+                                         ("", LogLevel.Information);
+                    }
+                )
                 .ConfigureAppConfiguration((hostingContext, config) =>
                 {
                     config.AddJsonFile("config/appsettings.json", optional:true, reloadOnChange: true);
