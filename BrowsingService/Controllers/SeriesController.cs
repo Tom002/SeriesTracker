@@ -11,6 +11,7 @@ using BrowsingService.Interfaces;
 using BrowsingService.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace BrowsingService.Controllers
 {
@@ -21,14 +22,17 @@ namespace BrowsingService.Controllers
         private readonly BrowsingDbContext _context;
         private readonly IMapper _mapper;
         private readonly ISeriesService _seriesService;
+        private readonly ILogger _logger;
 
         public SeriesController(BrowsingDbContext dbContext,
                                 IMapper mapper,
-                                ISeriesService seriesService)
+                                ISeriesService seriesService,
+                                ILogger<SeriesController> logger)
         {
             _context = dbContext;
             _mapper = mapper;
             _seriesService = seriesService;
+            _logger = logger;
         }
 
         [HttpGet("categories")]
@@ -57,6 +61,8 @@ namespace BrowsingService.Controllers
         [ProducesResponseType(404)]
         public async Task<ActionResult<Series>> GetSingleSeries(int id)
         {
+            _logger.LogInformation($"Requesting Series with Id: {id}");
+
             var series = await _context.Series
                 .Include(s => s.Episodes)
                 .Include(s => s.Writers).ThenInclude(sw => sw.Artist)
@@ -68,6 +74,7 @@ namespace BrowsingService.Controllers
 
             if (series == null)
             {
+                _logger.LogWarning($"Series with Id: {id} was not found");
                 return NotFound();
             }
             else
@@ -88,6 +95,7 @@ namespace BrowsingService.Controllers
                     EndYear = series.EndYear,
                     Title = series.Title
                 };
+                _logger.LogInformation($"Series with Id: {id} was found, returning data");
                 return Ok(seriesDetails);
             }
         }
@@ -97,14 +105,18 @@ namespace BrowsingService.Controllers
         [ProducesResponseType(404)]
         public async Task<ActionResult<List<EpisodeDto>>> GetSeasonEpisodes(int id, int seasonNumber)
         {
+            _logger.LogInformation($"Requesting Season {seasonNumber} for series with Id: {id}");
             var series = await _seriesService.GetSeries(id);
             if(series is Series)
             {
+                _logger.LogInformation($"Season {seasonNumber} for series with Id: {id}" +
+                    $" was found, returning data");
                 var episodes = await _seriesService.GetSeasonEpisodes(series, seasonNumber);
                 return Ok(episodes);
             }
             else
             {
+                _logger.LogWarning($"Season {seasonNumber} for series with Id: {id} was not found");
                 return NotFound();
             }
         }

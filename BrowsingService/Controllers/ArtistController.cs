@@ -11,6 +11,7 @@ using BrowsingService.Helpers.Pagination;
 using BrowsingService.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace BrowsingService.Controllers
 {
@@ -20,11 +21,16 @@ namespace BrowsingService.Controllers
     {
         private readonly BrowsingDbContext _context;
         private readonly IMapper _mapper;
+        private readonly ILogger _logger;
 
-        public ArtistController(BrowsingDbContext dbContext, IMapper mapper)
+        public ArtistController(
+            BrowsingDbContext dbContext,
+            IMapper mapper,
+            ILogger<ArtistController> logger)
         {
             _context = dbContext;
             _mapper = mapper;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -63,8 +69,6 @@ namespace BrowsingService.Controllers
                     break;
                 case ArtistParams.ActorWriter.Any:
                     break;
-                default:
-                    break;
             }
 
             var artistToList = artistQuery
@@ -89,6 +93,8 @@ namespace BrowsingService.Controllers
         [ProducesResponseType(404)]
         public async Task<ActionResult<ArtistDetailsDto>> GetSingleArtist(int id)
         {
+            _logger.LogInformation($"Getting artist with Id: {id}");
+
             var artist = await _context.Artists
                 .Where(a => a.ArtistId == id)
                 .ProjectTo<ArtistDetailsDto>(_mapper.ConfigurationProvider)
@@ -96,10 +102,12 @@ namespace BrowsingService.Controllers
 
             if (artist is ArtistDetailsDto)
             {
+                _logger.LogInformation($"Artist with Id: {id} found, returning data");
                 return Ok(artist);
             }
             else
             {
+                _logger.LogWarning($"Artist with Id: {id} was not found");
                 return NotFound();
             }
         }
