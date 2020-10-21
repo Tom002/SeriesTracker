@@ -4,7 +4,9 @@ using BrowsingService.Helpers;
 using BrowsingService.Interfaces;
 using BrowsingService.Services;
 using Common.Interfaces;
+using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -104,15 +106,15 @@ namespace BrowsingService
 
             app.UseEndpoints(endpoints =>
             {
-                //endpoints.MapHealthChecks("/health/readiness", new HealthCheckOptions()
-                //{
-                //    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
-                //});
-                //endpoints.MapHealthChecks("/health/liveness", new HealthCheckOptions()
-                //{
-                //    Predicate = _ => false,
-                //    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
-                //});
+                endpoints.MapHealthChecks("/health/readiness", new HealthCheckOptions()
+                {
+                    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+                });
+                endpoints.MapHealthChecks("/health/liveness", new HealthCheckOptions()
+                {
+                    Predicate = _ => false,
+                    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+                });
                 endpoints.MapControllers();
             });
         }
