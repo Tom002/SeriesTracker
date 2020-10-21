@@ -94,7 +94,7 @@ namespace WatchingService
                 });
             });
             services.AddHttpContextAccessor();
-            services.AddApplicationInsightsTelemetry(Configuration["APPINSIGHTS_INSTRUMENTATIONKEY"]);
+            services.AddApplicationInsightsTelemetry(Configuration["ApplicationInsights:InstrumentationKey"]);
             services.AddScoped<IWatchingService, Services.WatchingService>();
             services.AddScoped<IRequestContext, HttpRequestContext>();
             services.AddScoped<IMessageTracker, MessageTracker>();

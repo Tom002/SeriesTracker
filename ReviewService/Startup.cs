@@ -122,7 +122,7 @@ namespace ReviewService
                 });
             });
             services.AddAutoMapper(typeof(AutomapperProfiles));
-            services.AddApplicationInsightsTelemetry(Configuration["APPINSIGHTS_INSTRUMENTATIONKEY"]);
+            services.AddApplicationInsightsTelemetry(Configuration["ApplicationInsights:InstrumentationKey"]);
 
             services.AddHttpContextAccessor();
             services.AddScoped<IRequestContext, HttpRequestContext>();

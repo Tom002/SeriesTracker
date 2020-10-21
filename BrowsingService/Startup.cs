@@ -61,7 +61,7 @@ namespace BrowsingService
             services.AddScoped<IMessageTracker, MessageTracker>();
             services.AddScoped<ISeriesService, SeriesService>();
             services.AddHostedService<NewEpisodeService>();
-            services.AddApplicationInsightsTelemetry(Configuration["APPINSIGHTS_INSTRUMENTATIONKEY"]);
+            services.AddApplicationInsightsTelemetry(Configuration["ApplicationInsights:InstrumentationKey"]);
             var hcBuilder = services.AddHealthChecks();
             hcBuilder
                 .AddSqlServer(

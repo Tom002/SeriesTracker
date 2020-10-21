@@ -101,7 +101,7 @@ namespace IdentityService
                 options.Cookie.IsEssential = true;
                 options.Cookie.SameSite = SameSiteMode.Unspecified;
             });
-            services.AddApplicationInsightsTelemetry(Configuration["APPINSIGHTS_INSTRUMENTATIONKEY"]);
+            services.AddApplicationInsightsTelemetry(Configuration["ApplicationInsights:InstrumentationKey"]);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
