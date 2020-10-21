@@ -5,7 +5,7 @@ import { ISeriesForList, ICategory, ISeriesDetails, IEpisode, IUserSeriesReviewI
 import { IProfile } from '../models/profile';
 import { IArtist, IArtistDetails } from '../models/artist';
 
-axios.defaults.baseURL = "http://51.105.223.127/";
+axios.defaults.baseURL = "http://51.105.152.13/";
 
 var auth = new AuthService();
 var refreshing = false;

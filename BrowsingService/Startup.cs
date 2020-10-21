@@ -61,20 +61,20 @@ namespace BrowsingService
             services.AddHostedService<NewEpisodeService>();
             services.AddApplicationInsightsTelemetry(Configuration["APPINSIGHTS_INSTRUMENTATIONKEY"]);
             var hcBuilder = services.AddHealthChecks();
-            //hcBuilder
-            //    .AddSqlServer(
-            //        Configuration.GetConnectionString("DefaultConnection"),
-            //        name: "CatalogDB-check",
-            //        tags: new string[] { "catalogdb" });
-            //hcBuilder
-            //        .AddRabbitMQ(
-            //            $"amqp://" +
-            //            $"{Configuration["RabbitMQConfig:UserName"]}:" +
-            //            $"{Configuration["RabbitMQConfig:UserName"]}@" +
-            //            $"{Configuration["RabbitMQConfig:Hostname"]}:" +
-            //            $"{Configuration["RabbitMQConfig: Port"]}/",
-            //            name: "catalog-rabbitmqbus-check",
-            //            tags: new string[] { "rabbitmqbus" });
+            hcBuilder
+                .AddSqlServer(
+                    Configuration.GetConnectionString("AzureSqlConnection"),
+                    name: "CatalogDB-check",
+                    tags: new string[] { "catalogdb" });
+            hcBuilder
+                    .AddRabbitMQ(
+                        $"amqp://" +
+                        $"{Configuration["RabbitMQConfig:UserName"]}:" +
+                        $"{Configuration["RabbitMQConfig:UserName"]}@" +
+                        $"{Configuration["RabbitMQConfig:Hostname"]}:" +
+                        $"{Configuration["RabbitMQConfig: Port"]}/",
+                        name: "catalog-rabbitmqbus-check",
+                        tags: new string[] { "rabbitmqbus" });
 
         }
 
