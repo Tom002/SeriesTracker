@@ -10,7 +10,7 @@ using Xunit;
 
 namespace BrowsingService.Test
 {
-    public class UnitTest1
+    public class Tests
     {
         public BrowsingDbContext GetDbContext()
         {
@@ -78,6 +78,13 @@ namespace BrowsingService.Test
                             EpisodeNumber = 1,
                             Season = 1,
                             EpisodeTitle = "Elsõ rész",
+                        },
+                        new Episode
+                        {
+                            EpisodeId = 2,
+                            EpisodeNumber = 2,
+                            Season = 1,
+                            EpisodeTitle = "Második rész",
                         }
                     }
                 });
@@ -96,6 +103,38 @@ namespace BrowsingService.Test
                 var categories = await service.GetCategories();
 
                 Assert.Equal(3, categories.Count);
+            }
+        }
+
+        [Fact]
+        public async void GetSeries()
+        {
+            var mapper = GetMapper();
+            using (var context = GetDbContext())
+            {
+                SeedDatabase(context);
+                var service = new SeriesService(context, mapper);
+
+                var breakingBad = await service.GetSeries(1);
+
+                Assert.True(breakingBad is Series);
+                Assert.Equal("Breaking Bad", breakingBad.Title);
+            }
+        }
+
+        [Fact]
+        public async void GetSeasonEpisodes()
+        {
+            var mapper = GetMapper();
+            using (var context = GetDbContext())
+            {
+                SeedDatabase(context);
+                var service = new SeriesService(context, mapper);
+
+                var breakingBad = await service.GetSeries(1);
+                var seasonOne = await service.GetSeasonEpisodes(breakingBad, 1);
+
+                Assert.Equal(2, seasonOne.Count);
             }
         }
     }

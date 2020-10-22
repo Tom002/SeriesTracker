@@ -18,7 +18,10 @@ RUN dotnet build "BrowsingService.csproj" -c Release -o /app/build
 FROM build as test
 WORKDIR "/src/BrowsingService.Test"
 LABEL test=true
-RUN dotnet test --results-directory /testresults --logger "trx;LogFileName=browsing_tests.xml"
+RUN dotnet tool install dotnet-reportgenerator-globaltool --tool-path /tools
+RUN dotnet test --results-directory /testresults --logger "trx;LogFileName=browsing_tests.xml" /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=/testresults/coverage/ /p:Exclude="[xunit.*]*%2c[StackExchange.*]*"
+RUN /tools/reportgenerator "-reports:/testresults/coverage/coverage.cobertura.xml" "-targetdir:/testresults/coverage/reports" "-reporttypes:HTMLInline;HTMLChart"
+RUN ls -la /testresults/coverage/reports
 
 FROM build AS publish
 WORKDIR "/src/BrowsingService"
