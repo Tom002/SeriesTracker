@@ -31,7 +31,7 @@ stages:
         azureContainerRegistry: '{"loginServer":"seriestrackerapp.azurecr.io", "id" : "/subscriptions/a941a661-3ebd-4b58-904a-e5d52e6538c4/resourceGroups/seriestracker/providers/Microsoft.ContainerRegistry/registries/seriestrackerapp"}'
         dockerComposeFile: '**/docker-compose.yml'
         action: 'Run services'
-    
+        
     - task: DockerCompose@0
       inputs:
         containerregistrytype: 'Azure Container Registry'
@@ -40,6 +40,21 @@ stages:
         dockerComposeFile: '**/docker-compose.yml'
         action: 'Build services'
         additionalImageTags: 'v1'
+    
+    - task: Bash@3
+      inputs:
+        targetType: 'inline'
+        script: |
+          export id=$(docker images --filter "label=test=true" -q | head -1)
+              docker create --name testcontainer $id
+              docker cp testcontainer:/testresults ./testresults
+              docker rm testcontainer
+      
+    - task: PublishTestResults@2
+      inputs:
+        testResultsFormat: 'XUnit'
+        testResultsFiles: '**/tests*.xml'
+        searchFolder: '$(System.DefaultWorkingDirectory)/testresults'  
       
     - task: DockerCompose@0
       inputs:
