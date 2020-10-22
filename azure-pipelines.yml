@@ -49,6 +49,7 @@ stages:
               docker create --name testcontainer $id
               docker cp testcontainer:/testresults ./testresults
               docker rm testcontainer
+              ls ./testresults
       
     - task: PublishTestResults@2
       inputs:
