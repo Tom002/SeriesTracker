@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "BrowsingService.Test": {
+      "commandName": "Project"
+    },
+    "Docker": {
+      "commandName": "Docker"
+    }
+  }
+}

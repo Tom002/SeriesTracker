@@ -168,6 +168,14 @@ services:
       - sqlserverCatalog
       - rabbitmq
 
+  browsingservice-tests:
+    hostname: BrowsingService-Tests
+    image: ${DOCKER_REGISTRY-}browsingservicetests
+    build:
+      context: .
+      dockerfile: BrowsingService/Dockerfile      
+      target: test
+
 
 networks:
   seriestracker-network:
