@@ -49,12 +49,13 @@ stages:
               docker create --name testcontainer $id
               docker cp testcontainer:/testresults ./testresults
               docker rm testcontainer
-      
+              ls ./testresults
+    
     - task: PublishTestResults@2
       inputs:
-        testResultsFormat: 'XUnit'
-        testResultsFiles: '**/tests*.xml'
-        searchFolder: '$(System.DefaultWorkingDirectory)/testresults'  
+        testResultsFormat: 'VSTest'
+        testResultsFiles: '**/*tests.xml'
+        searchFolder: '$(System.DefaultWorkingDirectory)/testresults'
       
     - task: DockerCompose@0
       inputs:
