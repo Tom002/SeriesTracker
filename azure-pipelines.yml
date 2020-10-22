@@ -56,6 +56,12 @@ stages:
         testResultsFormat: 'VSTest'
         testResultsFiles: '**/*tests.xml'
         searchFolder: '$(System.DefaultWorkingDirectory)/testresults'
+    
+    - task: PublishCodeCoverageResults@1
+      inputs:
+        codeCoverageTool: 'Cobertura'
+        summaryFileLocation: '$(System.DefaultWorkingDirectory)/testresults/coverage/coverage.cobertura.xml'
+        reportDirectory: '$(System.DefaultWorkingDirectory)/testresults/reports'
       
     - task: DockerCompose@0
       inputs:
