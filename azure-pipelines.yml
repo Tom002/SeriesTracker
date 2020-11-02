@@ -23,23 +23,7 @@ stages:
     displayName: Build
     pool:
       vmImage: $(vmImageName)
-    steps:
-    - task: DockerCompose@0
-      inputs:
-        containerregistrytype: 'Azure Container Registry'
-        azureSubscription: 'Free Trial(61ffd3a2-e450-4103-897d-0393cbca31ff)'
-        azureContainerRegistry: '{"loginServer":"seriestrackerregistry.azurecr.io", "id" : "/subscriptions/61ffd3a2-e450-4103-897d-0393cbca31ff/resourceGroups/seriestracker/providers/Microsoft.ContainerRegistry/registries/seriestrackerregistry"}'
-        dockerComposeFile: '**/docker-compose.yml'
-        additionalDockerComposeFiles: 'docker-compose.prod.yml'
-        dockerComposeFileArgs: |
-          ApplicationInsightsInstrumentationKey=bf42f32d-31a7-4660-a656-7d4f70d21fa6
-          IdentityDbConnectionString=Server=tcp:seriestracker-identitydb.database.windows.net,1433;Initial Catalog=IdentityDb;Persist Security Info=False;User ID=dbLogin;Password=BigPassw0rd;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;
-          UsersDbConnectionString=Server=tcp:seriestracker-usersdb.database.windows.net,1433;Initial Catalog=UsersDb;Persist Security Info=False;User ID=dbLogin;Password=BigPassw0rd;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;
-          ReviewDbConnectionString=Server=tcp:seriestracker-reviewdb.database.windows.net,1433;Initial Catalog=ReviewDb;Persist Security Info=False;User ID=dbLogin;Password=BigPassw0rd;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;
-          WatchingDbConnectionString=Server=tcp:seriestracker-watchingdb.database.windows.net,1433;Initial Catalog=WatchingDb;Persist Security Info=False;User ID=dbLogin;Password=BigPassw0rd;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;
-          BrowsingDbConnectionString=Server=tcp:seriestracker-browsingdb.database.windows.net,1433;Initial Catalog=BrowsingDb;Persist Security Info=False;User ID=dbLogin;Password=BigPassw0rd;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;
-        action: 'Run services'
-        
+    steps:        
     - task: DockerCompose@0
       inputs:
         containerregistrytype: 'Azure Container Registry'
@@ -86,6 +70,13 @@ stages:
         azureContainerRegistry: '{"loginServer":"seriestrackerregistry.azurecr.io", "id" : "/subscriptions/61ffd3a2-e450-4103-897d-0393cbca31ff/resourceGroups/seriestracker/providers/Microsoft.ContainerRegistry/registries/seriestrackerregistry"}'
         dockerComposeFile: '**/docker-compose.yml'
         additionalDockerComposeFiles: 'docker-compose.prod.yml'
+        dockerComposeFileArgs: |
+          ApplicationInsightsInstrumentationKey=bf42f32d-31a7-4660-a656-7d4f70d21fa6
+          IdentityDbConnectionString=Server=tcp:seriestracker-identitydb.database.windows.net,1433;Initial Catalog=IdentityDb;Persist Security Info=False;User ID=dbLogin;Password=BigPassw0rd;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;
+          UsersDbConnectionString=Server=tcp:seriestracker-usersdb.database.windows.net,1433;Initial Catalog=UsersDb;Persist Security Info=False;User ID=dbLogin;Password=BigPassw0rd;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;
+          ReviewDbConnectionString=Server=tcp:seriestracker-reviewdb.database.windows.net,1433;Initial Catalog=ReviewDb;Persist Security Info=False;User ID=dbLogin;Password=BigPassw0rd;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;
+          WatchingDbConnectionString=Server=tcp:seriestracker-watchingdb.database.windows.net,1433;Initial Catalog=WatchingDb;Persist Security Info=False;User ID=dbLogin;Password=BigPassw0rd;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;
+          BrowsingDbConnectionString=Server=tcp:seriestracker-browsingdb.database.windows.net,1433;Initial Catalog=BrowsingDb;Persist Security Info=False;User ID=dbLogin;Password=BigPassw0rd;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;
         action: 'Push services'
 
     - task: PublishBuildArtifacts@1
