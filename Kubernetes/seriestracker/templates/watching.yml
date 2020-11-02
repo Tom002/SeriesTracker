@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: watching-service
-          image: seriestrackerapp.azurecr.io/watchingservice:v1
+          image: seriestrackerregistry.azurecr.io/watchingservice:v1
           imagePullPolicy: Always
           ports:
             - containerPort: 80

@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: gateway-container
-          image: seriestrackerapp.azurecr.io/apigateway:v1
+          image: seriestrackerregistry.azurecr.io/apigateway:v1
           imagePullPolicy: Always
           ports:
             - containerPort: 80
