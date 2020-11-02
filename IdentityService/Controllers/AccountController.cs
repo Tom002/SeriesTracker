@@ -109,6 +109,7 @@ namespace IdentityService.Controllers
                     var user = new UserCreatedEvent
                     {
                         UserId = identityUser.Id,
+                        Email = identityUser.Email,
                         Name = model.Name,
                         City = model.City,
                         BirthDate = model.BirthDate,

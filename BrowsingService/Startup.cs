@@ -65,7 +65,7 @@ namespace BrowsingService
             var hcBuilder = services.AddHealthChecks();
             hcBuilder
                 .AddSqlServer(
-                    Configuration.GetConnectionString("AzureSqlConnection"),
+                    Configuration.GetConnectionString("DefaultConnection"),
                     name: "CatalogDB-check",
                     tags: new string[] { "catalogdb" });
             hcBuilder

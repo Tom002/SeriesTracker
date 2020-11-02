@@ -1,76 +1,180 @@
 version: '3.4'
 
 services:
+  sqlserverIdentity:  
+    image: microsoft/mssql-server-linux:2017-latest
+    container_name: sqlserverIdentity
+    environment:  
+      ACCEPT_EULA: Y  
+      SA_PASSWORD: "BigPassw0rd"
+    volumes:
+      - sqlIdentity:/var/opt/mssql
+    ports:  
+      - '2000:1433'
+    networks:
+      - seriestracker-network
+
+  sqlserverCatalog:  
+    image: microsoft/mssql-server-linux:2017-latest
+    container_name: sqlserverCatalog
+    environment:  
+      ACCEPT_EULA: Y  
+      SA_PASSWORD: "BigPassw0rd"
+    volumes:
+      - sqlCatalog:/var/opt/mssql
+    ports:  
+      - '2001:1433'
+    networks:
+      - seriestracker-network
+
+  sqlserverUsers:  
+    image: microsoft/mssql-server-linux:2017-latest
+    container_name: sqlserverUsers
+    environment:  
+      ACCEPT_EULA: Y  
+      SA_PASSWORD: "BigPassw0rd"
+    volumes:
+      - sqlUsers:/var/opt/mssql
+    ports:  
+      - '2002:1433'
+    networks:
+      - seriestracker-network
+
+  sqlserverReview:  
+    image: microsoft/mssql-server-linux:2017-latest
+    container_name: sqlserverReview
+    environment:  
+      ACCEPT_EULA: Y  
+      SA_PASSWORD: "BigPassw0rd"
+    volumes:
+      - sqlReview:/var/opt/mssql
+    ports:  
+      - '2003:1433'
+    networks:
+      - seriestracker-network
+
+  sqlserverWatching:  
+    image: microsoft/mssql-server-linux:2017-latest
+    container_name: sqlserverWatching
+    environment:  
+      ACCEPT_EULA: Y  
+      SA_PASSWORD: "BigPassw0rd"
+    volumes:
+      - sqlWatching:/var/opt/mssql
+    ports:  
+      - '2004:1433'
+    networks:
+      - seriestracker-network
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    container_name: messagebus-rabbitmq
+    environment:  
+      RABBITMQ_DEFAULT_USER: "user"  
+      RABBITMQ_DEFAULT_PASS: "Str0ngRabbitPass"
+    hostname: messagebus-rabbitmq
+    networks:
+      - seriestracker-network
+
+  
   apigateway:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=https://+:443;http://+:80
-    ports:
-      - "80"
-      - "443"
+    ports: 
+      - "5101:443"
+      - "5100:80"
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+
+
   identityservice:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=https://+:443;http://+:80
-    ports:
-      - "80"
-      - "443"
+      - ConnectionStrings__DefaultConnection=Server=sqlserverIdentity;Database=AspIdentity;User Id=sa;Password=BigPassw0rd
+    ports: 
+      - "5001:443"
+      - "5000:80"
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+    depends_on:
+      - sqlserverIdentity
+      - rabbitmq
 
   profileservice:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=https://+:443;http://+:80
-    ports:
-      - "80"
-      - "443"
+      - ConnectionStrings__DefaultConnection=Server=sqlserverUsers;Database=UsersDb;User Id=sa;Password=BigPassw0rd
+    ports: 
+      - "5401:443"
+      - "5400:80"
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+    depends_on:
+      - sqlserverUsers
+      - rabbitmq
 
   reviewservice:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=https://+:443;http://+:80
-    ports:
-      - "80"
-      - "443"
+      - ConnectionStrings__DefaultConnection=Server=sqlserverReview;Database=ReviewDb;User Id=sa;Password=BigPassw0rd
+    ports: 
+      - "5501:443"
+      - "5500:80"
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+    depends_on:
+      - sqlserverReview
+      - rabbitmq
 
   watchingservice:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=https://+:443;http://+:80
-    ports:
-      - "80"
-      - "443"
+      - ConnectionStrings__DefaultConnection=Server=sqlserverWatching;Database=WatchingDb;User Id=sa;Password=BigPassw0rd
+    ports: 
+      - "5601:443"
+      - "5600:80"
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+    depends_on:
+      - sqlserverWatching
+      - rabbitmq
 
   browsingservice:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=https://+:443;http://+:80
-    ports:
-      - "80"
-      - "443"
+      - ConnectionStrings__DefaultConnection=Server=sqlserverCatalog;Database=BrowsingDb;User Id=sa;Password=BigPassw0rd
+    ports: 
+      - "5301:443"
+      - "5300:80"
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+    depends_on:
+      - sqlserverCatalog
+      - rabbitmq
 
-  browsingservice-tests:
-    entrypoint:
-      - dotnet
-      - test
-      - --logger
-      - trx;LogFileName=/tests/test-results.trx
-    volumes: 
-      - ${BUILD_ARTIFACTSTAGINGDIRECTORY:-./tests/}:/tests
+volumes:
+  sqlIdentity:
+    external: false
+  sqlCatalog:
+    external: false
+  sqlUsers:
+    external: false
+  sqlReview:
+    external: false
+  sqlWatching:
+    external: false

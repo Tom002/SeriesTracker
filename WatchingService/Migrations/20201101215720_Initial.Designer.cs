@@ -10,7 +10,7 @@ using WatchingService.Data;
 namespace WatchingService.Migrations
 {
     [DbContext(typeof(WatchingDbContext))]
-    [Migration("20200929093810_Initial")]
+    [Migration("20201101215720_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -132,6 +132,10 @@ namespace WatchingService.Migrations
                 {
                     b.Property<string>("ViewerId")
                         .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("ViewerId");
 

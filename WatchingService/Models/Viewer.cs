@@ -11,6 +11,9 @@ namespace WatchingService.Models
         [Required]
         public string ViewerId { get; set; }
 
+        [Required]
+        public string Email { get; set; }
+
         public ICollection<SeriesWatched> SeriesWatched { get; set; } = new List<SeriesWatched>();
 
         public ICollection<EpisodeWatched> EpisodesWatched { get; set; } = new List<EpisodeWatched>();

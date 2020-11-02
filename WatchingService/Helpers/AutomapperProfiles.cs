@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Common.Events;
+using DotNetCore.CAP.Messages;
 using System;
 using WatchingService.Dto;
 using WatchingService.Models;
@@ -11,7 +12,8 @@ namespace WatchingService.Helpers
         public AutomapperProfiles()
         {
             CreateMap<UserCreatedEvent, Viewer>()
-                .ForMember(dest => dest.ViewerId, opt => opt.MapFrom(src => src.UserId));
+                .ForMember(dest => dest.ViewerId, opt => opt.MapFrom(src => src.UserId))
+                .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email));
 
             CreateMap<SeriesCreatedEvent, Series>()
                 .ForMember(dest => dest.CoverImageUrl, opt => opt.MapFrom(src => src.CoverImageUrl))
@@ -66,6 +68,7 @@ namespace WatchingService.Helpers
             CreateMap<SeriesLiked, SeriesLikedDeletedEvent>()
                 .ForMember(dest => dest.SeriesId, opt => opt.MapFrom(src => src.SeriesId))
                 .ForMember(dest => dest.ViewerId, opt => opt.MapFrom(src => src.ViewerId));
+
 
         }
     }

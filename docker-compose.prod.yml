@@ -1,0 +1,55 @@
+version: '3.4'
+
+services:
+  apigateway:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ApplicationInsights__InstrumentationKey=${ApplicationInsightsInstrumentationKey}
+    ports:
+      - "80"
+      - "443"
+    
+  identityservice:
+    environment: 
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ApplicationInsights__InstrumentationKey=${ApplicationInsightsInstrumentationKey}
+      - ConnectionStrings__DefaultConnection=${IdentityDbConnectionString}
+     ports:
+      - "80"
+      - "443"
+
+  profileservice:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ApplicationInsights__InstrumentationKey=${ApplicationInsightsInstrumentationKey}
+      - ConnectionStrings__DefaultConnection=${UsersDbConnectionString}
+    ports:
+      - "80"
+      - "443"
+
+  reviewservice:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ApplicationInsights__InstrumentationKey=${ApplicationInsightsInstrumentationKey}
+      - ConnectionStrings__DefaultConnection=${ReviewDbConnectionString}
+    ports:
+      - "80"
+      - "443"
+
+  watchingservice:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ApplicationInsights__InstrumentationKey=${ApplicationInsightsInstrumentationKey}
+      - ConnectionStrings__DefaultConnection=${WatchingDbConnectionString}
+    ports:
+      - "80"
+      - "443"
+
+  browsingservice:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ApplicationInsights__InstrumentationKey=${ApplicationInsightsInstrumentationKey}
+      - ConnectionStrings__DefaultConnection=${BrowsingDbConnectionString}
+    ports:
+      - "80"
+      - "443"

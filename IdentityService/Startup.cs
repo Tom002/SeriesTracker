@@ -43,13 +43,6 @@ namespace IdentityService
             services.AddDbContext<ApplicationDbContext>(options =>
             {
                 options.UseSqlServer(Configuration.GetConnectionString("AzureSqlConnection"));
-                    //sqlServerOptionsAction: sqlOptions =>
-                    //{
-                    //    sqlOptions.EnableRetryOnFailure(
-                    //    maxRetryCount: 10,
-                    //    maxRetryDelay: TimeSpan.FromSeconds(30),
-                    //    errorNumbersToAdd: null);
-                    //});
             });
 
             services.AddCap(x =>

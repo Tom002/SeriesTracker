@@ -12,6 +12,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Logging;
 using System;
 using WatchingService.Data;
+using WatchingService.Dto.Email;
 using WatchingService.Helpers;
 using WatchingService.Helpers.RequestContext;
 using WatchingService.Interfaces;
@@ -93,11 +94,18 @@ namespace WatchingService
                     conf.Port = int.Parse(Configuration["RabbitMQConfig:Port"]);
                 });
             });
+
+            var emailConfig = Configuration
+                .GetSection("EmailConfig")
+                .Get<EmailOptions>();
+            services.AddSingleton(emailConfig);
+
             services.AddHttpContextAccessor();
             services.AddApplicationInsightsTelemetry(Configuration["ApplicationInsights:InstrumentationKey"]);
             services.AddScoped<IWatchingService, Services.WatchingService>();
             services.AddScoped<IRequestContext, HttpRequestContext>();
             services.AddScoped<IMessageTracker, MessageTracker>();
+            services.AddScoped<IEmailSender, EmailSender>();
             services.AddAutoMapper(typeof(AutomapperProfiles));
         }
 

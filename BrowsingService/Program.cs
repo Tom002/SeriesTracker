@@ -30,7 +30,7 @@ namespace BrowsingService
                     var mapper = services.GetRequiredService<IMapper>();
                     //context.Database.EnsureDeleted();
                     //context.Database.Migrate();
-                    await Seed.SeedData(context, capBus, mapper);
+                    //await Seed.SeedData(context, capBus, mapper);
                 }
                 catch (Exception e)
                 {
@@ -45,7 +45,7 @@ namespace BrowsingService
                 .ConfigureLogging(
                     builder =>
                     {
-                        builder.AddApplicationInsights("b557d7f2-f8cb-4a42-9445-e9890611631d");
+                        builder.AddApplicationInsights("bf42f32d-31a7-4660-a656-7d4f70d21fa6");
                         builder.AddFilter<Microsoft.Extensions.Logging.ApplicationInsights.ApplicationInsightsLoggerProvider>
                                          ("", LogLevel.Information);
                     }

@@ -2,12 +2,16 @@
 using Common.Events;
 using Common.Interfaces;
 using DotNetCore.CAP;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using WatchingService.Data;
+using WatchingService.Helpers;
 using WatchingService.Interfaces;
 using WatchingService.Models;
+using WatchingService.Dto.Email;
 
 namespace WatchingService.Services
 {
@@ -17,16 +21,22 @@ namespace WatchingService.Services
         private readonly IMapper _mapper;
         private readonly WatchingDbContext _context;
         private readonly ILogger _logger;
+        private readonly ICapPublisher _capBus;
+        private readonly IEmailSender _emailSender;
 
         public SubscriberService(IMessageTracker messageTracker,
                                  IMapper mapper,
                                  WatchingDbContext context,
-                                 ILogger<SubscriberService> logger)
+                                 ILogger<SubscriberService> logger,
+                                 ICapPublisher capBuS,
+                                 IEmailSender emailSender)
         {
             _messageTracker = messageTracker;
             _mapper = mapper;
             _context = context;
             _logger = logger;
+            _capBus = capBuS;
+            _emailSender = emailSender;
         }
 
         [CapSubscribe("identityservice.user.created")]
@@ -89,6 +99,30 @@ namespace WatchingService.Services
                     try
                     {
                         var episodeCreated = _mapper.Map<Episode>(episodeEvent);
+
+                        // Email értesítés küldése azoknak a felhasználóknak akik nézik ezt a sorozatot,
+                        // hogy új rész jött ki
+
+                        var series = await _context.Series
+                            .FirstAsync(s => s.SeriesId == episodeCreated.SeriesId);
+
+                        var viewers = await _context.Series
+                            .Where(s => s.SeriesId == episodeCreated.SeriesId)
+                            .Select(s => s.SeriesWatched.Select(sw => sw.Viewer))
+                            .FirstAsync();
+
+                        foreach (var viewer in viewers)
+                        {
+                            //var notificationMessage = new Message(
+                            //    //new string[] { viewer.Email },
+                            //    new string[] { "tamas.princz3@gmail.com" },
+                            //    $"New {series.Title} episode released",
+                            //    $"Episode title:{episodeCreated.EpisodeTitle}" +
+                            //    $"Season:{episodeCreated.Season} Episode:{episodeCreated.EpisodeNumber}"
+                            //);
+                            //await _emailSender.SendEmailAsync(notificationMessage);
+                        }
+
                         _context.Episode.Add(episodeCreated);
                         await _context.SaveChangesAsync();
                         await _messageTracker.MarkAsProcessed(episodeEvent.EventId);

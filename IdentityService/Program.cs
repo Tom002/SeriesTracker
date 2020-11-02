@@ -31,8 +31,8 @@ namespace IdentityService
                     var context = services.GetRequiredService<ApplicationDbContext>();
                     var capBus = services.GetRequiredService<ICapPublisher>();
                     //context.Database.EnsureDeleted();
-                    //context.Database.Migrate();                    
-                    Seed.SeedData(usermanager, capBus, context).Wait();
+                    //context.Database.Migrate();
+                    //Seed.SeedData(usermanager, capBus, context).Wait();
                 }
                 catch (Exception e)
                 {

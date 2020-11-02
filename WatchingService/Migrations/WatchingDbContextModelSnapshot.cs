@@ -131,6 +131,10 @@ namespace WatchingService.Migrations
                     b.Property<string>("ViewerId")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("ViewerId");
 
                     b.ToTable("Viewer");

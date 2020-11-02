@@ -31,6 +31,7 @@ namespace IdentityService.Data
                         UserId = identityUser.Id,
                         Name = "Bob",
                         City = "Budapest",
+                        Email = "bob@test.com",
                         BirthDate = new DateTime(1997, 10, 23),
                         ProfileImageUrl = "https://images.dog.ceo/breeds/husky/n02110185_6775.jpg"
                     };

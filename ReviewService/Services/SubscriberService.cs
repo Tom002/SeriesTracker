@@ -2,6 +2,7 @@
 using Common.Events;
 using Common.Interfaces;
 using DotNetCore.CAP;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using ReviewService.Data;
 using ReviewService.Interfaces;
@@ -67,6 +68,7 @@ namespace ReviewService.Services
                     try
                     {
                         _context.Episode.Add(episode);
+
                         await _context.SaveChangesAsync();
                         await _messageTracker.MarkAsProcessed(episodeEvent.EventId);
                         await transaction.CommitAsync();

@@ -54,7 +54,8 @@ namespace WatchingService.Migrations
                 name: "Viewer",
                 columns: table => new
                 {
-                    ViewerId = table.Column<string>(nullable: false)
+                    ViewerId = table.Column<string>(nullable: false),
+                    Email = table.Column<string>(nullable: false)
                 },
                 constraints: table =>
                 {
