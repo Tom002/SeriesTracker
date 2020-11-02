@@ -14,7 +14,7 @@ services:
       - ASPNETCORE_ENVIRONMENT=Production
       - ApplicationInsights__InstrumentationKey=${ApplicationInsightsInstrumentationKey}
       - ConnectionStrings__DefaultConnection=${IdentityDbConnectionString}
-     ports:
+    ports:
       - "80"
       - "443"
 
