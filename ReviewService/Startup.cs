@@ -79,7 +79,7 @@ namespace ReviewService
 
             services.AddDbContext<ReviewDbContext>(opt =>
             {
-                opt.UseSqlServer(Configuration.GetConnectionString("AzureSqlConnection"));
+                opt.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
             });
             services.AddTransient<ISubscriberService, SubscriberService>();
             services.AddCap(x =>

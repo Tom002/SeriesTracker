@@ -55,7 +55,7 @@ namespace ProfileService
 
             services.AddDbContext<UserDbContext>(opt =>
             {
-                opt.UseSqlServer(Configuration.GetConnectionString("AzureSqlConnection"));
+                opt.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
             });
             services.AddTransient<ISubscriberService, SubscriberService>();
             services.AddCap(x =>

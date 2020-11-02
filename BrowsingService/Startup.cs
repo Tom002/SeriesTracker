@@ -32,7 +32,7 @@ namespace BrowsingService
             services.AddControllers();
             services.AddDbContext<BrowsingDbContext>(opt =>
             {
-                opt.UseSqlServer(Configuration.GetConnectionString("AzureSqlConnection"));
+                opt.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
             });
             services.AddCors(options =>
             {

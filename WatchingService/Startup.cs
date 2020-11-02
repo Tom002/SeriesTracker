@@ -61,7 +61,7 @@ namespace WatchingService
 
             services.AddDbContext<WatchingDbContext>(opt =>
             {
-                opt.UseSqlServer(Configuration.GetConnectionString("AzureSqlConnection"));
+                opt.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
             });
 
             services.AddAuthentication("Bearer")
