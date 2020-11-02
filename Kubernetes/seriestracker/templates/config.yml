@@ -6,7 +6,7 @@ data:
   appsettings.json: |-
     {
         "ConnectionStrings": {
-            "DefaultConnection": "Server=tcp:seriestracker-browsing.database.windows.net,1433;Initial Catalog=BrowsingDb;Persist Security Info=False;User ID=seriesDbLogin;Password=VeryStr0ngPass;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
+            "DefaultConnection": "Server=tcp:seriestracker-browsingdb.database.windows.net,1433;Initial Catalog=BrowsingDb;Persist Security Info=False;User ID=dbLogin;Password=BigPassw0rd;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
         },
         "RabbitMQConfig": {
             "Hostname": "messagebus-rabbitmq",
@@ -24,7 +24,7 @@ data:
   appsettings.json: |-
     {
         "ConnectionStrings": {
-            "DefaultConnection": "Server=tcp:series-identity.database.windows.net,1433;Initial Catalog=IdentityDb;Persist Security Info=False;User ID=seriesDbLogin;Password=VeryStr0ngPass;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
+            "DefaultConnection": "Server=tcp:seriestracker-identitydb.database.windows.net,1433;Initial Catalog=IdentityDb;Persist Security Info=False;User ID=dbLogin;Password=BigPassw0rd;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
         },
         "RabbitMQConfig": {
             "Hostname": "messagebus-rabbitmq",
@@ -42,7 +42,7 @@ data:
   appsettings.json: |-
     {
         "ConnectionStrings": {
-            "DefaultConnection": "Server=tcp:series-users.database.windows.net,1433;Initial Catalog=UsersDb;Persist Security Info=False;User ID=seriesDbLogin;Password=VeryStr0ngPass;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
+            "Server=tcp:seriestracker-usersdb.database.windows.net,1433;Initial Catalog=UsersDb;Persist Security Info=False;User ID=dbLogin;Password=BigPassw0rd;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
         },
         "RabbitMQConfig": {
             "Hostname": "messagebus-rabbitmq",
@@ -60,7 +60,7 @@ data:
   appsettings.json: |-
     {
         "ConnectionStrings": {
-            "DefaultConnection": "Server=tcp:series-review.database.windows.net,1433;Initial Catalog=ReviewDb;Persist Security Info=False;User ID=seriesDbLogin;Password=VeryStr0ngPass;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
+            "DefaultConnection": "Server=tcp:seriestracker-reviewdb.database.windows.net,1433;Initial Catalog=ReviewDb;Persist Security Info=False;User ID=dbLogin;Password=BigPassw0rd;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
         },
         "RabbitMQConfig": {
             "Hostname": "messagebus-rabbitmq",
@@ -78,7 +78,7 @@ data:
   appsettings.json: |-
     {
         "ConnectionStrings": {
-            "DefaultConnection": "Server=tcp:series-watching.database.windows.net,1433;Initial Catalog=WatchingDb;Persist Security Info=False;User ID=seriesDbLogin;Password=VeryStr0ngPass;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
+            "DefaultConnection": "Server=tcp:seriestracker-watchingdb.database.windows.net,1433;Initial Catalog=WatchingDb;Persist Security Info=False;User ID=dbLogin;Password=BigPassw0rd;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
         },
         "RabbitMQConfig": {
             "Hostname": "messagebus-rabbitmq",
