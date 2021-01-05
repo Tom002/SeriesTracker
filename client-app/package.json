@@ -12,7 +12,7 @@
     "@types/react-dom": "^16.9.8",
     "@types/react-router-dom": "^5.1.6",
     "@zoomus/websdk": "^1.8.1",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "mobx": "^5.15.7",
     "mobx-react-lite": "^2.2.2",
     "moment": "^2.29.1",
